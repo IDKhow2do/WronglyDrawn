@@ -11,7 +11,7 @@
   <a href="https://wrongdraw.maequeen.top/"><img src="https://img.shields.io/badge/%E2%96%B6%20%E7%8E%B0%E5%9C%A8%E5%B0%B1%E7%8E%A9-Play%20in%20browser-ff4fa3?style=for-the-badge" alt="现在就玩 Play in browser"></a>
   <a href="https://testflight.apple.com/join/hRrbcM4Q"><img src="https://img.shields.io/badge/iOS-TestFlight-22c4c0?style=for-the-badge&logo=apple&logoColor=white" alt="iOS TestFlight"></a>
   <a href="https://www.taptap.cn/app/1067620"><img src="https://img.shields.io/badge/Android-TapTap-2a4be0?style=for-the-badge&logo=android&logoColor=white" alt="Android TapTap"></a>
-  <a href="https://github.com/IDKhow2do/WronglyDrawn/releases/latest"><img src="https://img.shields.io/github/v/release/IDKhow2do/WronglyDrawn?style=for-the-badge&logo=android&logoColor=white&label=Android%20APK&color=3ddc84" alt="Android APK on GitHub Releases"></a>
+  <a href="https://github.com/IDKhow2do/WronglyDrawn/releases/latest"><img src="https://img.shields.io/github/v/release/IDKhow2do/WronglyDrawn?style=for-the-badge&logo=github&logoColor=white&label=%E4%B8%8B%E8%BD%BD%20Windows%20%C2%B7%20macOS%20%C2%B7%20Linux%20%C2%B7%20Android&color=3ddc84" alt="下载 Windows · macOS · Linux · Android（GitHub Releases）"></a>
 </p>
 
 <p align="center">
@@ -87,7 +87,12 @@
 
 ## 下载
 
-- **安卓**：到 [Releases](https://github.com/IDKhow2do/WronglyDrawn/releases/latest) 下载 `WronglyDrawn-<版本>-android.apk`，点开安装。系统会让你允许“安装未知应用”。安卓 8.0 以上，游戏装在手机里，离线也能玩。以后的版本直接覆盖安装，进度保留。
+到 [Releases](https://github.com/IDKhow2do/WronglyDrawn/releases/latest) 下载对应的文件，装好就能玩，游戏本身不用联网。以后的版本直接覆盖安装，进度保留。
+
+- **Windows**：`WronglyDrawn-<版本>-windows-setup.exe`，双击安装。弹出“Windows 已保护你的电脑”时，点“更多信息”→“仍要运行”。
+- **macOS**：Apple 芯片下 `-mac-arm64.dmg`，Intel 芯片下 `-mac-x64.dmg`。把游戏拖进“应用程序”。第一次打开会被拦下，到“系统设置”→“隐私与安全性”点“仍要打开”。
+- **Linux**：`-linux-x86_64.AppImage`，`chmod +x` 后运行。
+- **安卓**：`WronglyDrawn-<版本>-android.apk`，点开安装。系统会让你允许“安装未知应用”。安卓 8.0 以上，游戏装在手机里，离线也能玩。以后的版本直接覆盖安装，进度保留。
 - **iOS**：用 [TestFlight](https://testflight.apple.com/join/hRrbcM4Q) 加入测试。
 - 不想装：[在浏览器里直接玩](https://wrongdraw.maequeen.top/)。
 

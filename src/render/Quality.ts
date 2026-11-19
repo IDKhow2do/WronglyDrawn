@@ -1,7 +1,7 @@
 /**
  * [INPUT]: GPU 信息、设备像素比、帧耗时和玩家保存的画质与帧率偏好。
  * [OUTPUT]: Quality 提供渲染帧率上限，并更新渲染分辨率与阴影。分辨率到底仍卡时调用一次 onStruggle。
- *           SOFTWARE_GPU 匹配软件渲染器的名字。IOS_APP / ANDROID_APP 表示运行在原生 App 里。
+ *           SOFTWARE_GPU 匹配软件渲染器的名字。IOS_APP / ANDROID_APP / DESKTOP_APP 表示运行在 App 里。
  * [POS]: 渲染器调用此模块。iOS App 限制窗口像素与喷漆贴图大小。
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -53,6 +53,8 @@ export const TIERS: Record<Tier, TierSettings> = {
 export const IOS_APP = (window as Window & { __WD_IOS_APP?: boolean }).__WD_IOS_APP === true;
 /** The Android app's WebView appends this to its user agent (android/…/MainActivity.java). */
 export const ANDROID_APP = / WronglyDrawnAndroid\//.test(navigator.userAgent);
+/** The desktop app (Electron) appends this to its user agent (desktop/main.mjs). */
+export const DESKTOP_APP = / WronglyDrawnDesktop\//.test(navigator.userAgent);
 export const IOS_COMPATIBILITY_MODE = IOS_APP && new URLSearchParams(location.search).get('compat') === '1';
 const MOBILE_TIERS: Record<Tier, TierSettings> = {
   low: { ...TIERS.low, maxPixelRatio: 1.3, minScale: 0.8 },

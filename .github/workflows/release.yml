@@ -1,6 +1,8 @@
-# [INPUT]: 版本标签 v<package.json 的版本>；环境 android-release 里的签名密钥；仓库变量 ANDROID_CERT_SHA256。
-# [OUTPUT]: GitHub Release：签名的 Android APK、网页静态包、SHA256SUMS.txt 和发行说明。
-#           手动运行时只构建和自查，产物留在这次运行的 Artifacts 里，不发 Release。
+# [INPUT]: 版本标签 v<package.json 的版本>；环境 android-release 里的签名密钥；仓库变量 ANDROID_CERT_SHA256；
+#          desktop/（桌面版外壳与打包脚本）。
+# [OUTPUT]: GitHub Release：签名的 Android APK，Windows 安装包，macOS dmg（Apple 芯片与 Intel 各一个），Linux AppImage，
+#           网页静态包，SHA256SUMS.txt 和发行说明。每个桌面包发布前都在对应系统上离线跑进第一关。
+#           手动运行时只构建和自查，产物合在一个 Artifact 里，不发 Release。
 # [POS]: 下载版的发布。网站走 deploy-site.yml，iOS 走 TestFlight，都不在这里。步骤见 docs/RELEASES.md。
 # [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 name: Release
@@ -18,14 +20,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release:
-    name: Build and publish the downloads
+  # ── 安卓和网页包：签名密钥只在这一个任务里 ──
+  android:
+    name: Android APK and web package
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     # 签名密钥只放在这个环境里，环境只接受 v* 标签和 main。
     environment: android-release
-    permissions:
-      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Check out the source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -115,13 +118,120 @@ jobs:
           fi
           "$tools/aapt2" dump badging "$apk" | head -1
           "$tools/aapt2" dump badging "$apk" | grep -q "versionName='$VERSION'"
-          (cd "$RUNNER_TEMP/out" && sha256sum -- * > SHA256SUMS.txt && cat SHA256SUMS.txt)
+
+      - name: Hand the files to the publish step
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: part-android
+          path: ${{ runner.temp }}/out/
+          retention-days: 1
+
+  # ── 桌面版：每个系统在自己的机器上打包，再离线跑进第一关；不碰任何密钥 ──
+  desktop:
+    name: Desktop (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - name: Windows
+            os: windows-2022
+            smoke: desktop/release/win-unpacked/WronglyDrawn.exe
+            files: desktop/release/*.exe
+          - name: macOS
+            os: macos-14
+            smoke: desktop/release/mac-arm64/WronglyDrawn.app/Contents/MacOS/WronglyDrawn
+            files: desktop/release/*.dmg
+          - name: Linux
+            os: ubuntu-24.04
+            smoke: xvfb-run -a desktop/release/linux-unpacked/WronglyDrawn --no-sandbox
+            files: desktop/release/*.AppImage
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            desktop/package-lock.json
+
+      - name: Install the game and the desktop tools
+        run: |
+          npm ci
+          npm ci --prefix desktop
+
+      - name: Build and pack the desktop app
+        run: node desktop/build.mjs
+
+      # 离线：游戏文件全部来自安装包。没有显卡的 CI 机器用软件渲染，玩家的机器不会这样。
+      # 检查本身有超时，到时以非零退出；它看到的画面存进 smoke.png。
+      - name: Play into the first level
+        env:
+          WD_SMOKE: '1'
+          WD_SHOT: ${{ runner.temp }}/smoke.png
+        run: ${{ matrix.smoke }}
+
+      - name: Keep what the check saw
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: smoke-${{ matrix.name }}
+          path: ${{ runner.temp }}/smoke.png
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Collect the installers
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          cp ${{ matrix.files }} "$RUNNER_TEMP/out/"
+          ls -l "$RUNNER_TEMP/out"
+
+      - name: Hand the files to the publish step
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: part-desktop-${{ matrix.name }}
+          path: ${{ runner.temp }}/out/
+          retention-days: 1
+
+  # ── 合在一起：写校验值，打标签时发 Release，手动运行时留一个 Artifact ──
+  publish:
+    name: Publish the downloads
+    needs: [android, desktop]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Gather the files
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: part-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/out
+
+      - name: Write the checksums
+        run: cd "$RUNNER_TEMP/out" && sha256sum -- * > SHA256SUMS.txt && cat SHA256SUMS.txt
 
       - name: Keep the files of a trial run
         if: github.ref_type != 'tag'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: downloads-${{ steps.version.outputs.version }}
+          name: downloads-${{ needs.android.outputs.version }}
           path: ${{ runner.temp }}/out/
           retention-days: 7
 
@@ -129,7 +239,7 @@ jobs:
         if: github.ref_type == 'tag'
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.version.outputs.version }}
+          VERSION: ${{ needs.android.outputs.version }}
           CERT: ${{ vars.ANDROID_CERT_SHA256 }}
         run: |
           set -euo pipefail
