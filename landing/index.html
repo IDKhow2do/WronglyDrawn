@@ -36,7 +36,6 @@
   .btn.big { font-size:34px; padding:16px 40px; background:var(--pink); color:#fff; box-shadow:9px 9px 0 var(--ink); }
   .btn.plain { background:#fff; }
   .btn small { font-size:14px; font-weight:800; opacity:.75; display:block; line-height:1.2; }
-  .soon { opacity:.55; pointer-events:none; }
 
   /* ── top bar ── */
   .top { position:sticky; top:0; z-index:10; background:var(--ink); color:var(--paper); }
@@ -233,7 +232,7 @@
       <a class="btn" data-link="play" data-in style="--k:0" href="play/">网页版<small>电脑、手机浏览器都行</small></a>
       <a class="btn plain" data-link="ios" data-in style="--k:1" href="#">iOS<small>TestFlight 内测版</small></a>
       <a class="btn plain" data-link="android" data-in style="--k:2" href="#">安卓<small>TapTap 试玩</small></a>
-      <span class="btn plain soon" data-in style="--k:3">Windows / macOS<small>即将到来 · Coming soon</small></span>
+      <a class="btn plain" data-link="desktop" data-in style="--k:3" href="#">Windows / macOS / Linux<small>下载安装包，离线也能玩</small></a>
     </div>
     <p>电脑上用键盘鼠标，手机上有单独一套触屏按键。建议横屏。</p>
     <ul class="lag" data-in>
@@ -291,6 +290,7 @@ const LINKS = {
   issues: 'https://github.com/IDKhow2do/WronglyDrawn/issues/new/choose',
   ios: 'https://testflight.apple.com/join/hRrbcM4Q',
   android: 'https://www.taptap.cn/app/1067620',
+  desktop: 'https://github.com/IDKhow2do/WronglyDrawn/releases/latest',
 };
 // ── motion: parts come in when reached; a pencil line follows the scroll down the left margin ──
 const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;

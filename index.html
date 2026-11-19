@@ -45,7 +45,7 @@
       // 网页版：脚本 8 秒还没到，多半是网络卡。和 src/ui/PlayTips.ts 的网络提示同一句。
       setTimeout(function () {
         var boot = document.getElementById('boot-paint');
-        if (!boot || window.__WD_IOS_APP === true || / WronglyDrawnAndroid\//.test(navigator.userAgent) || '%MODE%' === 'taptap') return;
+        if (!boot || window.__WD_IOS_APP === true || / WronglyDrawn(Android|Desktop)\//.test(navigator.userAgent) || '%MODE%' === 'taptap') return;
         var tip = document.createElement('p');
         tip.innerHTML = '<span lang="zh-CN">加载有点慢？网络卡顿的话，建议开加速器再试。</span><br/>Loading slowly? If your connection is lagging, try a network accelerator.';
         tip.style.cssText = 'font-size:14px;transform:rotate(1deg);box-shadow:5px 5px #22c4c0';

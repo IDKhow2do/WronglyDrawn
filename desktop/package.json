@@ -1,0 +1,18 @@
+{
+  "name": "wrongly-drawn-desktop",
+  "private": true,
+  "version": "0.0.0",
+  "description": "错画之城 Wrongly Drawn",
+  "author": "巴特歪",
+  "license": "SEE LICENSE IN ../LICENSE",
+  "type": "module",
+  "main": "main.mjs",
+  "scripts": {
+    "pack": "node build.mjs",
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "45.4.1",
+    "electron-builder": "26.18.0"
+  }
+}
