@@ -1,0 +1,20 @@
+// [INPUT]: 官方 Gradle 和 Google Maven 仓库。
+// [OUTPUT]: Android 应用构建树。
+// [POS]: android 模块的构建入口。
+// [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = 'WronglyDrawnAndroid'
+include ':app'

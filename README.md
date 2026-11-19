@@ -11,6 +11,7 @@
   <a href="https://wrongdraw.maequeen.top/"><img src="https://img.shields.io/badge/%E2%96%B6%20%E7%8E%B0%E5%9C%A8%E5%B0%B1%E7%8E%A9-Play%20in%20browser-ff4fa3?style=for-the-badge" alt="现在就玩 Play in browser"></a>
   <a href="https://testflight.apple.com/join/hRrbcM4Q"><img src="https://img.shields.io/badge/iOS-TestFlight-22c4c0?style=for-the-badge&logo=apple&logoColor=white" alt="iOS TestFlight"></a>
   <a href="https://www.taptap.cn/app/1067620"><img src="https://img.shields.io/badge/Android-TapTap-2a4be0?style=for-the-badge&logo=android&logoColor=white" alt="Android TapTap"></a>
+  <a href="https://github.com/IDKhow2do/WronglyDrawn/releases/latest"><img src="https://img.shields.io/github/v/release/IDKhow2do/WronglyDrawn?style=for-the-badge&logo=android&logoColor=white&label=Android%20APK&color=3ddc84" alt="Android APK on GitHub Releases"></a>
 </p>
 
 <p align="center">
@@ -84,6 +85,14 @@
 | 和大肥鱼说话 | 回车 | 聊天键 |
 | 暂停 | Esc | ❚❚ |
 
+## 下载
+
+- **安卓**：到 [Releases](https://github.com/IDKhow2do/WronglyDrawn/releases/latest) 下载 `WronglyDrawn-<版本>-android.apk`，点开安装。系统会让你允许“安装未知应用”。安卓 8.0 以上，游戏装在手机里，离线也能玩。以后的版本直接覆盖安装，进度保留。
+- **iOS**：用 [TestFlight](https://testflight.apple.com/join/hRrbcM4Q) 加入测试。
+- 不想装：[在浏览器里直接玩](https://wrongdraw.maequeen.top/)。
+
+GitHub 在国内下载可能较慢。发版方法见 [docs/RELEASES.md](docs/RELEASES.md)。
+
 ## 网页版玩起来卡？
 
 | 现象 | 怎么办 |
@@ -122,7 +131,8 @@ npm run build
 | `docs/` | 设计文档、素材清单、性能和难度的测试记录 |
 | `video/`、`trailer/` | 介绍视频和预告片的制作工程 |
 | `landing/` | 网站的落地页（纯静态） |
-| `.github/` | Issue 模板和网站的自动发布流程，说明见 [docs/DEPLOY.md](docs/DEPLOY.md) |
+| `android/` | 安卓应用：一层 WebView 外壳，把网页版打包进 APK |
+| `.github/` | Issue 模板、网站的自动发布（[docs/DEPLOY.md](docs/DEPLOY.md)）和下载版的发布（[docs/RELEASES.md](docs/RELEASES.md)） |
 
 每个目录的 `CLAUDE.md` 和文件头注释说明它负责什么、依赖谁。
 
@@ -143,6 +153,6 @@ npm run build
 
 Wrongly Drawn is a browser game built with TypeScript, three.js and Rapier. Three levels, each ending in a boss; a spray can that repaints creatures instead of killing them; Eye, Mouth and Legs stickers that you wear as abilities or lend to objects in the world; an optional AI partner (the Fat Fish) who plays offline with a built-in rule brain and can chat if you enter your own DeepSeek key, which stays in your browser.
 
-**[Play in the browser](https://wrongdraw.maequeen.top/).** If loading is slow, a network accelerator helps; if frames are choppy, set Graphics to Low in the pause menu and turn on hardware acceleration in your browser. To run it locally: `npm install`, then `npm run dev` (Node.js 22+). `npm run build` writes a static site to `dist/`.
+**[Play in the browser](https://wrongdraw.maequeen.top/).** If loading is slow, a network accelerator helps; if frames are choppy, set Graphics to Low in the pause menu and turn on hardware acceleration in your browser. Android players can download a signed APK (Android 8.0+, plays offline) from [Releases](https://github.com/IDKhow2do/WronglyDrawn/releases/latest); iOS is on [TestFlight](https://testflight.apple.com/join/hRrbcM4Q). To run it locally: `npm install`, then `npm run dev` (Node.js 22+). `npm run build` writes a static site to `dist/`.
 
 The project code by 巴特歪 uses [PolyForm Noncommercial 1.0.0](LICENSE). Noncommercial use, modifications, and redistribution are welcome under its terms. See [NOTICE](NOTICE) for the license scope. The game's own art, models, story and name are all rights reserved with permission to build, play, study and show the game; see [LICENSE-ASSETS.md](LICENSE-ASSETS.md). Music and sound effects are CC0, the font is OFL; see [CREDITS.md](CREDITS.md). Bug reports and ideas are welcome in the issue tracker.

@@ -1,0 +1,7 @@
+// [INPUT]: Gradle 插件仓库。
+// [OUTPUT]: 固定 Android Gradle Plugin 版本。
+// [POS]: 原生工程的构建版本入口。
+// [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+plugins {
+    id 'com.android.application' version '8.13.2' apply false
+}

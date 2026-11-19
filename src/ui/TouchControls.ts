@@ -1,9 +1,9 @@
 /**
  * [INPUT]: depends on InputManager (virtual keys, look, move); OrganInventory (sticker state); stickerUrl from
  *          render/OrganArt; itemArt from ./ItemArt; touchIcon from ./TouchIcons; controlsIn / installTouchText from
- *          ./TouchText; ./ios-touch.css
+ *          ./TouchText; IOS_APP / ANDROID_APP from render/Quality; ./ios-touch.css
  * [OUTPUT]: exports TouchControls (show(), setInventory(), setInteraction(), setGadget(), setAirborne(), pulse())
- * [POS]: iOS 和手机 TapTap 在启动时启用同一 HUD。触屏与键鼠共用 InputManager。
+ * [POS]: iOS App、Android App 和手机 TapTap 在启动时启用同一 HUD。触屏与键鼠共用 InputManager。
  *        HarborSession 在此 HUD 加入大喊键。
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -12,13 +12,13 @@ import type { InputManager } from '../core/InputManager';
 import { t, onLangChange } from '../i18n';
 import { itemArt } from './ItemArt';
 import { stickerUrl } from '../render/OrganArt';
+import { ANDROID_APP, IOS_APP } from '../render/Quality';
 import { touchIcon, type TouchIconName } from './TouchIcons';
 import { controlsIn, installTouchText, type TouchControl } from './TouchText';
 import type { OrganType } from '../organs/Organ';
 import type { OrganInventory } from '../organs/OrganInventory';
 import './ios-touch.css';
 
-const IOS_APP = (window as Window & { __WD_IOS_APP?: boolean }).__WD_IOS_APP === true;
 const TAPTAP_TOUCH = import.meta.env.MODE === 'taptap' && (
   /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || matchMedia('(pointer: coarse)').matches
 );
@@ -99,7 +99,7 @@ export class TouchControls {
       LEG: this.root.querySelector('.t-org.leg')!,
     };
     if (IOS_APP) document.documentElement.classList.add('wd-ios');
-    if (IOS_APP || TAPTAP_TOUCH) this.enableTouch();
+    if (IOS_APP || ANDROID_APP || TAPTAP_TOUCH) this.enableTouch();
     window.addEventListener('blur', () => this.releaseTouches());
     window.addEventListener('resize', () => this.releaseTouches());
     window.addEventListener('orientationchange', () => this.releaseTouches());

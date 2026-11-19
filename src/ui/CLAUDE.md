@@ -20,7 +20,7 @@ setup.css: 定义首次设置页面样式。
 SoulsHud.ts: 呈现灵魂战的状态。
 souls.css: 定义灵魂战 HUD 样式。
 StickerTips.ts: 为贴纸界面提供提示。
-TouchControls.ts: iOS 与手机 TapTap 启动时启用同一触屏 HUD、手势和贴纸栏。
+TouchControls.ts: iOS App、Android App 与手机 TapTap 启动时启用同一触屏 HUD、手势和贴纸栏。其余设备首次触屏时启用。
 TouchIcons.ts: 提供触屏动作图标及空中动作状态。
 TouchText.ts: 将提示里的键名换成触屏按钮名。
 ios-touch.css: 用安全区与屏幕高度定位拇指按钮。工具抽屉与动作键分开。

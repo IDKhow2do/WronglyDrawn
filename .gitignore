@@ -11,3 +11,10 @@ demo/
 
 # the rendered video (about 100 MB); rebuild with trailer/scripts/cut.py
 trailer/*.mp4
+
+# Android build outputs and the local SDK path (android/CLAUDE.md)
+android/.gradle/
+android/.web-build/
+android/**/build/
+android/local.properties
+android/app/src/main/assets/game/

@@ -17,7 +17,7 @@ OcclusionFader.ts: 淡化挡住玩家和镜头的物件。
 OrganArt.ts: 将器官类型映射到贴纸素材。
 PaintSystem.ts: 将喷漆颜色写入命中网格的表面。
 PaintTextures.ts: 生成喷漆贴图、笔刷和色板。
-Quality.ts: 保存画质与帧率。按画面提交速度调节分辨率。分辨率和档位到底仍卡时调用一次 onStruggle。
+Quality.ts: 保存画质与帧率。按画面提交速度调节分辨率。分辨率和档位到底仍卡时调用一次 onStruggle。IOS_APP、ANDROID_APP 标明运行在原生 App 里。
 Renderer.ts: 提交关卡、描边和视角模型的绘制。
 SceneOptimizer.ts: 优化场景裁剪和扁平透明几何的绘制。
 ScreenMarks.ts: 将短时战斗笔触叠加到屏幕。

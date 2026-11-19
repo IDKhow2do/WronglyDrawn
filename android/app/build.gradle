@@ -1,0 +1,58 @@
+// [INPUT]: 已构建的网页资源；../../package.json 的版本号；工作区外的发布签名配置。
+// [OUTPUT]: game.taptap.wronglydrawn 的 APK。
+// [POS]: 固定应用身份，复用网页游戏的玩法与存档。版本号只写在 package.json。
+// [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+plugins {
+    id 'com.android.application'
+}
+
+// versionCode = 主版本×10000 + 次版本×100 + 修订号（0.2.2 → 202）。各渠道共用这一个序列，只增不减。
+def gameVersion = new groovy.json.JsonSlurper().parse(file('../../package.json')).version
+def (major, minor, patch) = gameVersion.tokenize('.').collect { it as int }
+assert minor < 100 && patch < 100 : "package.json version $gameVersion does not fit the versionCode rule"
+
+def signingPath = System.getenv('WRONGDRAW_SIGNING_PROPERTIES')
+def signingValues = new Properties()
+if (signingPath) {
+    file(signingPath).withInputStream { signingValues.load(it) }
+}
+
+android {
+    namespace 'game.taptap.wronglydrawn'
+    compileSdk 36
+    buildFeatures {
+        buildConfig true
+    }
+    defaultConfig {
+        applicationId 'game.taptap.wronglydrawn'
+        minSdk 26
+        targetSdk 36
+        versionCode major * 10000 + minor * 100 + patch
+        versionName gameVersion
+        testInstrumentationRunner 'game.taptap.wronglydrawn.SmokeRunner'
+    }
+    signingConfigs {
+        release {
+            if (signingPath) {
+                storeFile file(signingValues['storeFile'])
+                storePassword signingValues['storePassword']
+                keyAlias signingValues['keyAlias']
+                keyPassword signingValues['keyPassword']
+            }
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.14.0'
+}
