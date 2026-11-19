@@ -1,4 +1,4 @@
-# [INPUT]: main 上的源码和锁文件；仓库变量 SITE_DEPLOY（可选 SITE_URL）；发到服务器时还要 DEPLOY_* 这几个密钥。
+# [INPUT]: main 上的源码和锁文件；仓库变量 SITE_DEPLOY（可选 SITE_URL）；发到服务器时还要 DEPLOY_* 这几个密钥和变量 DEPLOY_PATH。
 # [OUTPUT]: 拼好的网站（落地页在根部，游戏在 play/）。SITE_DEPLOY 是 server 时同步到自己的服务器，
 #           是 pages 时发到 GitHub Pages，没设置时只构建和自查，什么都不发。
 # [POS]: 网站的自动发布。只管网页；各商店的包不走这里。设置步骤和回滚办法见 docs/DEPLOY.md。
@@ -78,7 +78,7 @@ jobs:
           HAS_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS != '' }}
           HAS_HOST: ${{ secrets.DEPLOY_HOST != '' }}
           HAS_USER: ${{ secrets.DEPLOY_USER != '' }}
-          HAS_PATH: ${{ secrets.DEPLOY_PATH != '' }}
+          HAS_PATH: ${{ vars.DEPLOY_PATH != '' }}
         run: |
           case "$TARGET" in
             server)
@@ -89,7 +89,7 @@ jobs:
               [ "$HAS_USER" = true ] || missing="$missing DEPLOY_USER"
               [ "$HAS_PATH" = true ] || missing="$missing DEPLOY_PATH"
               if [ -n "$missing" ]; then
-                echo "::error::SITE_DEPLOY is 'server' but these secrets are not set:$missing (see docs/DEPLOY.md)"
+                echo "::error::SITE_DEPLOY is 'server' but these secrets or variables are not set:$missing (see docs/DEPLOY.md)"
                 exit 1
               fi
               echo "mode=server" >> "$GITHUB_OUTPUT" ;;
@@ -113,7 +113,8 @@ jobs:
           DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          # 路径不是机密，放在变量里：放在密钥里时，日志会把每个出现的路径（比如 "/"）都打成 ***。
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
           DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
           LABEL: ${{ steps.assemble.outputs.label }}
         run: |
