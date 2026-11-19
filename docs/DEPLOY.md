@@ -34,15 +34,21 @@ ssh-keygen -t ed25519 -f wd-deploy -N "" -C "github-deploy"
 
 得到两个文件：`wd-deploy`（私钥，只交给 GitHub）和 `wd-deploy.pub`（公钥，放到服务器）。
 
-把公钥那一行加到服务器上发布用户的 `~/.ssh/authorized_keys` 末尾。最好用一个只管网站目录的用户，不要用 root。
+把公钥加到服务器上发布用户的 `~/.ssh/authorized_keys` 末尾。不要用 root。推荐在前面加上限制，把这把钥匙锁在网站目录里：
+
+```
+restrict,command="/usr/bin/rrsync -wo -no-del -munge /网站根目录" ssh-ed25519 AAAA…（wd-deploy.pub 的内容）
+```
+
+这样它只能往这个目录里写文件，开不了终端，读不了也删不了东西，碰不到服务器上的其他服务。`rrsync` 随 rsync 3.2 以上一起装好（Ubuntu 在 `/usr/bin/rrsync`）。用了这一行，下面的 `DEPLOY_PATH` 填 `/`。
 
 再取服务器的身份指纹（端口不是 22 时加 `-p 端口`）：
 
 ```bash
-ssh-keyscan -t ed25519 你的服务器地址
+ssh-keyscan 你的服务器地址
 ```
 
-输出的那一整行等会儿要用。它让 GitHub 只连这台服务器，连到别的机器就停。
+输出里不以 `#` 开头的行等会儿要用，全部复制。服务器可能只有 RSA 一种身份。它让 GitHub 只连这台服务器，连到别的机器就停。
 
 ### 二、在 GitHub 上填密钥
 
@@ -51,10 +57,10 @@ ssh-keyscan -t ed25519 你的服务器地址
 | 名字 | 填什么 |
 |---|---|
 | `DEPLOY_SSH_KEY` | `wd-deploy` 文件的全部内容，包括首尾两行 |
-| `DEPLOY_KNOWN_HOSTS` | 上面 `ssh-keyscan` 输出的那一行 |
+| `DEPLOY_KNOWN_HOSTS` | 上面 `ssh-keyscan` 输出的那几行 |
 | `DEPLOY_HOST` | 服务器地址，和 `ssh-keyscan` 用的写法一样 |
 | `DEPLOY_USER` | 服务器上的发布用户名 |
-| `DEPLOY_PATH` | 网站根目录的绝对路径，就是现在放着网站 `index.html` 的那个目录，末尾不带 `/` |
+| `DEPLOY_PATH` | 钥匙用 `rrsync` 锁住时填 `/`。否则填网站根目录的绝对路径，就是现在放着网站 `index.html` 的那个目录，末尾不带 `/` |
 | `DEPLOY_PORT` | SSH 端口。是 22 就不用加这一条 |
 
 密钥存进去以后谁也看不到原文，日志里出现时会被打成 `***`。填完把电脑上的 `wd-deploy` 私钥删掉。
