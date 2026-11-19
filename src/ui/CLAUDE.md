@@ -6,6 +6,7 @@ FeedbackPanel.ts: 在标题和暂停菜单提供反馈。预览游戏快照。�
 FeedbackPanel.css: 定义反馈入口和可滚动的手绘对话框。
 PaintLoading.ts: 将调用方报告的进度变成数字、进度条和阶段文案。提供提交贴纸画面的等待函数。
 PaintLoading.css: 使用游戏调色板绘制贴纸。颜料点不依赖游戏帧循环。
+UpdateNotice.ts: 安卓和电脑版 App 在标题画面查一次网站的 /api/version。有更新的版本就贴一张“新版本”贴纸，下载本系统的安装包；“以后再说”三天内不再提同一版本。网页、iOS、TapTap 不查。
 PlayTips.ts: 仅网页版在线游玩时提示卡顿。加载超过 8 秒推荐加速器；画质到底仍卡时推荐硬件加速。
 DifficultyPicker.ts: 从选择器读写游戏难度。
 difficulty.css: 定义难度选择器样式。

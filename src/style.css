@@ -79,6 +79,14 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #1a1420; fon
 .title-screen.live .title-shade { background: linear-gradient(180deg, rgba(20,16,20,0) 70%, rgba(20,16,20,.35) 100%); }
 /* language toggle: small sticker in the top-right corner (above the level tag) */
 .st-lang { right: 1.2%; top: 1.2%; z-index: 2; }
+/* App 里有新版本时的贴纸（ui/UpdateNotice.ts） */
+.update-note { position: absolute; left: max(1.6%, env(safe-area-inset-left)); top: max(1.6%, env(safe-area-inset-top)); z-index: 3; max-width: min(360px, 44vw);
+  display: flex; flex-direction: column; gap: 4px; padding: 10px 14px 12px; color: var(--black); background: var(--cream); border: 4px solid var(--black);
+  box-shadow: 6px 6px 0 var(--pink); transform: rotate(-1.5deg); pointer-events: auto; font-size: 15px; line-height: 1.35; }
+.update-note strong { font-size: 19px; }
+.update-actions { display: flex; gap: 10px; align-items: center; margin-top: 6px; }
+.update-get { font-size: 18px; padding: 4px 16px 6px; text-decoration: none; color: var(--black); }
+.update-later { font: inherit; background: none; border: 0; color: var(--black); text-decoration: underline; cursor: pointer; opacity: .75; }
 .title-screen .st-level { top: calc(3% + 44px); }
 .lang-btn {
   pointer-events: auto; cursor: pointer; font-size: 16px; font-weight: 900; color: var(--black);

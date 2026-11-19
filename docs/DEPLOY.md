@@ -88,6 +88,7 @@ ssh-keyscan 你的服务器地址
 
 - 根目录的入口页会从游戏换成落地页，游戏搬到 `/play/`。旧的入口页存进服务器的 `.previous/` 目录，旧的游戏文件留在原处。
 - 服务器要能把 `/play/` 当成普通目录提供，并且 `/api/feedback` 仍然指向原来的反馈服务。
+- 服务器要把 `/api/version` 指向网站根部的 `version.json`（Caddy：`handle /api/version { rewrite * /version.json; file_server }`）。App 里的更新提示读它；发布流程最后一步会核对它是不是最新版本。
 - 落地页上有 GitHub 按钮。它指向的仓库公开之前，访客点进去是 404。
 - 服务器上要装有 `rsync`。
 

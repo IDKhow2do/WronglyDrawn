@@ -1,5 +1,5 @@
 # [INPUT]: main 上的源码和锁文件；仓库变量 SITE_DEPLOY（可选 SITE_URL）；发到服务器时还要 DEPLOY_* 这几个密钥和变量 DEPLOY_PATH。
-# [OUTPUT]: 拼好的网站（落地页在根部，游戏在 play/）。SITE_DEPLOY 是 server 时同步到自己的服务器，
+# [OUTPUT]: 拼好的网站（落地页在根部，游戏在 play/，version.json 写最新 Release，服务器作为 /api/version 提供）。SITE_DEPLOY 是 server 时同步到自己的服务器，
 #           是 pages 时发到 GitHub Pages，没设置时只构建和自查，什么都不发。
 # [POS]: 网站的自动发布。只管网页；各商店的包不走这里。设置步骤和回滚办法见 docs/DEPLOY.md。
 # [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -62,10 +62,17 @@ jobs:
           VITE_FEEDBACK_URL: /api/feedback
         run: npm run build -- --base ./ --outDir "$RUNNER_TEMP/game" --emptyOutDir
 
+      # App 里的更新提示读网站上的 /api/version（version.json），内容取最新的 GitHub Release。还没有 Release 时不写。
+      - name: Find the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api "repos/$GITHUB_REPOSITORY/releases/latest" > "$RUNNER_TEMP/release.json" 2>/dev/null || rm -f "$RUNNER_TEMP/release.json"
+
       - name: Assemble the site (landing at /, game at /play/)
         id: assemble
         run: |
           label="$(git rev-parse --short HEAD)"
+          [ -s "$RUNNER_TEMP/release.json" ] && export WD_RELEASE_JSON="$RUNNER_TEMP/release.json"
           node scripts/assemble-site.mjs "$RUNNER_TEMP/game" "$RUNNER_TEMP/site" "$label"
           echo "label=$label" >> "$GITHUB_OUTPUT"
 
@@ -164,6 +171,11 @@ jobs:
           fi
           curl -fsS --max-time 20 -o /dev/null "${SITE_URL%/}/"
           curl -fsS --max-time 20 -o /dev/null "${SITE_URL%/}/play/"
+          if [ -f "$RUNNER_TEMP/site/version.json" ]; then
+            want="$(node -p "require(process.argv[1]).version" "$RUNNER_TEMP/site/version.json")"
+            got="$(curl -fsS --max-time 20 "${SITE_URL%/}/api/version?run=$GITHUB_RUN_ID" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>console.log(JSON.parse(s).version))" || true)"
+            [ "$got" = "$want" ] || { echo "::error::/api/version says '$got', expected '$want'. The server must serve /api/version from version.json (docs/DEPLOY.md)."; exit 1; }
+          fi
           echo "::notice::Live: ${SITE_URL%/}/ is build $LABEL"
 
       # ── 目标二：GitHub Pages ──

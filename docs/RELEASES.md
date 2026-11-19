@@ -33,6 +33,14 @@
 
 几分钟后 **Releases** 页面出现新版本。
 
+## 已经装了的人怎么知道有新版本
+
+安卓和电脑版 App 每次打开到标题画面，会查一次网站的 `/api/version`。比自己新，就在标题画面左上角贴一张“新版本 x.y.z 出来了”，“下载”直接拿本系统的安装包，在系统浏览器里下载，玩家覆盖安装，进度保留。“以后再说”三天内不再提同一版本。查不到（离线、超时）就什么都不显示。
+
+`/api/version` 是网站上的 `version.json`，内容是最新的 GitHub Release。打标签发布后，`release.yml` 最后会重新发布一次网站来更新它，所以 Release 出来几分钟后，已装的 App 下次打开就会看到提示。代码在 `src/ui/UpdateNotice.ts`。
+
+安卓不允许网上下载的 App 自己静默替换自己，安装总要玩家点一下。想要真正的自动更新，得走商店（TapTap、Google Play）。
+
 ## 版本号规则
 
 - `versionName` 就是 `package.json` 的版本。
@@ -72,4 +80,4 @@ APK 的包名（`game.taptap.wronglydrawn`）和签名证书从第一版起就�
 
 ## English
 
-Pushing a tag `v<version>` (it must match `package.json`) runs `.github/workflows/release.yml`: it builds desktop installers on Windows, macOS and Linux (each one plays into the first level offline before it ships), a signed Android APK and a self-hostable web zip, checks the APK against the repository variable `ANDROID_CERT_SHA256`, writes `SHA256SUMS.txt` and publishes a GitHub Release. Running the workflow by hand on `main` builds and checks the same files and keeps them as run artifacts without publishing. Signing secrets live in the `android-release` environment, open only to `v*` tags and `main`. `versionCode` is major×10000 + minor×100 + patch, shared by every Android channel.
+Pushing a tag `v<version>` (it must match `package.json`) runs `.github/workflows/release.yml`: it builds desktop installers on Windows, macOS and Linux (each one plays into the first level offline before it ships), a signed Android APK and a self-hostable web zip. It checks the APK against the repository variable `ANDROID_CERT_SHA256`, writes `SHA256SUMS.txt`, publishes a GitHub Release, and then redeploys the site so `/api/version` names the new version; the Android and desktop apps read it at the title screen and offer the download. Running the workflow by hand on `main` builds and checks the same files and keeps them as run artifacts without publishing. Signing secrets live in the `android-release` environment, open only to `v*` tags and `main`. `versionCode` is major×10000 + minor×100 + patch, shared by every Android channel.

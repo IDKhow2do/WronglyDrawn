@@ -15,7 +15,7 @@ gradle/wrapper/: 下载并启动 Gradle 8.13。
 prepare-web.sh: 校验网页源码与给定提交一致，构建网页并复制进 assets/game/，写下来源记录 android-build.json。
 app/build.gradle: 定义包名、SDK 和可选发布签名。版本从 ../../package.json 读取。
 app/src/main/AndroidManifest.xml: 声明横屏窗口与网络权限。
-app/src/main/java/game/taptap/wronglydrawn/MainActivity.java: 挂载离线资源、加用户代理标识、展示隐私说明、恢复渲染进程。
+app/src/main/java/game/taptap/wronglydrawn/MainActivity.java: 挂载离线资源、加用户代理标识、展示隐私说明、恢复渲染进程。站外 https 链接（更新提示的下载、GitHub）交给系统浏览器。
 app/src/main/res/values/strings.xml: 定义安装后显示的应用名“错画之城”。
 app/src/main/res/mipmap-xxxhdpi/ic_launcher.png: 沿用主角图标。
 app/src/main/assets/game/: 构建时生成的网页产物，不进仓库。

@@ -1,7 +1,7 @@
 /**
  * [INPUT]: depends on the core loop / input / state / physics init, the render stack (Renderer, CameraController,
  *          OcclusionFader, Viewmodel, SceneOptimizer, StaticBatch), the level sessions (LEVELS), the UI, audio,
- *          agent / co-op bridges, PaintLoading, Quality 帧率上限和 meta progress
+ *          agent / co-op bridges, PaintLoading, UpdateNotice (apps only), Quality 帧率上限和 meta progress
  * [OUTPUT]: the game App (no exports); window.__WD (test hooks: advance()), WD_AGENT, WD_COOP
  * [POS]: the entry point. Feedback captures the current run from the title or pause screen. One App owns one session at a time: it steps the session, then updates the one game camera
  *        (its softLimit = big creatures' drawn bodies + merged rock batches) and the OcclusionFader (props and big
@@ -37,6 +37,7 @@ import type { LevelId, PlaySession } from './level/Session';
 import { LEVELS, LevelUnlocks, isLevelId } from './level/levels';
 import { LevelSelect } from './ui/LevelSelect';
 import { setupDue, showSetup } from './ui/SetupScreen';
+import { mountUpdateNotice } from './ui/UpdateNotice';
 import { PLAYER } from './player/PlayerController';
 import { buildSprayGun } from './weapon/SprayGunModel';
 import { Effects } from './render/Effects';
@@ -281,6 +282,7 @@ class App {
     const ok = await this.load();
     if (!ok) return;
     this.ui.hideLoading();
+    void mountUpdateNotice(this.ui.title);
     this.levelSelect = new LevelSelect(this.ui.title);
     this.levelSelect.onHover = () => this.audio.play('uiClick', { vol: 0.3, pitch: 1.5 });
     this.story.mountTitle(this.ui.title, () => this.state.is('TITLE') && !this.busy);
