@@ -14329,57 +14329,72 @@ var Ru = -Math.PI / 2, $ = {
 	quip: 0,
 	until: 0,
 	busy: 0
-}, zu = null, Bu = {}, Vu = (e, t) => {
+}, zu = null, Bu = {}, Vu = 1.2, Hu = new G(1, 0, 0), Uu = [], Wu = new Ke(), Gu = new Ke(), Ku = new Ke();
+function qu(e) {
+	e.getWorldQuaternion(Wu).invert();
+	for (let { bone: e, angle: t } of Uu) e.parent.getWorldQuaternion(Gu).premultiply(Wu), Ku.setFromAxisAngle(Hu, t).premultiply(Gu.clone().invert()).multiply(Gu), e.quaternion.premultiply(Ku);
+}
+var Ju = (e, t) => {
 	let n = Bu[e];
 	if (!n || $.clip === e && !t) return;
 	let r = Bu[$.clip];
 	n.reset(), n.setLoop(t ? 2200 : 2201, t ? 1 : Infinity), n.clampWhenFinished = !!t, n.fadeIn(.18).play(), r && r !== n && r.fadeOut(.18), $.clip = e, t && ($.busy = performance.now() + n.getClip().duration * 1e3 * .85);
-}, Hu = () => {
+}, Yu = () => {
 	let { w: e, h: t } = Au();
-	ju.style.width = e + "px", ju.style.height = t + "px", Nu.setPixelRatio(Math.min(2, devicePixelRatio)), Nu.setSize(e, t, !1), Fu.aspect = e / t, Fu.updateProjectionMatrix(), Wu(!0);
-}, Uu = (e) => e === "left" && !ku() ? 14 : innerWidth - Au().w - (ku() ? 6 : 18);
-function Wu(e) {
-	$.tx = Uu($.side), $.ty = +($.side === "hide"), (e || Ou) && ($.x = $.tx, $.y = $.ty);
+	ju.style.width = e + "px", ju.style.height = t + "px", Nu.setPixelRatio(Math.min(2, devicePixelRatio)), Nu.setSize(e, t, !1), Fu.aspect = e / t, Fu.updateProjectionMatrix(), Zu(!0);
+}, Xu = (e) => e === "left" && !ku() ? 14 : innerWidth - Au().w - (ku() ? 6 : 18);
+function Zu(e) {
+	$.tx = Xu($.side), $.ty = +($.side === "hide"), (e || Ou) && ($.x = $.tx, $.y = $.ty);
 }
-var Gu = [...document.querySelectorAll("[data-buddy]")], Ku = (e, t = 3600) => {
+var Qu = [...document.querySelectorAll("[data-buddy]")], $u = (e, t = 3600) => {
 	Mu.textContent = e, Mu.classList.add("on"), $.until = performance.now() + t;
 };
-function qu(e) {
+function ed(e) {
 	if (e === $.sec) return;
 	$.sec = e;
-	let t = Gu[e];
+	let t = Qu[e];
 	if (!t) return;
-	$.side = t.dataset.buddy, $.quip = 0, Wu(!1);
+	$.side = t.dataset.buddy, $.quip = 0, Zu(!1);
 	let n = (t.dataset.say || "").split("|").filter(Boolean);
-	n.length && $.side !== "hide" && setTimeout(() => $.sec === e && Ku(n[0]), Ou ? 0 : 700), t.dataset.act && !Ou && setTimeout(() => $.sec === e && Vu(t.dataset.act, !0), 1300);
+	n.length && $.side !== "hide" && setTimeout(() => $.sec === e && $u(n[0]), Ou ? 0 : 700), t.dataset.act && !Ou && setTimeout(() => $.sec === e && Ju(t.dataset.act, !0), 1300);
 }
-var Ju = () => {
+var td = () => {
 	let e = innerHeight * .55, t = 0;
-	return Gu.forEach((n, r) => {
+	return Qu.forEach((n, r) => {
 		n.getBoundingClientRect().top <= e && (t = r);
 	}), t;
 };
 ju.addEventListener("click", () => {
-	let e = Gu[$.sec], t = (e && e.dataset.say || "歪，不是错。").split("|").filter(Boolean);
-	$.quip = ($.quip + 1) % t.length, Ku(t[$.quip]), Ou || Vu("jump", !0);
+	let e = Qu[$.sec], t = (e && e.dataset.say || "歪，不是错。").split("|").filter(Boolean);
+	$.quip = ($.quip + 1) % t.length, $u(t[$.quip]), Ou || Ju("jump", !0);
 }), addEventListener("pointermove", (e) => {
 	$.px = (e.clientX - ($.x + Au().w / 2)) / innerWidth;
-}, { passive: !0 }), addEventListener("resize", Hu);
-var Yu = new uo();
-function Xu() {
-	if (requestAnimationFrame(Xu), document.hidden) return;
-	let e = Math.min(.05, Yu.getDelta()), t = performance.now();
-	qu(Ju());
+}, { passive: !0 }), addEventListener("resize", Yu);
+var nd = new uo(), rd = null;
+function id() {
+	if (requestAnimationFrame(id), document.hidden) return;
+	let e = Math.min(.05, nd.getDelta()), t = performance.now();
+	ed(td());
 	let n = (scrollY - $.lastY) / Math.max(e, .001);
 	$.lastY = scrollY, $.scrollV += (n - $.scrollV) * Math.min(1, e * 8);
 	let r = $.tx - $.x, i = Math.abs(r) > 2, a = Math.sign(r) * Math.min(Math.abs(r), (Math.abs(r) > 500 ? 760 : 430) * e);
 	Ou || ($.x += a, $.y += ($.ty - $.y) * Math.min(1, e * 7));
 	let o = Ru + Math.max(-.5, Math.min(.5, $.px * 1.6));
-	i ? o = Ru + (r > 0 ? 1 : -1) * 1.35 : Math.abs($.scrollV) > 60 && (o = Ru + ($.scrollV > 0 ? .5 : -.5)), $.yaw += (o - $.yaw) * Math.min(1, e * 9), Lu.rotation.y = $.yaw, !Ou && t > $.busy && Vu(i ? Math.abs(r) > 500 ? "run" : "walk" : Math.abs($.scrollV) > 900 ? "run" : Math.abs($.scrollV) > 60 ? "walk" : "idle"), ju.style.transform = `translate(${$.x.toFixed(1)}px, ${($.y * (Au().h + 40)).toFixed(1)}px)`, $.until && t > $.until && (Mu.classList.remove("on"), $.until = 0), zu && zu.update(e), Nu.render(Pu, Fu);
+	i ? o = Ru + (r > 0 ? 1 : -1) * 1.35 : Math.abs($.scrollV) > 60 && (o = Ru + ($.scrollV > 0 ? .5 : -.5)), $.yaw += (o - $.yaw) * Math.min(1, e * 9), Lu.rotation.y = $.yaw, !Ou && t > $.busy && Ju(i ? Math.abs(r) > 500 ? "run" : "walk" : Math.abs($.scrollV) > 900 ? "run" : Math.abs($.scrollV) > 60 ? "walk" : "idle"), ju.style.transform = `translate(${$.x.toFixed(1)}px, ${($.y * (Au().h + 40)).toFixed(1)}px)`, $.until && t > $.until && (Mu.classList.remove("on"), $.until = 0), zu && (zu.update(e), Lu.updateMatrixWorld(!0), qu(rd)), Nu.render(Pu, Fu);
 }
 new Dl().setMeshoptDecoder(Du).load(new URL("./assets/wai.glb", "" + import.meta.url).href, (e) => {
 	let t = e.scene, n = new dn().setFromObject(t), r = n.max.y - n.min.y, i = n.getCenter(new G());
 	t.position.set(-i.x, -n.min.y, -i.z), Lu.add(t), Lu.scale.setScalar(1 / r), Fu.position.set(0, .62, 3.5), Fu.lookAt(0, .52, 0), zu = new lo(t);
 	for (let t of e.animations) Bu[t.name] = zu.clipAction(t);
-	Hu(), $.x = Uu("right"), Vu("idle"), Ou && Bu.idle && (Bu.idle.paused = !0), ju.classList.add("ready"), Xu();
+	t.updateMatrixWorld(!0);
+	for (let e of ["L_Upperarm", "R_Upperarm"]) {
+		let n = t.getObjectByName(e);
+		if (!n) continue;
+		let r = Math.sign(t.worldToLocal(n.getWorldPosition(new G())).z);
+		Uu.push({
+			bone: n,
+			angle: -r * Vu
+		});
+	}
+	rd = t, Yu(), $.x = Xu("right"), Ju("idle"), Ou && Bu.idle && (Bu.idle.paused = !0), ju.classList.add("ready"), id();
 }, void 0, () => ju.remove());

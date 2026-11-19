@@ -3,12 +3,13 @@
  *          game's own rigged hero: clips idle, walk, run, jump, shoot); the page's sections and their data-say lines
  * [OUTPUT]: bundled to ../buddy.js (see ../vite.buddy.config.mjs). Importing it starts the page's companion: WAI
  *           stands in a bottom corner, walks to the other corner when the section changes, walks on the spot while
- *           the page scrolls, turns toward the pointer, says the section's line, and jumps when tapped.
+ *           the page scrolls, turns toward the pointer, says the section's line, and jumps when tapped. His upper arms are
+ *           swung out sideways on top of every clip, so the hands show beside the box body.
  * [POS]: landing/. Decoration only: the page loads it after everything else and works without it. Under
  *        "reduce motion" he stands still and only the speech bubble changes.
  * [PROTOCOL]: Update this header on change, then check CLAUDE.md
  */
-import { Scene, PerspectiveCamera, WebGLRenderer, HemisphereLight, DirectionalLight, AnimationMixer, Clock, LoopOnce, Box3, Vector3, Group, SRGBColorSpace } from 'three';
+import { Scene, PerspectiveCamera, WebGLRenderer, HemisphereLight, DirectionalLight, AnimationMixer, Clock, LoopOnce, Box3, Vector3, Group, SRGBColorSpace, Quaternion } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
@@ -29,6 +30,20 @@ const rig = new Group(); scene.add(rig);
 const FRONT = -Math.PI / 2;            // the model faces +X; this turns it to the viewer
 const S = { x: 0, tx: 0, y: 1, ty: 1, yaw: FRONT, clip: '', side: 'hide', sec: -1, lastY: scrollY, scrollV: 0, px: 0, quip: 0, until: 0, busy: 0 };
 let mixer = null; const actions = {};
+
+// ── the arms: the rig hangs them inside the box body, so from the front no hand shows. After each animation
+//    step both upper arms swing out sideways by SPREAD (about the model's forward axis, +X); the clips' own
+//    swing stays on top. Only the page does this: the game sees WAI from behind and keeps the clips as they are. ──
+const SPREAD = 1.2, FORWARD = new Vector3(1, 0, 0);
+const arms = []; const _root = new Quaternion(), _parent = new Quaternion(), _delta = new Quaternion();
+function spreadArms(model) {
+  model.getWorldQuaternion(_root).invert();
+  for (const { bone, angle } of arms) {
+    bone.parent.getWorldQuaternion(_parent).premultiply(_root);           // the parent's turn in model space
+    _delta.setFromAxisAngle(FORWARD, angle).premultiply(_parent.clone().invert()).multiply(_parent);
+    bone.quaternion.premultiply(_delta);                                  // = the same sideways swing, in the bone's own space
+  }
+}
 const play = (name, once) => {
   const a = actions[name]; if (!a || (S.clip === name && !once)) return;
   const from = actions[S.clip]; a.reset(); a.setLoop(once ? LoopOnce : 2201, once ? 1 : Infinity); a.clampWhenFinished = !!once; a.fadeIn(0.18).play(); if (from && from !== a) from.fadeOut(0.18);
@@ -57,7 +72,7 @@ addEventListener('pointermove', (e) => { S.px = (e.clientX - (S.x + size().w / 2
 addEventListener('resize', fit);
 
 // ── every frame: where he is, which way he faces, which clip plays ──
-const clock = new Clock();
+const clock = new Clock(); let buddyModel = null;
 function frame() {
   requestAnimationFrame(frame); if (document.hidden) return;
   const dt = Math.min(0.05, clock.getDelta()), now = performance.now();
@@ -71,7 +86,8 @@ function frame() {
   if (!calm && now > S.busy) play(walking ? (Math.abs(dx) > 500 ? 'run' : 'walk') : Math.abs(S.scrollV) > 900 ? 'run' : Math.abs(S.scrollV) > 60 ? 'walk' : 'idle');
   box.style.transform = `translate(${S.x.toFixed(1)}px, ${(S.y * (size().h + 40)).toFixed(1)}px)`;
   if (S.until && now > S.until) { say.classList.remove('on'); S.until = 0; }
-  if (mixer) mixer.update(dt); renderer.render(scene, cam);
+  if (mixer) { mixer.update(dt); rig.updateMatrixWorld(true); spreadArms(buddyModel); }
+  renderer.render(scene, cam);
 }
 
 new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).load(new URL('./assets/wai.glb', import.meta.url).href, (g) => {
@@ -79,6 +95,13 @@ new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).load(new URL('./assets/wai.gl
   m.position.set(-c.x, -bb.min.y, -c.z); rig.add(m); rig.scale.setScalar(1 / h);
   cam.position.set(0, 0.62, 3.5); cam.lookAt(0, 0.52, 0);
   mixer = new AnimationMixer(m); for (const clip of g.animations) actions[clip.name] = mixer.clipAction(clip);
+  m.updateMatrixWorld(true);
+  for (const name of ['L_Upperarm', 'R_Upperarm']) {
+    const bone = m.getObjectByName(name); if (!bone) continue;
+    const side = Math.sign(m.worldToLocal(bone.getWorldPosition(new Vector3())).z);   // which side of the body (model space z)
+    arms.push({ bone, angle: -side * SPREAD });                                         // turning about +X by -θ moves a hanging arm toward +z
+  }
+  buddyModel = m;
   fit(); S.x = sideX('right'); play('idle'); if (calm && actions.idle) actions.idle.paused = true;
   box.classList.add('ready'); frame();
 }, undefined, () => box.remove());
