@@ -1,6 +1,6 @@
 /**
  * [INPUT]: Android WebView、安装包网页资源和 HTTPS 反馈服务。
- * [OUTPUT]: 横屏游戏窗口、隐私选择与渲染退出后的恢复入口。
+ * [OUTPUT]: 横屏游戏窗口、隐私选择与渲染退出后的恢复入口。站外的 https 链接（更新下载、GitHub）交给系统浏览器。
  *           用户代理末尾加 WronglyDrawnAndroid/<版本>，网页据此认出自己在 App 里（render/Quality.ts 的 ANDROID_APP）。
  * [POS]: 原生容器只负责载入和生命周期，玩法与反馈字段由网页实现。
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -9,6 +9,8 @@ package game.taptap.wronglydrawn;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -90,7 +92,16 @@ public final class MainActivity extends Activity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri target = request.getUrl();
-                return !"https".equals(target.getScheme()) || !GAME_HOST.equals(target.getHost());
+                if ("https".equals(target.getScheme()) && GAME_HOST.equals(target.getHost())) return false;
+                // 更新提示的下载、GitHub 等外部链接交给系统浏览器；APK 在浏览器里下载，玩家点开覆盖安装。
+                if ("https".equals(target.getScheme())) {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, target));
+                    } catch (ActivityNotFoundException ignored) {
+                        // 没有浏览器：留在游戏里
+                    }
+                }
+                return true;
             }
 
             @Override

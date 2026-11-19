@@ -1,7 +1,7 @@
 # [INPUT]: 版本标签 v<package.json 的版本>；环境 android-release 里的签名密钥；仓库变量 ANDROID_CERT_SHA256；
 #          desktop/（桌面版外壳与打包脚本）。
 # [OUTPUT]: GitHub Release：签名的 Android APK，Windows 安装包，macOS dmg（Apple 芯片与 Intel 各一个），Linux AppImage，
-#           网页静态包，SHA256SUMS.txt 和发行说明。每个桌面包发布前都在对应系统上离线跑进第一关。
+#           网页静态包，SHA256SUMS.txt 和发行说明。发完后触发 deploy-site.yml，网站的 /api/version 换成这个版本。每个桌面包发布前都在对应系统上离线跑进第一关。
 #           手动运行时只构建和自查，产物合在一个 Artifact 里，不发 Release。
 # [POS]: 下载版的发布。网站走 deploy-site.yml，iOS 走 TestFlight，都不在这里。步骤见 docs/RELEASES.md。
 # [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -211,6 +211,7 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: write
+      actions: write   # 发完后重新发布网站，让 /api/version 指向新版本
     steps:
       - name: Check out the source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -246,3 +247,10 @@ jobs:
           sed -e "s/@VERSION@/$VERSION/g" -e "s/@CERT@/$CERT/g" .github/release-notes.md > "$RUNNER_TEMP/notes.md"
           gh release create "$GITHUB_REF_NAME" "$RUNNER_TEMP"/out/* --repo "$GITHUB_REPOSITORY" --verify-tag \
             --title "错画之城 Wrongly Drawn $VERSION" --notes-file "$RUNNER_TEMP/notes.md" --generate-notes
+
+      # 网站重新发布一次，version.json 换成这个版本，已装的 App 下次启动就会提示更新。
+      - name: Tell installed apps about this version
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-site.yml --repo "$GITHUB_REPOSITORY" --ref main

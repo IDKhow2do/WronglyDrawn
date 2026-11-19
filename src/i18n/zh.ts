@@ -264,6 +264,11 @@ export const ZH: Record<string, string> = {
   'Sketching the streets…': '正在勾画街道……',
   'Letting the paint dry…': '等颜料晾干……',
   'Reload the sketchbook': '重新打开画册',
+  // update notice in the apps (ui/UpdateNotice.ts)
+  'New version {v} is out': '新版本 {v} 出来了',
+  'Install it over this one. Your progress stays.': '直接覆盖安装，进度会保留。',
+  Download: '下载',
+  Later: '以后再说',
   // web play lag tips (ui/PlayTips.ts)
   'Loading slowly? If your connection is lagging, try a network accelerator.': '加载有点慢？网络卡顿的话，建议开加速器再试。',
   'Choppy? Lower Graphics first, then turn on hardware acceleration in your browser. Slow network? Try a network accelerator.':

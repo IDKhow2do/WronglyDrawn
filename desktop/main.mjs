@@ -4,7 +4,8 @@
  *          WD_SHOT=<file.png> to save what the check saw.
  * [OUTPUT]: the desktop app: one window that plays the game offline. Requests to https://wrongdraw.maequeen.top
  *           are answered from resources/game/; /api/* (feedback) and every other host go to the network as usual.
- *           The user agent ends in " WronglyDrawnDesktop/<version>" (render/Quality.ts reads it as DESKTOP_APP).
+ *           The user agent ends in " WronglyDrawnDesktop/<version> <platform>-<arch>" (render/Quality.ts reads it as
+ *           DESKTOP_APP; ui/UpdateNotice.ts reads the version and picks this machine's installer).
  * [POS]: desktop/. The same idea as android/ (MainActivity.java): the game keeps the site's origin, so saves,
  *        feedback and the AI partner work as on the web. All gameplay lives in the web build; this file only
  *        loads it and handles the window.
@@ -23,7 +24,7 @@ const GAME_DIR = app.isPackaged ? path.join(process.resourcesPath, 'game') : pat
 
 // CI machines have no graphics card: the check draws with Chromium's software renderer. Players never get this.
 if (SMOKE) app.commandLine.appendSwitch('enable-unsafe-swiftshader');
-app.userAgentFallback = `${app.userAgentFallback} WronglyDrawnDesktop/${app.getVersion()}`;
+app.userAgentFallback = `${app.userAgentFallback} WronglyDrawnDesktop/${app.getVersion()} ${process.platform}-${process.arch}`;
 
 // ── the game's files come from the package; everything else goes to the network ──
 function serveGame() {
