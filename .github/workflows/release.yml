@@ -140,7 +140,7 @@ jobs:
             smoke: desktop/release/win-unpacked/WronglyDrawn.exe
             files: desktop/release/*.exe
           - name: macOS
-            os: macos-14
+            os: macos-latest
             smoke: desktop/release/mac-arm64/WronglyDrawn.app/Contents/MacOS/WronglyDrawn
             files: desktop/release/*.dmg
           - name: Linux
