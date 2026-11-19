@@ -60,12 +60,17 @@ ssh-keyscan 你的服务器地址
 | `DEPLOY_KNOWN_HOSTS` | 上面 `ssh-keyscan` 输出的那几行 |
 | `DEPLOY_HOST` | 服务器地址，和 `ssh-keyscan` 用的写法一样 |
 | `DEPLOY_USER` | 服务器上的发布用户名 |
-| `DEPLOY_PATH` | 钥匙用 `rrsync` 锁住时填 `/`。否则填网站根目录的绝对路径，就是现在放着网站 `index.html` 的那个目录，末尾不带 `/` |
 | `DEPLOY_PORT` | SSH 端口。是 22 就不用加这一条 |
 
 密钥存进去以后谁也看不到原文，日志里出现时会被打成 `***`。填完把电脑上的 `wd-deploy` 私钥删掉。
 
 仓库是公开的，但这几个密钥只交给 `main` 上的发布流程。别人发来的 Pull Request 跑的是 `Check game builds`，拿不到密钥。所以 `main` 只接受审过的合并。
+
+再切到同一页的 **Variables** 页签 → **New repository variable**，加一个变量（路径不是机密，放在变量里；放在密钥里时，日志会把每个路径都打成 `***`）：
+
+| 名字 | 填什么 |
+|---|---|
+| `DEPLOY_PATH` | 钥匙用 `rrsync` 锁住时填 `/`。否则填网站根目录的绝对路径，就是现在放着网站 `index.html` 的那个目录，末尾不带 `/` |
 
 ### 三、先空跑一次
 
@@ -126,4 +131,4 @@ npx vite preview --outDir /tmp/wd-site
 
 ## English
 
-`.github/workflows/deploy-site.yml` builds the game with a relative base, assembles the site (landing page at `/`, game at `/play/`, commit hash in `/build.txt`) and publishes it on every push to `main` that touches the game or the landing page. The repository variable `SITE_DEPLOY` picks the target: unset builds only, `server` syncs to your own server with rsync over SSH (needs the `DEPLOY_*` secrets above), `pages` publishes to GitHub Pages. To roll back, run the workflow by hand with an older commit hash, or restore the entry pages kept under `.previous/` on the server.
+`.github/workflows/deploy-site.yml` builds the game with a relative base, assembles the site (landing page at `/`, game at `/play/`, commit hash in `/build.txt`) and publishes it on every push to `main` that touches the game or the landing page. The repository variable `SITE_DEPLOY` picks the target: unset builds only, `server` syncs to your own server with rsync over SSH (needs the `DEPLOY_*` secrets and the `DEPLOY_PATH` variable above), `pages` publishes to GitHub Pages. To roll back, run the workflow by hand with an older commit hash, or restore the entry pages kept under `.previous/` on the server.
