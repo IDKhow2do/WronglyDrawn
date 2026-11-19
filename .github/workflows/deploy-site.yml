@@ -122,14 +122,15 @@ jobs:
           [[ "$DEPLOY_HOST" =~ ^[A-Za-z0-9.-]+$ ]] || bad DEPLOY_HOST
           [[ "$DEPLOY_USER" =~ ^[A-Za-z0-9._-]+$ ]] || bad DEPLOY_USER
           [[ "${DEPLOY_PORT:=22}" =~ ^[0-9]+$ ]] || bad DEPLOY_PORT
-          [[ "$DEPLOY_PATH" =~ ^/[A-Za-z0-9._/-]*[A-Za-z0-9._-]$ && "$DEPLOY_PATH" != *..* ]] || bad DEPLOY_PATH
+          # "/" = 钥匙被 rrsync 锁在网站目录里，路径从那个目录算起（docs/DEPLOY.md）。
+          [[ "$DEPLOY_PATH" == / || ( "$DEPLOY_PATH" =~ ^/[A-Za-z0-9._/-]*[A-Za-z0-9._-]$ && "$DEPLOY_PATH" != *..* ) ]] || bad DEPLOY_PATH
 
           umask 077
           mkdir -p "$RUNNER_TEMP/ssh"
           printf '%s\n' "$DEPLOY_SSH_KEY" > "$RUNNER_TEMP/ssh/key"
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/ssh/known_hosts"
           rsh="ssh -i $RUNNER_TEMP/ssh/key -p $DEPLOY_PORT -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$RUNNER_TEMP/ssh/known_hosts -o ConnectTimeout=20"
-          dest="$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+          dest="$DEPLOY_USER@$DEPLOY_HOST:${DEPLOY_PATH%/}/"
           stamp="$(date -u +%Y%m%d-%H%M%S)-$LABEL"
 
           echo "1/2 resources (the pages still point at the old build)"
