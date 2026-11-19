@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- [INPUT]: 游戏名。 -->
+<!-- [OUTPUT]: 主屏幕与系统应用信息中的名称。 -->
+<!-- [POS]: 原生可见文案的资源入口。 -->
+<!-- [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md -->
+<resources>
+    <string name="app_name">错画之城</string>
+</resources>
