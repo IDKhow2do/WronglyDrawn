@@ -1,0 +1,46 @@
+name: Bug 反馈 · Bug report
+description: 游戏里出了问题：卡住、穿模、打不过去、画面不对、没声音
+labels: [bug]
+body:
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 你在哪儿玩的 · Where did you play
+      options:
+        - 电脑浏览器 · Desktop browser
+        - 手机浏览器 · Phone browser
+        - iOS（TestFlight）
+        - Android 安装包
+        - TapTap
+        - 自己构建的 · Built from source
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: 设备和浏览器 · Device and browser
+      description: 例如 iPhone 15 / Safari，Windows 11 / Chrome 142
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: 哪一关、什么位置 · Level and place
+      description: 例如 第二关码头，留声机 Boss
+  - type: textarea
+    id: steps
+    attributes:
+      label: 怎么重现 · Steps to reproduce
+      placeholder: |
+        1. ……
+        2. ……
+        3. 然后就……
+    validations:
+      required: true
+  - type: textarea
+    id: seen
+    attributes:
+      label: 你看到了什么，本来以为会怎样 · What happened, and what you expected
+      description: 截图或录屏可以直接拖进来
+    validations:
+      required: true

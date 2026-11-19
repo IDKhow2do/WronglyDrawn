@@ -1,0 +1,17 @@
+ready PLAYING
+  17s got the LEGS
+  60s Guardian 1: the lift
+  68s on F2
+ 169s Guardian 2: the Inspector
+ 176s on F3
+ 310s Guardian 3: the Archivist
+ 319s on the ROOF
+ 323s Red Pen engaged
+ 373s phase 2
+ 407s phase 3
+ 427s FINAL (TAG)
+ 437s LEVEL COMPLETE
+ 437s END marks {"legs":17,"lift":60,"f2":68,"inspector":169,"f3":176,"archivist":310,"roof":319,"boss":323,"ph2":373,"ph3":407,"final":427,"complete":437} game time 387 hp 6 falls 3 errs []
+ 437s fights {"limp":76,"w3-press-belt-1":52,"w3-press-belt-0":43,"w3-press-lift":43,"w3-snake-pit-0":47,"w3-snake-pit-1":29,"w3-snake-west":52,"w3-press-west":36,"w3-compass-reading-0":66,"w3-compass-reading-1":41,"w3-compass-index":141,"w3-press-index":63,"w3-snake-index":72}
+TOTAL 438s
+[386.7666666666436,1,12,true,[]]

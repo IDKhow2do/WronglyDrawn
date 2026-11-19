@@ -1,0 +1,186 @@
+[
+ {
+  "pose": "victory",
+  "ctl": 0,
+  "changedPx": 1566,
+  "multiPx": 1184,
+  "blobTiles": 13,
+  "hot": "240:400:202 1248:400:118 1248:384:107 240:416:105"
+ },
+ {
+  "pose": "title",
+  "ctl": 0,
+  "changedPx": 1550,
+  "multiPx": 885,
+  "blobTiles": 4,
+  "hot": "384:336:141 384:352:106 480:608:14 624:416:12"
+ },
+ {
+  "pose": "spawn",
+  "ctl": 0,
+  "changedPx": 1542,
+  "multiPx": 725,
+  "blobTiles": 1,
+  "hot": "80:144:16"
+ },
+ {
+  "pose": "quay_w",
+  "ctl": 0,
+  "changedPx": 619,
+  "multiPx": 426,
+  "blobTiles": 12,
+  "hot": "560:608:35 560:592:26 560:624:20 640:464:19"
+ },
+ {
+  "pose": "quay_e",
+  "ctl": 0,
+  "changedPx": 1346,
+  "multiPx": 1122,
+  "blobTiles": 54,
+  "hot": "880:464:68 848:448:61 832:448:40 864:448:35"
+ },
+ {
+  "pose": "ferry_stern",
+  "ctl": 0,
+  "changedPx": 4005,
+  "multiPx": 2127,
+  "blobTiles": 12,
+  "hot": "768:192:19 800:192:19 800:304:17 784:192:16"
+ },
+ {
+  "pose": "ferry_side",
+  "ctl": 0,
+  "changedPx": 3903,
+  "multiPx": 2374,
+  "blobTiles": 21,
+  "hot": "1120:144:207 1120:128:176 1120:160:145 1136:128:66"
+ },
+ {
+  "pose": "ferry_flag",
+  "ctl": 0,
+  "changedPx": 5335,
+  "multiPx": 3350,
+  "blobTiles": 65,
+  "hot": "64:208:173 64:192:162 64:224:149 64:240:111"
+ },
+ {
+  "pose": "lagoon",
+  "ctl": 0,
+  "changedPx": 6684,
+  "multiPx": 5038,
+  "blobTiles": 59,
+  "hot": "96:112:256 96:128:253 1248:112:243 112:160:235"
+ },
+ {
+  "pose": "pontoon",
+  "ctl": 0,
+  "changedPx": 3376,
+  "multiPx": 513,
+  "blobTiles": 3,
+  "hot": "560:608:23 688:608:15 576:608:14"
+ },
+ {
+  "pose": "dinghies",
+  "ctl": 0,
+  "changedPx": 1195,
+  "multiPx": 715,
+  "blobTiles": 7,
+  "hot": "672:32:234 672:16:143 672:0:59 672:48:38"
+ },
+ {
+  "pose": "oldtown",
+  "ctl": 0,
+  "changedPx": 8284,
+  "multiPx": 6701,
+  "blobTiles": 40,
+  "hot": "992:240:256 1008:240:256 992:256:256 1008:256:256"
+ },
+ {
+  "pose": "square",
+  "ctl": 0,
+  "changedPx": 22525,
+  "multiPx": 11784,
+  "blobTiles": 326,
+  "hot": "768:480:135 752:448:127 784:512:125 656:240:107"
+ },
+ {
+  "pose": "clock",
+  "ctl": 0,
+  "changedPx": 6371,
+  "multiPx": 3851,
+  "blobTiles": 74,
+  "hot": "1264:288:99 1264:352:99 1264:304:94 1264:368:87"
+ },
+ {
+  "pose": "bridge",
+  "ctl": 0,
+  "changedPx": 2472,
+  "multiPx": 1256,
+  "blobTiles": 24,
+  "hot": "1056:16:27 800:32:27 800:16:26 816:80:26"
+ },
+ {
+  "pose": "bridge_far",
+  "ctl": 0,
+  "changedPx": 1614,
+  "multiPx": 817,
+  "blobTiles": 5,
+  "hot": "1216:240:17 896:192:15 992:0:13 656:64:13"
+ },
+ {
+  "pose": "arena",
+  "ctl": 0,
+  "changedPx": 2715,
+  "multiPx": 1684,
+  "blobTiles": 22,
+  "hot": "736:512:106 576:528:106 736:528:105 576:512:87"
+ },
+ {
+  "pose": "lighthouse",
+  "ctl": 0,
+  "changedPx": 2551,
+  "multiPx": 1320,
+  "blobTiles": 10,
+  "hot": "80:576:21 672:336:16 432:272:13 64:0:12"
+ },
+ {
+  "pose": "lamp",
+  "ctl": 0,
+  "changedPx": 5316,
+  "multiPx": 2564,
+  "blobTiles": 26,
+  "hot": "816:416:30 816:432:22 96:288:20 336:400:17"
+ },
+ {
+  "pose": "jetty_boat",
+  "ctl": 0,
+  "changedPx": 58034,
+  "multiPx": 20355,
+  "blobTiles": 508,
+  "hot": "48:160:127 96:128:120 32:160:119 64:160:117"
+ },
+ {
+  "pose": "boardwalk",
+  "ctl": 0,
+  "changedPx": 17972,
+  "multiPx": 9834,
+  "blobTiles": 197,
+  "hot": "1168:576:147 1264:16:131 1264:0:119 1248:112:119"
+ },
+ {
+  "pose": "market",
+  "ctl": 0,
+  "changedPx": 3344,
+  "multiPx": 1581,
+  "blobTiles": 14,
+  "hot": "64:0:24 208:32:16 128:96:16 224:32:15"
+ },
+ {
+  "pose": "roofs",
+  "ctl": 0,
+  "changedPx": 1752,
+  "multiPx": 959,
+  "blobTiles": 2,
+  "hot": "1136:160:12 656:528:12"
+ }
+]

@@ -1,0 +1,62 @@
+/**
+ * [INPUT]: 反馈面板的 DOM 和已有调色板。
+ * [OUTPUT]: 手绘反馈入口与能在横屏手机上滚动的表单。
+ * [POS]: 对话框位于浏览器顶层，避开游戏 HUD 的堆叠顺序。
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
+.feedback-button {
+  cursor: pointer;
+  min-height: 35px;
+  border: 3px solid var(--black);
+  box-shadow: 3px 3px var(--black);
+  padding: 3px 11px;
+  color: var(--black);
+  background: var(--turq);
+  font: 800 15px var(--marker);
+}
+.feedback-button:hover { background: var(--yellow); }
+.feedback-button:disabled { opacity: .52; cursor: wait; }
+.feedback-open { pointer-events: auto; z-index: 2; }
+.feedback-open-title { position: absolute; bottom: max(3%, env(safe-area-inset-bottom)); left: max(2%, env(safe-area-inset-left)); transform: rotate(-2deg); }
+.feedback-open-pause { align-self: center; }
+.feedback-dialog {
+  box-sizing: border-box;
+  width: min(530px, calc(100vw - 35px));
+  max-height: calc(100dvh - 28px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 16px 18px;
+  border: 4px solid var(--black);
+  border-radius: 4px 10px 7px 5px;
+  box-shadow: 7px 7px var(--pink);
+  background: var(--cream);
+  color: var(--black);
+  font: 15px/1.35 var(--marker);
+  user-select: text;
+}
+.feedback-dialog::backdrop { background: #141014ba; }
+.feedback-dialog h2 { margin: 0 0 10px; font-size: 26px; text-shadow: 2px 2px var(--pink); }
+.feedback-dialog textarea, .feedback-dialog input[type=text] {
+  display: block;
+  resize: vertical;
+  margin: 5px 0;
+  width: 100%;
+  border: 2px solid var(--black);
+  border-radius: 3px;
+  background: #fff8ea;
+  color: var(--black);
+  padding: 7px 8px;
+  font: 16px/1.35 system-ui, sans-serif;
+}
+.feedback-block { margin: 9px 0; padding: 7px 9px; border: 2px dashed #686063; border-radius: 3px; }
+.feedback-snapshot, .feedback-device { white-space: pre-wrap; overflow-wrap: anywhere; margin: 3px 0; font: 13px/1.4 system-ui, sans-serif; }
+.feedback-check { display: flex; align-items: flex-start; gap: 6px; color: var(--black); }
+.feedback-check input { inline-size: 16px; block-size: 16px; flex: none; accent-color: #2a4be0; }
+.feedback-details { margin-top: 6px; }
+.feedback-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+.feedback-send { background: var(--yellow); }
+.feedback-status:not(:empty) { margin-top: 6px; font-weight: 800; }
+@media (max-height: 480px) {
+  .feedback-dialog { padding: 9px 13px; }
+  .feedback-dialog h2 { margin-bottom: 5px; font-size: 21px; }
+}

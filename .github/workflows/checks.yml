@@ -1,0 +1,42 @@
+# [INPUT]: 从 PR 合并候选或 main 读取源码和锁文件。
+# [OUTPUT]: 提供 Check game builds 状态检查。
+# [POS]: 验证网页和 TapTap 首关。发版走独立流程。
+# [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+name: Game checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: game-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  game-builds:
+    name: Check game builds
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out the candidate
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Build and check web
+        run: |
+          npm run build -- --outDir "$RUNNER_TEMP/wrongdraw-web"
+          node scripts/smoke-build.mjs "$RUNNER_TEMP/wrongdraw-web"
+      - name: Build and check TapTap H5
+        run: |
+          npx --no-install vite build --mode taptap --base ./ --outDir "$RUNNER_TEMP/wrongdraw-taptap"
+          node scripts/smoke-build.mjs "$RUNNER_TEMP/wrongdraw-taptap" --taptap

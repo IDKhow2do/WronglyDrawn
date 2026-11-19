@@ -1,0 +1,146 @@
+/* [POS]: styles of src/story — the storybook (desk, paper sheet, draw-on strokes, captions, letter, credits), the hold-to-skip
+   ring, the level title card, the title-screen STORY / THE END stickers. Imported by StoryFlow.ts.
+   [PROTOCOL]: Update this header on change, then check docs/story/NOTES.md */
+:root {
+  --sb-hand: 'Noteworthy', 'Bradley Hand', 'Segoe Print', 'Marker Felt', 'Comic Sans MS', var(--hand-zh), cursive;
+  --sb-marker: 'Marker Felt', 'Chalkboard SE', 'Segoe Print', 'Comic Sans MS', var(--hand-zh), cursive;
+  --sb-paper: #fbf3e2;
+  --sb-line: rgba(92, 142, 214, .28);
+  --sb-margin: rgba(224, 38, 47, .45);
+}
+
+/* ---------- the book: a dark desk, one paper sheet at a time ---------- */
+.storybook { position: absolute; inset: 0; z-index: 40; pointer-events: auto; opacity: 0; transition: opacity .6s ease; cursor: default;
+  font-family: var(--sb-hand); color: #2b2730; }
+.storybook.in { opacity: 1; }
+.storybook.out { opacity: 0; pointer-events: none; }
+.sb-desk { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, #3a2f44 0%, #1d1724 62%, #120e16 100%); }
+.storybook.over-game .sb-desk { background: radial-gradient(ellipse at 50% 45%, rgba(40,32,48,.82) 0%, rgba(18,14,22,.95) 70%); }
+.sb-stage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; perspective: 1600px; }
+
+.sb-page { position: absolute; width: min(92vw, 148vh); aspect-ratio: 16 / 10.6; background-color: var(--sb-paper);
+  background-image:
+    linear-gradient(90deg, transparent calc(6% - 1px), var(--sb-margin) calc(6% - 1px), var(--sb-margin) calc(6% + 1px), transparent calc(6% + 1px)),
+    repeating-linear-gradient(180deg, transparent 0 calc(4.2% - 1px), var(--sb-line) calc(4.2% - 1px) 4.2%);
+  box-shadow: 0 18px 50px rgba(0,0,0,.55), 0 2px 0 rgba(0,0,0,.2); border-radius: 3px; overflow: hidden;
+  transform: rotate(-0.6deg); animation: sb-in .7s cubic-bezier(.2,.9,.3,1) both; }
+.sb-page:nth-child(even) { transform: rotate(0.5deg); }
+.sb-page.leaving { animation: sb-leave .65s cubic-bezier(.6,0,.8,.4) forwards; pointer-events: none; }
+@keyframes sb-in { from { opacity: 0; transform: translateX(6%) rotate(2deg) scale(.97); } }
+@keyframes sb-leave { to { opacity: 0; transform: translateX(-12%) rotate(-5deg) scale(.95); } }
+.sb-page.grey-paper { --sb-paper: #e4e0e6; }
+
+.sb-pic { position: absolute; left: 3%; right: 3%; top: 2%; height: 76%; }
+.sb-pic svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.sb-cap { position: absolute; left: 9%; right: 6%; bottom: 3%; height: 20%; display: flex; flex-direction: column; justify-content: center; gap: .15em;
+  font-size: clamp(15px, 2.25vmin + .6vw, 34px); font-weight: 700; line-height: 1.25; }
+.sb-cap p { margin: 0; opacity: 0; transform: translateY(8px); transition: opacity .6s, transform .6s; }
+.sb-cap p.on { opacity: 1; transform: none; }
+.sb-cap p.small { font-size: .8em; color: #6a6070; }
+body.lang-zh .sb-cap { font-family: var(--hand-zh); font-weight: 400; letter-spacing: .04em; }
+
+/* draw-on: strokes with pathLength=1, scribble fills, washes and hand text (timing from Sketch: --d delay, --t duration) */
+.sb-art .sk { stroke-dasharray: 1 1; stroke-dashoffset: 1.001; animation: sb-draw var(--t, .4s) ease-out var(--d, 0s) forwards; }
+.sb-art .skf { opacity: 0; animation: sb-fade var(--t, .3s) ease-out var(--d, 0s) forwards; }
+.sb-art .skt { clip-path: inset(-30% 101% -30% -2%); animation: sb-write var(--t, .5s) linear var(--d, 0s) forwards; }
+.sb-art .hd { font-family: var(--sb-hand); }
+.sb-art .mk { font-family: var(--sb-marker); }
+body.lang-zh .sb-art .hd, body.lang-zh .sb-art .mk { font-family: var(--hand-zh); font-weight: 400; }
+@keyframes sb-draw { to { stroke-dashoffset: 0; } }
+@keyframes sb-fade { to { opacity: 1; } }
+@keyframes sb-write { to { clip-path: inset(-30% -2% -30% -2%); } }
+.sb-page.done .sk, .sb-page.done .skf, .sb-page.done .skt, .sb-page.done .greying { animation-duration: .01s !important; animation-delay: 0s !important; }
+/* a layer that loses its colour at --g (the city stops seeing, goes quiet, stands still) */
+.sb-art.greying { animation: sb-grey 2.2s ease-in-out var(--g, 3s) forwards; }
+@keyframes sb-grey { to { filter: grayscale(1) contrast(.85) brightness(1.05); opacity: .8; } }
+/* a layer that arrives later as a whole */
+.sb-art.late { opacity: 0; animation: sb-fade .8s ease-out var(--g, 3s) forwards; }
+
+/* ---------- the letter and the credits fill the sheet ---------- */
+.sb-page.sheet { aspect-ratio: auto; height: min(94vh, 64vw); width: min(86vw, 125vh); }
+.sb-page.sheet.wide { width: min(92vw, 148vh); aspect-ratio: 16 / 10.6; height: auto; }
+.sb-sheet { position: absolute; inset: 0; }
+.sb-letter { position: absolute; inset: 4% 6% 3% 12%; font-size: clamp(13px, 1.3vmin + .5vw, 23px); line-height: 1.8; color: #1f2a5a; font-weight: 700; }
+.sb-page.sheet.letter { background-image: linear-gradient(90deg, transparent calc(9% - 1px), var(--sb-margin) calc(9% - 1px), var(--sb-margin) calc(9% + 1px), transparent calc(9% + 1px)); }
+/* the ruled lines live on the text block, in em: the handwriting sits on them at any size */
+.sb-letter { background-image: repeating-linear-gradient(180deg, transparent 0 calc(1.8em - 1px), var(--sb-line) calc(1.8em - 1px) 1.8em); background-position: 0 .3em; }
+body.lang-zh .sb-letter { background-image: repeating-linear-gradient(180deg, transparent 0 calc(1.9em - 1px), var(--sb-line) calc(1.9em - 1px) 1.9em); }
+.sb-letter p { margin: 0 0 .1em; }
+.sb-letter p.gap { margin-top: 1.8em; }
+body.lang-zh .sb-letter p.gap { margin-top: 1.9em; }
+.sb-letter .w { opacity: 0; animation: sb-ink .35s ease-out var(--d) forwards; }
+.sb-page.done .sb-letter .w, .sb-page.done .sb-credits p, .sb-page.done .sb-credits .end { animation-duration: .01s; animation-delay: 0s; }
+/* a red X that turns into something else: its strokes take the new colour at --ta */
+.sb-art .turn .sk { animation: sb-draw var(--t, .4s) ease-out var(--d, 0s) forwards, sb-turn .9s ease var(--ta, 3s) forwards; }
+.sb-page.done .sb-art .turn .sk { animation-duration: .01s, .01s; animation-delay: 0s, 0s; }
+@keyframes sb-turn { to { stroke: var(--to); } }
+@keyframes sb-ink { from { opacity: 0; filter: blur(1.5px); } to { opacity: 1; filter: none; } }
+.sb-letter .sign { margin-top: .6em; text-align: right; padding-right: 22%; }
+.sb-letter .sign b { display: inline-block; font-size: 1.25em; transform: rotate(-3deg); color: #1f2a5a; border-bottom: 2px solid rgba(31,42,90,.4); padding: 0 .4em; }
+.sb-letter .doodle { position: absolute; right: -2%; bottom: 1%; width: 22%; }
+body.lang-zh .sb-letter { font-family: var(--hand-zh); font-weight: 400; line-height: 1.9; letter-spacing: .03em; font-size: clamp(13px, 1.28vmin + .46vw, 22px); }
+
+.sb-credits { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2vmin; text-align: center; }
+.sb-credits .logo-d { font-family: var(--sb-marker); font-weight: 900; font-size: clamp(34px, 7vmin, 92px); line-height: .95; color: #2b2730; transform: rotate(-3deg);
+  text-shadow: 4px 4px 0 #ff4fa3; }
+.sb-credits .zh { font-family: var(--hand-zh); font-size: clamp(20px, 3.4vmin, 44px); color: #e0262f; }
+.sb-credits p { margin: 0; font-size: clamp(14px, 2.2vmin, 28px); opacity: 0; animation: sb-fade 1s ease-out var(--d, 1s) forwards; }
+.sb-credits .end { font-family: var(--sb-marker); font-size: clamp(28px, 6vmin, 80px); font-weight: 900; margin-top: 2vmin; opacity: 0; animation: sb-fade 1.2s ease-out var(--d, 5s) forwards; }
+.sb-credits .end i { display: inline-block; transform: rotate(14deg) translateY(-.08em); font-style: normal; color: #e0262f; }
+body.lang-zh .sb-credits p { font-family: var(--hand-zh); }
+
+.sb-hint { position: absolute; left: 50%; bottom: 2.4vh; transform: translateX(-50%); font-family: var(--sb-hand); font-size: clamp(14px, 1.8vmin, 22px); color: #f6e8d0;
+  background: rgba(20,16,20,.82); padding: 4px 14px 5px; border-radius: 14px; z-index: 2;
+  opacity: 0; transition: opacity .6s; animation: sb-bob 1.6s ease-in-out infinite; pointer-events: none; }
+.sb-hint.on { opacity: .9; }
+@keyframes sb-bob { 50% { transform: translate(-50%, -4px); } }
+
+/* ---------- SKIP: a taped paper button (click / tap, Esc, pad B); its ring fills while a hold runs ---------- */
+.sb-skip { position: absolute; right: 2.2vw; bottom: 2.6vh; z-index: 45; display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 5px 14px 5px 8px;
+  font-family: var(--sb-marker); color: #2b2730; background: var(--sb-paper); border: 3px solid #141014; box-shadow: 4px 5px 0 #141014;
+  transform: rotate(-2deg); cursor: pointer; pointer-events: auto; transition: opacity .3s, transform .15s cubic-bezier(.3,1.8,.5,1); }
+.sb-skip::before { content: ''; position: absolute; width: 34px; height: 12px; left: 40%; top: -8px; background: rgba(255,246,220,.8); border: 1px solid rgba(20,16,20,.2); transform: rotate(-6deg); }
+.sb-skip:hover, .sb-skip.on { transform: rotate(0) scale(1.06); }
+/* the first moments: visible but asleep, so a press carried over from the screen before cannot skip */
+.sb-skip.arming { opacity: .45; pointer-events: none; }
+.sb-skip b { font-size: clamp(16px, 1.9vmin, 22px); font-weight: 900; letter-spacing: .04em; }
+.sb-skip small { font-family: var(--sb-hand); font-size: clamp(11px, 1.3vmin, 14px); opacity: .7; }
+.sb-skip svg { width: 34px; height: 34px; transform: rotate(-90deg); }
+.sb-skip circle { fill: none; stroke-width: 4; }
+.sb-skip .bg { stroke: rgba(20,16,20,.18); }
+.sb-skip .fg { stroke: #ff4fa3; stroke-dasharray: 1 1; stroke-dashoffset: calc(1 - var(--k, 0)); stroke-linecap: round; }
+.sb-skip .ic { fill: #2b2730; transform: rotate(90deg); transform-origin: 22px 22px; }
+.sb-skip:focus-visible { outline: 4px solid #ffd23a; outline-offset: 3px; }
+body.lang-zh .sb-skip b, body.lang-zh .sb-skip small, body.lang-zh .sb-hint { font-family: var(--hand-zh); font-weight: 400; }
+.cine-skip { position: absolute; inset: 0; z-index: 26; pointer-events: none; }
+
+/* ---------- level title card (over the camera push-in) ---------- */
+.sb-card { position: absolute; left: 50%; top: 9%; z-index: 26; pointer-events: none; width: min(560px, 80vw); padding: 14px 24px 18px 52px; text-align: left;
+  background-color: var(--sb-paper); color: #2b2730; box-shadow: 8px 9px 0 rgba(20,16,20,.85); border: 4px solid #141014;
+  background-image: linear-gradient(90deg, transparent 33px, var(--sb-margin) 33px, var(--sb-margin) 35px, transparent 35px),
+    repeating-linear-gradient(180deg, transparent 0 27px, var(--sb-line) 27px 28px);
+  transform: translate(-50%, -30px) rotate(-2deg); opacity: 0; transition: opacity .5s, transform .6s cubic-bezier(.2,1.4,.4,1); }
+.sb-card.on { opacity: 1; transform: translate(-50%, 0) rotate(-2deg); }
+.sb-card .ch { font-family: var(--sb-hand); font-size: clamp(14px, 1.6vw, 20px); color: #e0262f; font-weight: 700; letter-spacing: .06em; }
+.sb-card .nm { font-family: var(--sb-marker); font-size: clamp(30px, 4.2vw, 56px); font-weight: 900; line-height: 1; margin: 2px 0 6px; }
+.sb-card .ln { font-family: var(--sb-hand); font-size: clamp(15px, 1.7vw, 22px); font-weight: 700; }
+.sb-card svg { position: absolute; right: 12px; top: 10px; width: 92px; height: 92px; overflow: visible; }
+body.lang-zh .sb-card .ch, body.lang-zh .sb-card .ln, body.lang-zh .sb-card .nm { font-family: var(--hand-zh); font-weight: 400; }
+
+/* ---------- title screen: STORY / THE END stickers ---------- */
+.st-story { left: 1.6%; bottom: 3%; display: flex; gap: 12px; z-index: 2; }
+.st-story button { pointer-events: auto; cursor: pointer; font-family: var(--sb-marker); font-weight: 900; font-size: clamp(14px, 1.4vw, 20px); color: #2b2730;
+  background: var(--sb-paper); border: 3px solid #141014; box-shadow: 4px 5px 0 #141014; padding: 6px 14px 7px; transform: rotate(-3deg); position: relative;
+  transition: transform .15s cubic-bezier(.3,1.8,.5,1); }
+.st-story button:nth-child(2) { transform: rotate(2deg); background: #ffe3ef; }
+.st-story button::before { content: ''; position: absolute; width: 34px; height: 12px; left: 30%; top: -8px; background: rgba(255,246,220,.8); border: 1px solid rgba(20,16,20,.2); transform: rotate(-6deg); }
+.st-story button:hover { transform: rotate(0) scale(1.08); }
+.st-story button.hidden { display: none; }
+body.lang-zh .st-story button { font-family: var(--hand-zh); font-weight: 400; }
+.title-screen.bursting .st-story { opacity: 0; }
+/* the author's credit: a small pencil note in the bottom-right corner */
+.st-credit { right: 1.6%; bottom: 3%; z-index: 2; pointer-events: none; font-family: var(--sb-hand); font-weight: 700; font-size: clamp(12px, 1.2vw, 16px);
+  color: #2b2730; background: rgba(251,243,226,.88); padding: 3px 10px 4px; border: 2px solid rgba(20,16,20,.5); transform: rotate(1.5deg); }
+body.lang-zh .st-credit { font-family: var(--hand-zh); font-weight: 400; }
+body.look-open .title-screen .st-credit { display: none; }
+body.look-open .title-screen .st-story { display: none; }

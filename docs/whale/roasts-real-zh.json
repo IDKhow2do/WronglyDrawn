@@ -1,0 +1,197 @@
+{
+ "out": [
+  {
+   "w": "missed",
+   "note": "offer terrible advice",
+   "text": "哦鲸鲸，闭眼喷才准，我刚试过。",
+   "llm": true
+  },
+  {
+   "w": "fell",
+   "note": "quote a made-up old proverb",
+   "text": "老话说：摔得快，长记性也快。",
+   "llm": true
+  },
+  {
+   "w": "hit",
+   "note": "act like his strict coach",
+   "text": "挨打了吧？站我后面，别硬顶。",
+   "llm": true
+  },
+  {
+   "w": "encoreSlip",
+   "note": "whisper it, like a secret",
+   "text": "悄悄说：贪那一波，印章就飞了。",
+   "llm": true
+  },
+  {
+   "w": "idle",
+   "note": "be overly dramatic, like a soap opera",
+   "text": "三十一秒啊，我数着你的呼吸，都替你心跳。",
+   "llm": true
+  },
+  {
+   "w": "perfect",
+   "note": "ask a rhetorical question",
+   "text": "闪得这么漂亮，是躲谁呢？",
+   "llm": true
+  },
+  {
+   "w": "wrongDoor",
+   "note": "be smug about something YOU did earlier",
+   "text": "我早说过，喷眼睛才管用。",
+   "llm": true
+  },
+  {
+   "w": "hit",
+   "note": "make up a fake statistic",
+   "text": "六成玩家在这血线上还要硬冲，你算第几个？",
+   "llm": true
+  },
+  {
+   "w": "missed",
+   "note": "tease him about food",
+   "text": "喷半天，白饭粒都没喷中一颗。",
+   "llm": true
+  },
+  {
+   "w": "fell",
+   "note": "be overly dramatic, like a soap opera",
+   "text": "又摔了。这一集，还要演到第几回啊。",
+   "llm": true
+  },
+  {
+   "w": "hit",
+   "note": "quote a made-up old proverb",
+   "text": "老话说：挨打不躲，是身体在提醒你，别硬来。",
+   "llm": true
+  },
+  {
+   "w": "encoreSlip",
+   "note": "compare it to rice",
+   "text": "贪到印章都飞了，跟抢饭粒一样。",
+   "llm": true
+  },
+  {
+   "w": "idle",
+   "note": "a grudging compliment",
+   "text": "站这么久，定力还行，就是饭粒不捡可惜。",
+   "llm": true
+  },
+  {
+   "w": "perfect",
+   "note": "sports-commentator voice",
+   "text": "漂亮！完美闪避，全场起立，饭粒都鼓掌了。",
+   "llm": true
+  },
+  {
+   "w": "wrongDoor",
+   "note": "act like his strict coach",
+   "text": "教练说：按E没用，先喷它眼睛。",
+   "llm": true
+  },
+  {
+   "w": "hit",
+   "note": "whisper it, like a secret",
+   "text": "悄悄说：血只剩一口了，先躲我身后。",
+   "llm": true
+  },
+  {
+   "w": "missed",
+   "note": "compare it to rice",
+   "text": "喷三秒，一颗没中。这准头，捡饭粒都嫌慢。",
+   "llm": true
+  },
+  {
+   "w": "fell",
+   "note": "ask a rhetorical question",
+   "text": "一出生就去摔，是不是想早点回饭盆边？",
+   "llm": true
+  },
+  {
+   "w": "hit",
+   "note": "sports-commentator voice",
+   "text": "又一记闷棍，稳稳收下，这球他接得真准。",
+   "llm": true
+  },
+  {
+   "w": "encoreSlip",
+   "note": "be smug about something YOU did earlier",
+   "text": "印章又飞了。我早说过先捡饭粒，这不就应验了。",
+   "llm": true
+  },
+  {
+   "w": "idle",
+   "note": "rate it out of ten",
+   "text": "站着发呆三十一秒，定力满分十分，我给十一分。",
+   "llm": true
+  },
+  {
+   "w": "perfect",
+   "note": "mention that you were almost asleep",
+   "text": "你闪得那么响，把我从瞌睡里惊醒了。",
+   "llm": true
+  },
+  {
+   "w": "wrongDoor",
+   "note": "a grudging compliment",
+   "text": "按E没用的，但……你至少敢按，比我强。",
+   "llm": true
+  },
+  {
+   "w": "hit",
+   "note": "say it as if writing in your diary",
+   "text": "日记：他又挨了一下，血只剩六点。我饿了。",
+   "llm": true
+  },
+  {
+   "w": "missed",
+   "note": "pretend you planned it all along",
+   "text": "喷空三秒？我故意的，叫空喷三秒，一种战术。",
+   "llm": true
+  },
+  {
+   "w": "fell",
+   "note": "be smug about something YOU did earlier",
+   "text": "我刚才有在想……真的。",
+   "llm": true
+  },
+  {
+   "w": "hit",
+   "note": "mention that you were almost asleep",
+   "text": "我刚才有在想……真的。",
+   "llm": true
+  },
+  {
+   "w": "encoreSlip",
+   "note": "rate it out of ten",
+   "text": "贪心那下，我打三分。凑合吧。",
+   "llm": true
+  },
+  {
+   "w": "idle",
+   "note": "tease him about food",
+   "text": "站了半小时，你也等饭？饭呢，刚刚不是说有饭吗？",
+   "llm": true
+  },
+  {
+   "w": "perfect",
+   "note": "blame your bowl",
+   "text": "躲得漂亮，功劳分我一半——盆挡的。",
+   "llm": true
+  }
+ ],
+ "status": 30,
+ "cache": 74,
+ "tokens": {
+  "lastPrompt": 2072,
+  "lastCompletion": 17,
+  "totalPrompt": 65326,
+  "totalCompletion": 547,
+  "lastReasoning": 0,
+  "totalReasoning": 0,
+  "emptyReplies": 0,
+  "reports": 30,
+  "chip": true
+ }
+}

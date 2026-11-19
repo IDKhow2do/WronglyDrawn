@@ -1,0 +1,186 @@
+[
+ {
+  "pose": "victory",
+  "ctl": 0,
+  "changedPx": 91,
+  "multiPx": 50,
+  "blobTiles": 0,
+  "hot": ""
+ },
+ {
+  "pose": "title",
+  "ctl": 0,
+  "changedPx": 340,
+  "multiPx": 190,
+  "blobTiles": 0,
+  "hot": ""
+ },
+ {
+  "pose": "spawn",
+  "ctl": 0,
+  "changedPx": 573,
+  "multiPx": 261,
+  "blobTiles": 1,
+  "hot": "80:144:16"
+ },
+ {
+  "pose": "quay_w",
+  "ctl": 0,
+  "changedPx": 581,
+  "multiPx": 393,
+  "blobTiles": 11,
+  "hot": "560:608:35 560:592:26 560:624:20 640:464:19"
+ },
+ {
+  "pose": "quay_e",
+  "ctl": 0,
+  "changedPx": 1695,
+  "multiPx": 839,
+  "blobTiles": 4,
+  "hot": "880:16:13 288:384:13 320:416:13 272:368:12"
+ },
+ {
+  "pose": "ferry_stern",
+  "ctl": 0,
+  "changedPx": 2039,
+  "multiPx": 1036,
+  "blobTiles": 1,
+  "hot": "704:176:12"
+ },
+ {
+  "pose": "ferry_side",
+  "ctl": 0,
+  "changedPx": 1529,
+  "multiPx": 792,
+  "blobTiles": 4,
+  "hot": "416:448:15 592:240:13 352:448:12 384:448:12"
+ },
+ {
+  "pose": "ferry_flag",
+  "ctl": 0,
+  "changedPx": 1657,
+  "multiPx": 848,
+  "blobTiles": 11,
+  "hot": "16:448:18 32:608:18 16:464:16 592:576:15"
+ },
+ {
+  "pose": "lagoon",
+  "ctl": 0,
+  "changedPx": 1799,
+  "multiPx": 998,
+  "blobTiles": 17,
+  "hot": "848:416:27 1104:432:26 688:400:25 736:400:24"
+ },
+ {
+  "pose": "pontoon",
+  "ctl": 0,
+  "changedPx": 1371,
+  "multiPx": 230,
+  "blobTiles": 1,
+  "hot": "560:608:12"
+ },
+ {
+  "pose": "dinghies",
+  "ctl": 0,
+  "changedPx": 257,
+  "multiPx": 88,
+  "blobTiles": 0,
+  "hot": ""
+ },
+ {
+  "pose": "oldtown",
+  "ctl": 0,
+  "changedPx": 335,
+  "multiPx": 160,
+  "blobTiles": 0,
+  "hot": ""
+ },
+ {
+  "pose": "square",
+  "ctl": 0,
+  "changedPx": 659,
+  "multiPx": 308,
+  "blobTiles": 2,
+  "hot": "976:288:21 928:288:12"
+ },
+ {
+  "pose": "clock",
+  "ctl": 0,
+  "changedPx": 1447,
+  "multiPx": 770,
+  "blobTiles": 6,
+  "hot": "944:400:30 1088:16:28 912:288:24 624:192:14"
+ },
+ {
+  "pose": "bridge",
+  "ctl": 0,
+  "changedPx": 1641,
+  "multiPx": 844,
+  "blobTiles": 16,
+  "hot": "800:16:26 800:0:24 1008:144:24 1056:16:23"
+ },
+ {
+  "pose": "bridge_far",
+  "ctl": 0,
+  "changedPx": 823,
+  "multiPx": 422,
+  "blobTiles": 0,
+  "hot": ""
+ },
+ {
+  "pose": "arena",
+  "ctl": 0,
+  "changedPx": 540,
+  "multiPx": 220,
+  "blobTiles": 0,
+  "hot": ""
+ },
+ {
+  "pose": "lighthouse",
+  "ctl": 0,
+  "changedPx": 1109,
+  "multiPx": 550,
+  "blobTiles": 3,
+  "hot": "672:336:16 656:96:12 128:592:12"
+ },
+ {
+  "pose": "lamp",
+  "ctl": 0,
+  "changedPx": 3556,
+  "multiPx": 1731,
+  "blobTiles": 23,
+  "hot": "144:272:29 208:272:27 160:272:21 192:272:19"
+ },
+ {
+  "pose": "jetty_boat",
+  "ctl": 0,
+  "changedPx": 840,
+  "multiPx": 430,
+  "blobTiles": 0,
+  "hot": ""
+ },
+ {
+  "pose": "boardwalk",
+  "ctl": 0,
+  "changedPx": 1614,
+  "multiPx": 873,
+  "blobTiles": 1,
+  "hot": "720:480:13"
+ },
+ {
+  "pose": "market",
+  "ctl": 0,
+  "changedPx": 1531,
+  "multiPx": 726,
+  "blobTiles": 4,
+  "hot": "64:0:16 208:32:16 224:32:14 144:160:12"
+ },
+ {
+  "pose": "roofs",
+  "ctl": 0,
+  "changedPx": 622,
+  "multiPx": 309,
+  "blobTiles": 0,
+  "hot": ""
+ }
+]

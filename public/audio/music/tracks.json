@@ -1,0 +1,4 @@
+{
+  "loops": ["title", "explore", "explore_harbor", "danger", "combat", "boss", "boss_final"],
+  "_note": "Music.ts fetches only these names (no 404s for missing files). Add \"boss\" / \"boss_final\" here once the file is in this folder. See docs/audio/BOSS_MUSIC.md."
+}

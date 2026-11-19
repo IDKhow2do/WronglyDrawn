@@ -1,0 +1,1410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wrongly Drawn / 错画之城 — a guide for the author</title>
+<!--
+  [INPUT]: hand-written from the project's docs and code (sources listed in the Overview tab); the two
+           terrain maps are sampled from heightAt() (src/level/Terrain.ts) and harborHeight()
+           (src/level/harbor/HarborTerrain.ts) at 1 m and baked in below as SVG paths
+  [OUTPUT]: one self-contained page (no network, no build step): tabs for overview, features, the two
+            level maps, level 3, creatures, the AI partner and the story's weak spots, in English and
+            简体中文 (header button; ?lang=zh|en; remembered in localStorage wd.guide.lang; default from
+            the browser language). Chinese names follow src/i18n/zh.ts
+  [POS]: docs/guide/ — a reading aid for the author, not part of the game. Nothing in src/ reads it.
+  [PROTOCOL]: Update this header on change, then check CLAUDE.md
+-->
+<style>
+@font-face { font-family: "WD Hand"; src: url("../../public/fonts/xiaolai-game.woff2") format("woff2"); font-display: swap;
+  unicode-range: U+3000-303F, U+4E00-9FFF, U+FF00-FFEF; }
+:root {
+  --bg: #17121b; --paper: #221b28; --paper2: #2b2232; --line: #3d3245; --ink: #f3e6cf; --dim: #b9aab8;
+  --pink: #ff4fa3; --yellow: #ffd23a; --turq: #22c4c0; --red: #ff4a52; --orange: #ff8a2a; --cobalt: #7d95ff; --green: #8fdc7a;
+  --marker: 'Marker Felt', 'Chalkboard SE', 'Comic Sans MS', 'Segoe Print', "WD Hand", cursive;
+  --body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "WD Hand", "PingFang SC", sans-serif;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body { margin: 0; color: var(--ink); font: 16px/1.55 var(--body);
+  background: radial-gradient(1200px 600px at 10% -10%, #2a1f30 0, transparent 60%), radial-gradient(900px 500px at 110% 10%, #1d2430 0, transparent 60%), var(--bg); min-height: 100vh; }
+a { color: var(--turq); }
+header { padding: 22px 24px 8px; max-width: 1240px; margin: 0 auto; }
+h1 { font: 700 34px/1.1 var(--marker); margin: 0; letter-spacing: .5px; }
+h1 .zh { color: var(--yellow); font-size: 28px; margin-left: 6px; }
+h1 .tilt { display: inline-block; transform: rotate(-3deg); color: var(--pink); }
+.sub { color: var(--dim); margin: 6px 0 0; }
+nav[role=tablist] { position: sticky; top: 0; z-index: 5; background: rgba(23,18,27,.94); backdrop-filter: blur(4px); border-bottom: 2px solid var(--line); }
+.tabs { max-width: 1240px; margin: 0 auto; display: flex; gap: 4px; padding: 8px 16px 0; overflow-x: auto; scrollbar-width: thin; }
+.tabs button { font: 600 15px var(--marker); color: var(--dim); background: transparent; border: 2px solid transparent; border-bottom: none;
+  padding: 8px 12px 7px; border-radius: 10px 10px 0 0; cursor: pointer; white-space: nowrap; }
+.tabs button:hover { color: var(--ink); }
+.tabs button[aria-selected=true] { color: var(--bg); background: var(--yellow); border-color: var(--yellow); transform: rotate(-1deg); }
+.tabs button:focus-visible, button:focus-visible, [tabindex]:focus-visible, summary:focus-visible { outline: 3px solid var(--turq); outline-offset: 2px; }
+main { max-width: 1240px; margin: 0 auto; padding: 18px 16px 60px; }
+section[role=tabpanel] { display: none; }
+section[role=tabpanel].on { display: block; }
+h2 { font: 700 26px/1.2 var(--marker); margin: 6px 0 12px; color: var(--yellow); }
+h3 { font: 700 19px/1.25 var(--marker); margin: 18px 0 8px; color: var(--ink); }
+p { margin: 0 0 10px; }
+.card { background: var(--paper); border: 2px solid var(--line); border-radius: 14px; padding: 14px 16px; margin: 0 0 14px; box-shadow: 3px 4px 0 #0c090e; }
+.grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+.two { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 860px) { .two { grid-template-columns: 1fr; } h1 { font-size: 27px; } h1 .zh { font-size: 22px; } }
+.tag { display: inline-block; font: 700 12px/1 var(--body); text-transform: uppercase; letter-spacing: .6px; padding: 4px 7px; border-radius: 6px; margin: 0 4px 4px 0; color: #17121b; }
+.t-done { background: var(--green); } .t-wip { background: var(--orange); } .t-plan { background: var(--cobalt); }
+.t-earn { background: var(--green); } .t-thin { background: var(--red); color: #fff; } .t-mixed { background: var(--yellow); } .t-na { background: #8e8296; }
+.loop { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 4px; }
+.loop span { background: var(--paper2); border: 2px dashed var(--line); border-radius: 10px; padding: 5px 9px; font-size: 14px; }
+.loop i { color: var(--pink); font-style: normal; font-weight: 700; }
+ul.tight { margin: 4px 0 8px; padding-left: 20px; } ul.tight li { margin: 3px 0; }
+.note { color: var(--dim); font-size: 14px; }
+.nc { color: var(--orange); font-weight: 600; }
+kbd { font: 600 12px ui-monospace, Menlo, monospace; background: #0f0c12; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 1px 5px; }
+code { font: 13px ui-monospace, Menlo, monospace; background: #0f0c12; padding: 1px 4px; border-radius: 4px; color: #e7d6ff; }
+.feat h3 { margin-top: 0; }
+.feat dl { margin: 0; } .feat dt { font-weight: 700; color: var(--turq); margin-top: 8px; } .feat dd { margin: 2px 0 0; }
+
+/* ── maps ── */
+.maprow { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(300px, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 900px) { .maprow { grid-template-columns: 1fr; } }
+.mapbox { background: #120e15; border: 2px solid var(--line); border-radius: 14px; padding: 6px; position: relative; }
+.mapbox svg { width: 100%; height: auto; display: block; touch-action: manipulation; }
+.layers { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 6px 6px 2px; font-size: 14px; color: var(--dim); }
+.layers label { cursor: pointer; display: inline-flex; gap: 5px; align-items: center; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--dim); padding: 2px 6px 6px; }
+.legend b { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #120e15; vertical-align: -2px; margin-right: 4px; }
+.mk { cursor: pointer; }
+.mk .hit { fill: transparent; }
+.mk:hover .shape, .mk:focus .shape { stroke: #fff; stroke-width: .7; }
+.mk.sel .shape { stroke: #fff; stroke-width: .9; }
+.mk.sel .halo { display: block; }
+.halo { display: none; fill: none; stroke: var(--yellow); stroke-width: .6; stroke-dasharray: 1.2 1; }
+.mk:focus { outline: none; }
+.lbl { font: 700 2.5px var(--marker); fill: #f3e6cf; paint-order: stroke; stroke: #120e15; stroke-width: .7px; pointer-events: none; }
+.lbl.small { font-size: 1.9px; fill: #d8c9d8; }
+.stepn { font: 700 2.3px var(--body); fill: #17121b; pointer-events: none; text-anchor: middle; dominant-baseline: central; }
+.panel { position: sticky; top: 64px; }
+@media (max-width: 900px) { .panel { position: static; } }
+.panel h3 { margin-top: 0; font-size: 22px; color: var(--yellow); }
+.panel .where { font-size: 13px; color: var(--dim); margin-bottom: 8px; }
+.panel h4 { font: 700 13px var(--body); text-transform: uppercase; letter-spacing: .8px; margin: 12px 0 3px; }
+.panel h4.w { color: var(--turq); } .panel h4.y { color: var(--pink); } .panel h4.s { color: var(--cobalt); }
+.stepper { display: flex; gap: 8px; align-items: center; margin: 10px 0 6px; flex-wrap: wrap; }
+.btn { font: 700 14px var(--marker); background: var(--pink); color: #17121b; border: none; border-radius: 10px; padding: 7px 13px; cursor: pointer; box-shadow: 2px 3px 0 #0c090e; }
+.btn.alt { background: var(--paper2); color: var(--ink); border: 2px solid var(--line); }
+.btn:disabled { opacity: .4; cursor: default; }
+ol.steps { margin: 6px 0 0; padding-left: 0; list-style: none; counter-reset: s; columns: 2 230px; column-gap: 18px; }
+ol.steps li { break-inside: avoid; margin: 0 0 4px; }
+ol.steps button { all: unset; cursor: pointer; display: flex; gap: 8px; align-items: baseline; padding: 3px 6px; border-radius: 8px; font-size: 14px; width: 100%; box-sizing: border-box; }
+ol.steps button:hover { background: var(--paper2); }
+ol.steps button.cur { background: var(--yellow); color: #17121b; }
+ol.steps .n { font: 700 13px var(--body); min-width: 22px; height: 22px; border-radius: 50%; background: var(--turq); color: #17121b; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+ol.steps button.cur .n { background: #17121b; color: var(--yellow); }
+.optlist { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.optlist button { font: 13px var(--body); background: var(--paper2); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; cursor: pointer; }
+.optlist button.cur { background: var(--yellow); color: #17121b; }
+
+/* ── creatures ── */
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.filters button { font: 600 14px var(--marker); background: var(--paper2); color: var(--ink); border: 2px solid var(--line); border-radius: 10px; padding: 5px 11px; cursor: pointer; }
+.filters button[aria-pressed=true] { background: var(--turq); color: #17121b; border-color: var(--turq); }
+.cc h3 { margin: 0 0 4px; color: var(--yellow); }
+.cc .kind { font-size: 13px; color: var(--dim); margin-bottom: 6px; }
+.cc dl { margin: 0; display: grid; grid-template-columns: 92px 1fr; gap: 4px 10px; font-size: 14.5px; }
+.cc dt { color: var(--turq); font-weight: 700; }
+.cc dd { margin: 0; }
+.verdict { margin-top: 10px; padding: 9px 11px; border-radius: 10px; background: #160f19; border-left: 5px solid var(--green); font-size: 14.5px; }
+.verdict.thin { border-left-color: var(--red); } .verdict.mixed { border-left-color: var(--yellow); } .verdict.na { border-left-color: #8e8296; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--turq); font-weight: 700; }
+.scroll { overflow-x: auto; }
+.weak li { margin: 0 0 10px; }
+.weak b { color: var(--pink); }
+footer { color: var(--dim); font-size: 13px; text-align: center; padding: 20px; }
+html:not([data-lang=zh]) [data-l=zh] { display: none; }
+html[data-lang=zh] [data-l=en] { display: none; }
+header { position: relative; }
+.langbtn { float: right; margin: 4px 0 8px 12px; font: 700 15px var(--marker); background: var(--turq); color: #17121b; border: none; border-radius: 10px; padding: 7px 14px; cursor: pointer; box-shadow: 2px 3px 0 #0c090e; }
+html[data-lang=zh] .tabs button, html[data-lang=zh] .filters button { letter-spacing: .5px; }
+h1 .zh { white-space: nowrap; }
+@media (max-width: 600px) { .langbtn { padding: 5px 10px; font-size: 13px; margin-left: 8px; } }
+html[data-lang=zh] .cc dl { grid-template-columns: 72px 1fr; }
+</style>
+<script>(function(){var q=new URLSearchParams(location.search).get('lang'),s=null;try{s=localStorage.getItem('wd.guide.lang')}catch(e){}
+var l=(q==='zh'||q==='en')?q:(s==='zh'||s==='en')?s:((navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en');document.documentElement.dataset.lang=l;})();</script>
+</head>
+<body>
+<header>
+  <button class="langbtn" id="langbtn" type="button">中文</button>
+  <h1><span class="tilt">Wrongly Drawn</span> <span class="zh">错画之城</span></h1>
+  <p class="sub" id="sub">A plain guide for the author: what the game has today, where things are, why they are there, and where it is thin. Taken from the docs and code on 2026-11-13.</p>
+</header>
+<nav role="tablist" aria-label="Guide sections">
+  <div class="tabs" id="tabs">
+    <button role="tab" id="tab-overview" aria-controls="p-overview">The game in one screen</button>
+    <button role="tab" id="tab-features" aria-controls="p-features">Features</button>
+    <button role="tab" id="tab-map1" aria-controls="p-map1">Map · Level 1</button>
+    <button role="tab" id="tab-map2" aria-controls="p-map2">Map · Level 2</button>
+    <button role="tab" id="tab-l3" aria-controls="p-l3">Level 3</button>
+    <button role="tab" id="tab-creatures" aria-controls="p-creatures">Creatures &amp; bosses</button>
+    <button role="tab" id="tab-ai" aria-controls="p-ai">The AI partner</button>
+    <button role="tab" id="tab-story" aria-controls="p-story">Where the story is weak</button>
+  </div>
+</nav>
+<main>
+
+<!-- ───────────── overview ───────────── -->
+<section role="tabpanel" id="p-overview" aria-labelledby="tab-overview" tabindex="0">
+<div data-l="en">
+  <div class="two">
+    <div class="card">
+      <h2>What it is</h2>
+      <p>A third-person action game in the browser (Three.js, Rapier physics, TypeScript, Vite). You play <b>WAI</b>, a doodle with a crooked crown, a red cape and a spray can. Each level is a torn piece of a child's drawing, floating in the sky.</p>
+      <p>Nobody dies. You <b>repaint</b> corrupted creatures and they turn friendly. Taking damage fades WAI's colour. At zero he is "smudged" and gets re-drawn at the last spray can (checkpoint).</p>
+      <h3>The core loop</h3>
+      <div class="loop">
+        <span>Explore the island</span><i>→</i><span>Repaint a creature</span><i>→</i><span>It drops a corrupted sticker</span><i>→</i><span>Purify it (hold Q / R / F)</span><i>→</i><span>Wear it for a power, or lend it (E)</span><i>→</i><span>A Guardian wakes and fixes part of the world</span><i>→</i><span>Mid-boss</span><i>→</i><span>Boss</span><i>→</i><span>Door to the next level</span>
+      </div>
+      <p class="note">Three stickers exist: <b>Eye</b> (True Sight: things nobody drew become real while you aim at them), <b>Mouth</b> (Chomp in level 1, SHOUT in level 2), <b>Legs</b> (Long Legs: big jump, faster run).</p>
+    </div>
+    <div class="card">
+      <h2>The story as it stands today</h2>
+      <p>This is what the player actually sees and reads in the game, not what the plan says.</p>
+      <ul class="tight">
+        <li><b>Level 1 intro:</b> "Somewhere, a kid is drawing…" The kid's pencil draws WAI on a dock. THE ERASER flies to the summit. The caption says it rubbed out the Guardians' eyes and voice and the road to its tower.</li>
+        <li><b>Level 1 middle:</b> in the new east district, red crosses and a red line appear. Toasts name "the Red Pen" for the first time. Its ink sits in a Red Inkwell; repainting it washes the marks off.</li>
+        <li><b>Level 1 end:</b> the Eraser is repainted and shrinks into a little eraser. "Blind Plaza can SEE again."</li>
+        <li><b>Level 2:</b> WAI steps out of the tower door into a silent harbour. The Eraser's crumbs drifted out to sea and grew into THE HUSH, which ate every sound. WAI's stickers stayed home, so he starts empty-handed.</li>
+        <li><b>Level 2 middle:</b> the Red Pen appears in the sky for a few seconds and crosses out the Bell Bridge. A Red Gramophone "plays the Hush's lullaby for the Red Pen".</li>
+        <li><b>Level 2 end:</b> the Hush becomes a jelly lantern. A paper boat sails in. The end screen says "Next: Limp Works (coming soon)".</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card" style="border-color:var(--pink)">
+    <h2>The chosen story direction <span class="tag t-plan">author, 2026-11-13</span></h2>
+    <p>Written in <code>docs/CONTENT_PLAN.md</code> under "Story direction". This is the target. The game does not tell this story yet; the last tab compares the two.</p>
+    <ul class="tight">
+      <li><b>Theme:</b> drawing it wrong is fine. Different is not the same as wrong.</li>
+      <li><b>The Red Pen</b> is a teacher's pen. It only knows how to correct, and it believes it is helping the city.</li>
+      <li><b>Contrast:</b> in levels 1 and 2, the more it corrects, the blinder and quieter the city gets. In level 3 the archive shows that the crossed-out drawings are children's drawings.</li>
+      <li><b>Its servants</b> (the Eraser, the Hush, the stationery creatures) are correction tools. Repainted, they stop correcting. The game must say this in words or pictures.</li>
+      <li><b>Ending:</b> WAI does not break the Red Pen. The last TAG lends it paint, and for the first time it draws instead of correcting. Warm, not triumphant. The fight stays; its end changes meaning.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>What is finished, what is not</h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Part</th><th>State</th><th>What the docs say</th></tr></thead>
+      <tbody>
+        <tr><td>Level 1 · Blind Plaza</td><td><span class="tag t-done">playable</span></td><td>Includes the expansion (Crossed-Out Quarter, Red Inkwell, White-out Bottle, Stapler). A full walking bot run passed: 565 s wall clock, 472 s game time, no console errors. The log expects about 8–10 extra minutes for a first-time player over the old route.</td></tr>
+        <tr><td>Level 2 · Mute Harbor</td><td><span class="tag t-done">playable</span></td><td>Includes the expansion (Bandstand Pier, Red Gramophone, Megaphone Crab, Fog Jelly, Echo Gallery, the Red Pen's sky moment). District bot run 9 passed (Gramophone repainted at 180 s). <span class="nc">A final whole-level bot pass is not recorded in the log.</span></td></tr>
+        <tr><td>Level 3 · Limp Works</td><td><span class="tag t-wip">being built</span></td><td>The three creatures are written. The floors, Guardians, Red Pen boss and wiring are in progress in <code>src/level/works/</code>. It is not in the level list yet.</td></tr>
+        <tr><td>Red Pen cutscenes in all levels</td><td><span class="tag t-plan">planned</span></td><td>Step 5 of the content plan. Level 2's sky moment is "a short, simple beat on purpose: the full cutscene pass comes later".</td></tr>
+        <tr><td>The ending</td><td><span class="tag t-plan">planned</span></td><td>"The city stays drawn wrong, and that is fine." Exists only in the plan.</td></tr>
+        <tr><td>Side goals per level</td><td><span class="tag t-wip">partly</span></td><td>The plan asks for one optional challenge room and one hidden sticker per level. Level 2 has the Echo Gallery and the Lost &amp; Found Eye. <span class="nc">Level 1 has neither in the code I read.</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div class="card">
+    <h3>How to read this guide</h3>
+    <p>Everything here comes from these files: <code>docs/CONTENT_PLAN.md</code>, <code>docs/STORY_AND_CHARACTERS.md</code>, <code>docs/level1-expansion/PROGRESS.md</code>, <code>docs/level2-expansion/PROGRESS.md</code>, <code>docs/level3/PROGRESS.md</code>, <code>docs/whale/*</code>, <code>docs/AI_AGENT.md</code>, <code>docs/QUALITY_SWEEP.md</code>, <code>docs/perf/NOTES.md</code>, <code>docs/art-styles/README.md</code>, and the code in <code>src/level</code>, <code>src/enemy</code>, <code>src/story</code>, <code>src/coop</code>, <code>src/meta</code>, <code>src/combat</code>, <code>src/organs</code>, <code>src/ui</code>, <code>server/coopApi.ts</code>. Things marked <span class="nc">not confirmed</span> could not be checked in the code.</p>
+    <p class="note">Map coordinates are world metres: x grows east, z grows south. North is up on the maps. Ground colours on the maps are sampled from the game's own height function, so the shapes are real.</p>
+  </div>
+</div>
+<div data-l="zh" lang="zh-CN">
+  <div class="two">
+    <div class="card">
+      <h2>这是什么游戏</h2>
+      <p>一款在浏览器里玩的第三人称动作游戏（Three.js、Rapier 物理、TypeScript、Vite）。你扮演 <b>WAI</b>：一个戴歪王冠、披红斗篷、拿喷漆罐的涂鸦小人。每一关都是一张孩子的画被撕下来的一块，漂浮在天空里。</p>
+      <p>没有谁会死。你把被腐化的生物<b>重新上色</b>，它们就会变友好。受伤时 WAI 的颜色会变淡；血量归零时他会被“抹花”，然后在上一个喷漆罐（检查点）处被重新画出来。</p>
+      <h3>核心循环</h3>
+      <div class="loop">
+        <span>探索小岛</span><i>→</i><span>给一只生物重新上色</span><i>→</i><span>它掉出一张被腐化的贴纸</span><i>→</i><span>净化贴纸（长按 Q / R / F）</span><i>→</i><span>戴上获得能力，或借出去（E）</span><i>→</i><span>守护者醒来，修好世界的一部分</span><i>→</i><span>中 Boss</span><i>→</i><span>Boss</span><i>→</i><span>通往下一关的门</span>
+      </div>
+      <p class="note">一共三种贴纸：<b>眼睛贴纸</b>（真视：瞄准时，没画出来的东西会变成真的）、<b>嘴巴贴纸</b>（第 1 关是啃咬，第 2 关是大喊）、<b>腿贴纸</b>（长腿：跳得超高，跑得更快）。</p>
+    </div>
+    <div class="card">
+      <h2>故事现在讲到哪里</h2>
+      <p>这里写的是玩家在游戏里真正看到、读到的内容，不是计划里写的。</p>
+      <ul class="tight">
+        <li><b>第 1 关开场：</b>“某个地方，一个孩子正在画画……”孩子的铅笔在码头上画出 WAI。【橡皮擦】飞上山顶。字幕说它擦掉了守护者的眼睛和声音，还擦掉了通往它高塔的路。</li>
+        <li><b>第 1 关中段：</b>在新的东边街区里出现了红叉和一道红线。提示条第一次说出“红笔”这个名字。它的墨水装在红墨水瓶里；给墨水瓶重新上色，红印就被洗掉。</li>
+        <li><b>第 1 关结尾：</b>橡皮擦被重新上色，缩成一块小橡皮。“盲眼广场重见光明！”</li>
+        <li><b>第 2 关：</b>WAI 从塔门走出来，来到一个没有声音的码头。橡皮擦的碎屑漂到海上，长成了「寂静」，吃掉了镇上所有的声音。WAI 的贴纸留在了盲眼广场，所以他两手空空地开始。</li>
+        <li><b>第 2 关中段：</b>红笔在天上出现几秒钟，把钟桥划掉了。红色留声机“替红笔放着寂静的摇篮曲”。</li>
+        <li><b>第 2 关结尾：</b>寂静变成一盏水母灯。一只纸船驶进来。结算画面写着“下一站：瘸腿工厂（即将推出）”。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card" style="border-color:var(--pink)">
+    <h2>已选定的故事方向 <span class="tag t-plan">作者，2026-11-13</span></h2>
+    <p>写在 <code>docs/CONTENT_PLAN.md</code> 的 “Story direction” 一节。这是目标，游戏现在还没讲出这个故事；最后一个标签页把两者做了对照。</p>
+    <ul class="tight">
+      <li><b>主题：</b>画错了也没关系。不一样，不等于错。</li>
+      <li><b>红笔</b>是一支老师的笔。它只会改错，并且真心相信自己在帮这座城。</li>
+      <li><b>反差：</b>在第 1、2 关，它改得越多，城市就越看不见、越安静。到第 3 关，档案室会揭示：被打叉的那些画，都是孩子们的画。</li>
+      <li><b>它的仆从</b>（橡皮擦、寂静、各种文具生物）都是改错的工具。重新上色后，它们就不再改错。游戏必须用文字或画面把这一点告诉玩家。</li>
+      <li><b>结局：</b>WAI 不打碎红笔。最后一次盖章是把颜料借给它，它第一次不是在改错，而是在画画。温暖，而不是凯旋。战斗保留，只是结尾的意义变了。</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>哪些做完了，哪些没有</h2>
+    <div class="scroll"><table>
+      <thead><tr><th>部分</th><th>状态</th><th>文档里怎么说</th></tr></thead>
+      <tbody>
+        <tr><td>第 1 关 · 盲眼广场</td><td><span class="tag t-done">可玩</span></td><td>包含扩展内容（打叉街区、红墨水瓶、修正液瓶、订书机）。一次完整的步行机器人测试通过：真实耗时 565 秒，游戏时间 472 秒，控制台无报错。日志估计，第一次玩的人会比旧路线多花 8–10 分钟。</td></tr>
+        <tr><td>第 2 关 · 无声码头</td><td><span class="tag t-done">可玩</span></td><td>包含扩展内容（乐台栈桥、红色留声机、喇叭蟹、雾水母、回声廊、红笔的天空一幕）。街区机器人第 9 次测试通过（第 180 秒给留声机上好色）。<span class="nc">日志里没有记录最后一次整关机器人测试。</span></td></tr>
+        <tr><td>第 3 关 · 瘸腿工厂</td><td><span class="tag t-wip">制作中</span></td><td>三种生物已经写好。楼层、守护者、红笔 Boss 和接线都在 <code>src/level/works/</code> 里制作中，还没加进关卡列表。</td></tr>
+        <tr><td>三关里的红笔过场</td><td><span class="tag t-plan">计划中</span></td><td>内容计划的第 5 步。第 2 关的天空一幕“故意做得简短，完整的过场以后再做”。</td></tr>
+        <tr><td>结局</td><td><span class="tag t-plan">计划中</span></td><td>“城市一直画得歪歪的，这样也很好。”只存在于计划里。</td></tr>
+        <tr><td>每关的支线目标</td><td><span class="tag t-wip">部分完成</span></td><td>计划要求每关一个可选挑战房间和一张隐藏贴纸。第 2 关有回声廊和失物招领的眼睛。<span class="nc">在我读过的代码里，第 1 关两样都没有。</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div class="card">
+    <h3>怎么读这份指南</h3>
+    <p>这里的一切都来自这些文件：<code>docs/CONTENT_PLAN.md</code>、<code>docs/STORY_AND_CHARACTERS.md</code>、<code>docs/level1-expansion/PROGRESS.md</code>、<code>docs/level2-expansion/PROGRESS.md</code>、<code>docs/level3/PROGRESS.md</code>、<code>docs/whale/*</code>、<code>docs/AI_AGENT.md</code>、<code>docs/QUALITY_SWEEP.md</code>、<code>docs/perf/NOTES.md</code>、<code>docs/art-styles/README.md</code>，以及 <code>src/level</code>、<code>src/enemy</code>、<code>src/story</code>、<code>src/coop</code>、<code>src/meta</code>、<code>src/combat</code>、<code>src/organs</code>、<code>src/ui</code>、<code>server/coopApi.ts</code> 里的代码。标着<span class="nc">未确认</span>的内容，我没能在代码里核实。</p>
+    <p class="note">地图坐标是游戏世界里的米：x 向东增大，z 向南增大，地图上方是北。地图上的地面颜色是从游戏自己的高度函数采样来的，所以形状是真实的。</p>
+  </div>
+</div>
+</section>
+
+<!-- ───────────── features ───────────── -->
+<section role="tabpanel" id="p-features" aria-labelledby="tab-features" tabindex="0">
+<div data-l="en">
+  <h2>Features, grouped</h2>
+</div>
+<div data-l="zh" lang="zh-CN">
+  <h2>功能一览（分组）</h2>
+</div>
+  <div class="grid" id="featgrid"></div>
+</section>
+
+<!-- ───────────── maps ───────────── -->
+<section role="tabpanel" id="p-map1" aria-labelledby="tab-map1" tabindex="0">
+<div data-l="en">
+  <h2>Level 1 · Blind Plaza</h2>
+  <p class="note">Click a place (or Tab to it and press Enter). Numbered places are the main path; step through them with the buttons. Unnumbered places are optional.</p>
+</div>
+<div data-l="zh" lang="zh-CN">
+  <h2>第 1 关 · 盲眼广场</h2>
+  <p class="note">点击一个地点（或用 Tab 选中后按回车）。带数字的是主线路径，可以用按钮一步步走；不带数字的是可选地点。</p>
+</div>
+  <div class="maprow" data-level="plaza"></div>
+</section>
+<section role="tabpanel" id="p-map2" aria-labelledby="tab-map2" tabindex="0">
+<div data-l="en">
+  <h2>Level 2 · Mute Harbor</h2>
+  <p class="note">The Bandstand Pier (west) stands on stilts over a fog sea, off the island's edge. Its decks are drawn from the layout rectangles in <code>BandstandPier.ts</code>.</p>
+</div>
+<div data-l="zh" lang="zh-CN">
+  <h2>第 2 关 · 无声码头</h2>
+  <p class="note">乐台栈桥（西边）立在雾海上的铁柱上，在岛的边缘之外。它的平台是按 <code>BandstandPier.ts</code> 里的布局矩形画的。</p>
+</div>
+  <div class="maprow" data-level="harbor"></div>
+</section>
+
+<!-- ───────────── level 3 ───────────── -->
+<section role="tabpanel" id="p-l3" aria-labelledby="tab-l3" tabindex="0">
+<div data-l="en">
+  <h2>Level 3 · Limp Works <span class="tag t-wip">being built</span></h2>
+  <div class="card">
+    <p>Another agent is building it right now. The creatures exist as code. The floors and the boss do not exist in a playable form, and the level is not in <code>src/level/levels.ts</code>. Everything below is the plan from <code>docs/level3/PROGRESS.md</code>, not finished work.</p>
+  </div>
+  <div class="two">
+    <div class="card">
+      <h3>Setting</h3>
+      <p>Inside the Correction Tower: the Red Pen's factory of corrections. Straight lines, blueprint grids, steel and red marks. Waking each Guardian washes its floor back into colour. WAI arrives with Eye and Mouth; the Legs are on the first floor. It is the Legs chapter.</p>
+      <h3>Main path (planned)</h3>
+      <ol class="tight">
+        <li><b>F1 Conveyor Hall.</b> THE LIMP (a Crooked-Leg Mutant) holds the Legs. Conveyor belts, two Stamp Presses. Guardian 1: <b>the Freight Lift</b>, its legs crossed out. Lend it the Legs.</li>
+        <li><b>F2 Stamping Floor.</b> The Shredder Pit with hanging crooked platforms; Ruler Snakes straighten them so they fall. Guardian 2: <b>the Inspector</b>, its lens crossed out. Lend it the Eye. Optional Stamp Run challenge.</li>
+        <li><b>F3 Archive</b> of crossed-out drawings. Compass Spinners. Guardian 3: <b>the Archivist</b>, a giant typewriter. Lend it the Eye and SHOUT into its horn at the same time.</li>
+        <li><b>The Roof.</b> THE RED PEN, three phases.</li>
+        <li>The finale beat and the closing line.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>The Red Pen fight (planned)</h3>
+      <ul class="tight">
+        <li><b>Phase 1 "Red Ink":</b> it rules lines and a giant ruler sweeps the roof (jump it); it stabs nib-first and gets stuck (TAG). At 66 % it crosses out WAI's Legs.</li>
+        <li><b>Phase 2 "Crossed Out":</b> it flies, drops ink blots, crosses out roof tiles. The Hush returns: SHOUT and the Hush wraps it in dust. At 33 % it crosses out the Mouth.</li>
+        <li><b>Phase 3 "Undrawn":</b> it crosses itself out and is real only while seen. The Eraser bursts in, rubs the X off the Legs and blocks it. The last hit is a TAG.</li>
+      </ul>
+      <p class="note"><b>Changed by the story direction:</b> the last TAG no longer defeats the Pen. It lends the Pen paint, and the Pen draws for the first time. The level-3 log was written before this choice, so its finale beat must change to match.</p>
+      <p class="note">This is the first place where the Eraser and the Hush are shown as being on WAI's side, and where the Red Pen takes stickers away. Both are strong ideas. None of it is built.</p>
+      <h3>Planned creatures</h3>
+      <p>Stamp Press, Ruler Snake, Compass Spinner. See the Creatures tab (filter "Level 3").</p>
+      <h3>Planned side goals</h3>
+      <p>12 crowns, checkpoints on every floor, the Stamp Run challenge, a gangway shortcut over the pit.</p>
+    </div>
+  </div>
+</div>
+<div data-l="zh" lang="zh-CN">
+  <h2>第 3 关 · 瘸腿工厂 <span class="tag t-wip">制作中</span></h2>
+  <div class="card">
+    <p>另一个代理正在做这一关。生物已经有代码了；楼层和 Boss 还不能玩，这一关也还没加进 <code>src/level/levels.ts</code>。下面的内容全部来自 <code>docs/level3/PROGRESS.md</code> 里的计划，不是做好的东西。</p>
+  </div>
+  <div class="two">
+    <div class="card">
+      <h3>场景</h3>
+      <p>在修正塔（Correction Tower）里面：红笔的“改错工厂”。直线、蓝图网格、钢铁和红色批改记号。每唤醒一位守护者，那一层就被洗回彩色。WAI 带着眼睛和嘴巴到达；腿在第一层。这是“腿”的一章。</p>
+      <h3>主线路径（计划）</h3>
+      <ol class="tight">
+        <li><b>一层 传送带大厅（Conveyor Hall）。</b>“瘸子”（THE LIMP，一只歪腿怪）拿着腿。传送带，两台印章机。守护者 1：<b>货运电梯（Freight Lift）</b>，它的腿被打了叉。把腿借给它。</li>
+        <li><b>二层 盖章车间（Stamping Floor）。</b>碎纸坑上挂着歪歪的平台；尺子蛇会把它们拉直，平台就掉下去。守护者 2：<b>质检员（Inspector）</b>，它的镜头被打了叉。把眼睛借给它。可选挑战“盖章冲刺”（Stamp Run）。</li>
+        <li><b>三层 档案室（Archive）</b>，放满被打叉的画。圆规陀螺。守护者 3：<b>档案员（Archivist）</b>，一台巨大的打字机。把眼睛借给它，同时对着它的喇叭大喊。</li>
+        <li><b>屋顶。</b>红笔，三个阶段。</li>
+        <li>结局一幕和收尾台词。</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>红笔之战（计划）</h3>
+      <ul class="tight">
+        <li><b>阶段 1 “红墨水”：</b>它画线，一把巨大的尺子扫过屋顶（跳过去）；它笔尖朝下扎下来，然后卡住（盖章）。血量到 66% 时，它把 WAI 的腿打叉。</li>
+        <li><b>阶段 2 “打叉”：</b>它飞起来，落下墨点，把屋顶的瓦片打叉。寂静回来帮忙：一喊，寂静就用灰尘把红笔裹住。到 33% 时，它把嘴巴打叉。</li>
+        <li><b>阶段 3 “没画出来”：</b>它把自己打叉，只有被看着时才是真的。橡皮擦冲进来，擦掉腿上的叉，挡住它。最后一击是盖章。</li>
+      </ul>
+      <p class="note"><b>按新的故事方向要改：</b>最后一次盖章不再是打败红笔，而是把颜料借给它，红笔第一次画画。第 3 关的日志写在这个决定之前，所以它的结局一幕需要跟着改。</p>
+      <p class="note">这是橡皮擦和寂静第一次站在 WAI 这边，也是红笔第一次拿走贴纸。两个想法都很好，但都还没做。</p>
+      <h3>计划中的生物</h3>
+      <p>印章机、尺子蛇、圆规陀螺。见“生物与 Boss”标签页（筛选“第 3 关”）。</p>
+      <h3>计划中的支线</h3>
+      <p>12 顶皇冠，每层都有检查点，“盖章冲刺”挑战，一条横跨碎纸坑的捷径栈桥。</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ───────────── creatures ───────────── -->
+<section role="tabpanel" id="p-creatures" aria-labelledby="tab-creatures" tabindex="0">
+<div data-l="en">
+  <h2>Creatures and bosses</h2>
+  <div class="card">
+    <h3>The short answer to "is level 1 overloaded?"</h3>
+    <p>Level 1 has <b>7 creature kinds plus a mid-boss and a boss</b>. Most of them do teach something, but not all of it is new, and three of the slots are weak:</p>
+    <ul class="tight">
+      <li><b>Two kinds teach the same lesson.</b> The Chomper Bin and the White-out Bottle are both "spray it from behind". The bottle is saved by one good idea (it erases the paint on the spring you need), not by its counter.</li>
+      <li><b>The Peeping Lamp appears three times</b> in one level. The third one, on the East Walk, is the gentle tutorial version and drops nothing. It is filler.</li>
+      <li><b>The Crooked-Leg Mutant is off the main path</b>, and its reward (the Legs) is not needed anywhere on level 1's main path. The plan makes Legs the level-3 sticker, so getting them in level 1 also blurs that chapter.</li>
+    </ul>
+    <p>The ones that clearly earn their place: the starter Lamp (gives the Eye), the Chomper Bin (gives the Mouth), the Stapler (the only creature built around TAG, placed with care), the Eraser Grubs (cheap fodder that is literally the villain's crumbs), the Red Inkwell (teaches PAINT SLAM and gates the third Guardian) and the Eraser.</p>
+    <p class="note">Story link: the content plan calls the new creatures "the Red Pen's servants", and the code comments say "the Red Pen's servants all walk wrong". The game text never says this. A player can only guess it from their red colours and stationery shapes.</p>
+  </div>
+</div>
+<div data-l="zh" lang="zh-CN">
+  <h2>生物与 Boss</h2>
+  <div class="card">
+    <h3>“第 1 关是不是塞太多了？”简短回答</h3>
+    <p>第 1 关有 <b>7 种生物，外加一个中 Boss 和一个 Boss</b>。大部分确实在教东西，但不全是新东西，其中三个位置偏弱：</p>
+    <ul class="tight">
+      <li><b>两种生物教的是同一课。</b>大嘴垃圾桶和修正液瓶都是“绕到背后喷”。修正液瓶靠的是另一个好点子（它会擦掉你必须画出来的弹簧上的颜料），而不是它的打法。</li>
+      <li><b>偷窥路灯在一关里出现了三次。</b>第三只在东步道，是温和的教学版，什么也不掉。它是凑数的。</li>
+      <li><b>歪腿怪不在主线上</b>，它给的腿贴纸在第 1 关主线上哪里都用不到。计划把腿留给第 3 关，所以在第 1 关拿到腿，也让那一章变模糊了。</li>
+    </ul>
+    <p>明确站得住的：开场的偷窥路灯（给眼睛）、大嘴垃圾桶（给嘴巴）、订书机（唯一以“盖章”为核心的生物，摆放也用心）、橡皮虫（便宜的小怪，本身就是反派掉的碎屑）、红墨水瓶（教喷漆砸地，并且挡着第三位守护者）和橡皮擦。</p>
+    <p class="note">故事联系：内容计划把新生物叫作“红笔的仆从”，代码注释里也写着“红笔的仆从走路都是歪的”。但游戏文字里从没这样说过。玩家只能从红色和文具的样子去猜。</p>
+  </div>
+</div>
+  <div class="filters" role="group" aria-label="Filter creatures" id="cfilters"></div>
+  <div class="grid" id="cgrid"></div>
+</section>
+
+<!-- ───────────── AI partner ───────────── -->
+<section role="tabpanel" id="p-ai" aria-labelledby="tab-ai" tabindex="0">
+<div data-l="en">
+  <h2>The AI partner: 蓝色大肥鱼 (Big Blue Fat Fish)</h2>
+  <div class="card">
+    <p>A chibi blue-whale girl with a steel rice bowl for a helmet. She was called Pip before; the code still says <code>pip</code>. She is <b>off by default</b> (Pause → AI Partner). Every paint drop WAI picks up is "a grain of rice" to her.</p>
+    <p><b>The honest summary:</b> the language model is a slow commander and a chat voice. It never moves her, aims for her or dodges for her. Game scripts do all of that every frame. With no model at all she still plays the whole game.</p>
+  </div>
+  <div class="two">
+    <div class="card">
+      <h3>What the language model decides</h3>
+      <ul class="tight">
+        <li><b>Short orders</b>, up to 3 tool calls per turn: <code>follow</code>, <code>attack</code> a creature, <code>draw_aggro</code>, <code>move_to</code>, <code>hold</code>, <code>spray_at</code>, <code>jump</code>, <code>dodge</code>, <code>regroup</code>, <code>ping</code>, <code>cheer</code>, <code>stop</code>, a <code>trick</code> (slam, rice-ball throw, rice bomb, hover, whistle, fetch paint, point at a crown).</li>
+        <li><b>Standing orders</b> (<code>mode</code>): follow, close, stay, collect, attack, free, go to a place, wake.</li>
+        <li><b>What she says</b>: chat replies (streamed), unprompted remarks, "roasts" when WAI misses, falls or idles, and which face sticker to show.</li>
+      </ul>
+      <h3>Limits the code puts on the model</h3>
+      <ul class="tight">
+        <li>Orders expire: attack 10 s, aggro 6 s, move 8 s. Then the rule brain takes over again.</li>
+        <li><code>hold</code> is at most 3 s, once per 25 s. Model holds and moves are dropped when WAI gets more than 8 m away.</li>
+        <li>Attack or aggro on a creature more than 20 m from WAI is refused.</li>
+        <li>She never takes a creature past 90 % repainted, never TAGs, never touches stickers or Guardians.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>What game scripts do every frame</h3>
+      <ul class="tight">
+        <li><b>Movement and pathfinding</b>: a 0.5 m nav grid baked from the level's real colliders, A* in time slices, jumps, drops, gap jumps with a jet hover, catch-up sprint, stuck detection and re-planning.</li>
+        <li><b>Aiming and spraying</b> from a flank, out of WAI's line of fire, at about a quarter of WAI's paint rate.</li>
+        <li><b>Dodging</b> every telegraph by itself (beams, rings, lanes, falling crumbs).</li>
+        <li><b>Aggro swaps</b> only between attacks, never mid-telegraph.</li>
+        <li>Knock-down and "Help her up" (E), rescue teleports (drawn in by the kid's pencil), mood (rice, dozing, hiding under the bowl), nine scripted "goofs".</li>
+        <li>The <b>rule brain</b> thinks every 0.3 s: warnings, callouts, cheers.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <h3>How often the model is called, and what happens while it thinks</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>Situation</th><th>What happens (from <code>src/coop/LlmBrain.ts</code>, <code>Coop.ts</code>, <code>KeyStore.ts</code>)</th></tr></thead>
+      <tbody>
+        <tr><td>Planning calls</td><td>Every <b>2.4 s</b> in a fight (an engaged creature within 22 m of WAI), every <b>8 s</b> otherwise. One request at a time. None during cutscenes or after the level is complete.</td></tr>
+        <tr><td>Unprompted remarks</td><td>At most one per about 32 s, and only when her journal has at least 2 new entries. The model may answer "[skip]".</td></tr>
+        <tr><td>A reply is pending</td><td>Her body keeps doing the last order or the rule brain's choice. Nothing waits on the model.</td></tr>
+        <tr><td>Timeout / error</td><td>8 s timeout. On a failure the rule brain takes over at once and the model is tried again after 12 s. A key refused with 401 / 402 / 403 is not retried until the player changes it.</td></tr>
+        <tr><td>Where the key comes from</td><td>The player's own DeepSeek key (Pause → AI Partner → Key; stored in the browser, sent only in the Authorization header to api.deepseek.com; default model <code>deepseek-flash</code>). Without one: the dev server's proxy <code>/api/coop</code> if it has a key in <code>.env.local</code>.</td></tr>
+        <tr><td>No key at all</td><td>The rule brain plays her fully. Chat answers come from a small canned set, and a keyword parser still turns "follow", "stay", "collect" and the like (Chinese and English) into standing orders. Production builds have no <code>/api/coop</code>, so there it is the player's key or rules.</td></tr>
+        <tr><td>Memory</td><td>A journal of short first-person facts (Guardians, hits, crowns, what WAI did to her) is sent with each call. It is laid out so the provider can cache the prompt prefix.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note"><code>docs/AI_AGENT.md</code> is older than the whale work: it still says "Pip", <code>deepseek-chat</code> and "every ~1.8 s". The code says 2.4 s / 8 s and <code>deepseek-flash</code>. The whale README notes that AI_AGENT.md was not updated.</p>
+  </div>
+</div>
+<div data-l="zh" lang="zh-CN">
+  <h2>AI 搭档：蓝色大肥鱼</h2>
+  <div class="card">
+    <p>一个 Q 版的蓝鲸女孩，头上扣着一只不锈钢饭碗当头盔。她以前叫 Pip，代码里还写着 <code>pip</code>。她<b>默认关闭</b>（暂停 → AI 搭档）。WAI 每捡一滴颜料，对她来说就是“一粒米”。</p>
+    <p><b>老实说：</b>语言模型只是一个慢吞吞的指挥官和一个聊天的声音。它从不替她走路、瞄准或闪避，这些全由游戏脚本每一帧完成。完全没有模型时，她照样能陪你玩完整个游戏。</p>
+  </div>
+  <div class="two">
+    <div class="card">
+      <h3>语言模型决定什么</h3>
+      <ul class="tight">
+        <li><b>短指令</b>，每轮最多 3 个工具调用：<code>follow</code>、<code>attack</code> 某只生物、<code>draw_aggro</code>、<code>move_to</code>、<code>hold</code>、<code>spray_at</code>、<code>jump</code>、<code>dodge</code>、<code>regroup</code>、<code>ping</code>、<code>cheer</code>、<code>stop</code>，以及一个 <code>trick</code>（砸地、扔饭团、饭团炸弹、悬浮、吹口哨、捡颜料、指皇冠）。</li>
+        <li><b>长期指令</b>（<code>mode</code>）：跟随、贴紧、原地等、收集、攻击、自由活动、去某地、醒醒。</li>
+        <li><b>她说什么</b>：聊天回复（流式）、主动搭话、WAI 打空、掉下去或发呆时的“吐槽”，以及用哪张表情贴纸。</li>
+      </ul>
+      <h3>代码给模型设的限制</h3>
+      <ul class="tight">
+        <li>指令会过期：攻击 10 秒、拉仇恨 6 秒、移动 8 秒，之后规则大脑重新接管。</li>
+        <li><code>hold</code> 最多 3 秒，每 25 秒一次。WAI 离开超过 8 米时，模型下的原地等待和移动会被取消。</li>
+        <li>对离 WAI 超过 20 米的生物下攻击或拉仇恨，会被拒绝。</li>
+        <li>她从不把一只生物涂到超过 90%，从不盖章，从不碰贴纸和守护者。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>游戏脚本每一帧做什么</h3>
+      <ul class="tight">
+        <li><b>移动和寻路</b>：从关卡真实碰撞体烘焙出的 0.5 米导航网格，分时运行的 A*，跳上、跳下、带喷漆悬浮的跳缝，掉队时冲刺追赶，卡住时检测并重新规划。</li>
+        <li><b>瞄准和喷漆</b>：从侧面喷，不挡 WAI 的射线，喷速约为 WAI 的四分之一。</li>
+        <li><b>闪避</b>所有预警攻击（光束、冲击环、冲锋线、落下的碎屑），全自动。</li>
+        <li><b>换仇恨</b>只在两次攻击之间发生，绝不在预警中途。</li>
+        <li>被打倒和“扶她起来”（E）、救援传送（由孩子的铅笔画进来）、心情（米、打瞌睡、躲进碗里）、九种设计好的“出糗”。</li>
+        <li><b>规则大脑</b>每 0.3 秒思考一次：警告、提醒、欢呼。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <h3>模型多久被调用一次，等待回复时会怎样</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>情况</th><th>会发生什么（来自 <code>src/coop/LlmBrain.ts</code>、<code>Coop.ts</code>、<code>KeyStore.ts</code>）</th></tr></thead>
+      <tbody>
+        <tr><td>规划调用</td><td>战斗中（WAI 22 米内有交战的生物）每 <b>2.4 秒</b>一次，其他时候每 <b>8 秒</b>一次。同一时间只发一个请求。过场中和通关后不调用。</td></tr>
+        <tr><td>主动搭话</td><td>大约每 32 秒最多一次，而且她的日记里至少要有 2 条新记录。模型可以回答“[skip]”不说话。</td></tr>
+        <tr><td>正在等回复</td><td>她的身体继续执行上一条指令或规则大脑的选择。没有任何东西在等模型。</td></tr>
+        <tr><td>超时 / 出错</td><td>8 秒超时。一旦失败，规则大脑立刻接管，12 秒后再试模型。如果密钥被 401 / 402 / 403 拒绝，在玩家换密钥前不再重试。</td></tr>
+        <tr><td>密钥从哪来</td><td>玩家自己的 DeepSeek 密钥（暂停 → AI 搭档 → 密钥；存在浏览器里，只放在发往 api.deepseek.com 的 Authorization 头里；默认模型 <code>deepseek-flash</code>）。没有的话：如果开发服务器的 <code>.env.local</code> 里有密钥，就走代理 <code>/api/coop</code>。</td></tr>
+        <tr><td>完全没有密钥</td><td>规则大脑完整地操控她。聊天回答来自一小组预设台词，关键词解析器仍会把“跟我”“等着”“收集”之类（中英文都行）变成长期指令。正式构建里没有 <code>/api/coop</code>，所以那里只能靠玩家的密钥或规则。</td></tr>
+        <tr><td>记忆</td><td>每次调用都会带上一份由简短第一人称事实组成的日记（守护者、挨打、皇冠、WAI 对她做了什么）。排布方式让服务商可以缓存提示词的前缀。</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note"><code>docs/AI_AGENT.md</code> 比鲸鱼相关的工作更早：里面还写着 “Pip”、<code>deepseek-chat</code> 和“约每 1.8 秒”。代码里是 2.4 秒 / 8 秒和 <code>deepseek-flash</code>。鲸鱼的 README 也说明了 AI_AGENT.md 没有更新。</p>
+  </div>
+</div>
+</section>
+
+<!-- ───────────── story ───────────── -->
+<section role="tabpanel" id="p-story" aria-labelledby="tab-story" tabindex="0">
+<div data-l="en">
+  <h2>Where the story is weak today</h2>
+  <p class="note">Based on the text the game actually shows: captions in <code>src/story/*</code>, toasts and hints in the sessions and directors, and the creature lines.</p>
+  <div class="card" style="border-color:var(--pink)">
+    <h3 style="margin-top:0">Today's game against the chosen direction</h3>
+    <p class="note">The direction: the Red Pen is a well-meaning teacher's pen, won over, not defeated; drawing it wrong is fine.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Part of the direction</th><th>What levels 1 and 2 already support</th><th>What is still missing</th></tr></thead>
+      <tbody>
+        <tr><td><b>Theme:</b> drawing it wrong is fine</td><td>The whole look says it: crooked houses, crooked crown, faces on buildings. The Eraser's taunts ("WRONG. REDRAW.", "THAT LINE IS CROOKED.") state the opposing view clearly, which is a good setup.</td><td>No line says the theme from WAI's side. Nobody answers the Eraser. The level ends are about senses ("can SEE", "can SING"), not about being allowed to be wrong.</td></tr>
+        <tr><td><b>The Red Pen is a teacher's pen that believes it helps</b></td><td>Its marks are teacher marks: crosses, a line struck through, a red X. The Eraser already talks like a teacher.</td><td>The Pen has no lines and no motive in the game. It appears once, for about six seconds, in level 2. Nothing hints that it means well.</td></tr>
+        <tr><td><b>Contrast:</b> the more it corrects, the blinder and quieter the city</td><td>Supported by structure: level 1 is a city without eyes, level 2 a harbour without sound, and the Red Pen's marks block the third Guardian in both (the statue's eye, the Bell Bridge).</td><td>The game blames the blindness on the Eraser and the silence on the Hush, not on correction. Today a player reads the Pen as a third, separate vandal.</td></tr>
+        <tr><td><b>The Eraser and the Hush are its tools</b></td><td>The Hush grew from the Eraser's crumbs; the Gramophone "plays the Hush's lullaby for the Red Pen", the one line that ties a servant to the Pen.</td><td>The level-1 intro calls THE ERASER the villain. No red mark on either boss (the plan asked for one). No line says the Eraser works for the Pen.</td></tr>
+        <tr><td><b>The stationery creatures are correction tools</b></td><td>Their shapes say it: Stapler, White-out Bottle, Red Inkwell; level 3's Stamp Press, Ruler Snake, Compass Spinner. Red telegraphs everywhere.</td><td>Only in code comments and docs. Tip toasts explain counters, never purpose.</td></tr>
+        <tr><td><b>Repainted, they stop correcting</b></td><td>Already true in play: repainted creatures turn friendly; the White-out Bottle refills your can instead of blanking paint; the Eraser becomes a little eraser; the Hush becomes a lantern for the lighthouse. A Guardian's "I can draw my own now — thanks!" is exactly the right note.</td><td>The game never names the change as "stopping correcting". The finale captions just say "repainted!".</td></tr>
+        <tr><td><b>The archive shows the crossed-out drawings are children's</b></td><td>The kid's pencil appears in both levels, so the kid exists as a presence.</td><td>Level 3 only. The kid is never named and has no scene of their own yet.</td></tr>
+        <tr><td><b>Ending: the last TAG lends the Pen paint; it draws</b></td><td>The mechanics fit well: TAG is already the finisher, paint already means life, and lending is the game's main verb. Lending paint is a natural last act.</td><td>Not built. Level 2 ends with "Limp Works (coming soon)". The level-3 plan still describes the TAG as the Pen's fall.</td></tr>
+      </tbody>
+    </table></div>
+    <p>In short: <b>the mechanics already support the direction better than the words do.</b> Lending, repainting and friendly creatures all point at "won over, not defeated". What is missing is mostly text and short scenes: a motive and a voice for the Pen, one line that ties the Eraser and the Hush to it, and one line from WAI's side about being drawn wrong.</p>
+  </div>
+  <h3>The weak spots in detail</h3>
+  <div class="card"><ol class="weak">
+    <li><b>The theme is never said.</b> No caption, toast or line says that being drawn wrong is fine. The only words about it come from the other side: the Eraser's taunts ("WRONG. REDRAW.", "COLOUR INSIDE THE LINES!"). WAI does not speak, and nobody speaks for him. The level ends say "can SEE again" and "can SING again": they are about senses, not about the title.</li>
+    <li><b>Two villains with no order between them.</b> Level 1's intro presents THE ERASER as the one who rubbed out the city. The Red Pen then turns up mid-level with no introduction. Level 2 says the Hush grew from the Eraser's crumbs, then a Gramophone "plays the Hush's lullaby for the Red Pen". The game never says who serves whom. The plan's fix (each boss cutscene shows a red mark on the boss) is not in the code: neither the Eraser nor the Hush carries a red mark.</li>
+    <li><b>The Red Pen has no motive and no voice.</b> It has no lines at all. The Eraser at least has one ("it believes it is helping", shown through its teacher-like taunts). The Pen only crosses things out. A player cannot say why it does.</li>
+    <li><b>The kid is almost absent.</b> One caption ("Somewhere, a kid is drawing…") and the pencil that redraws roads. The kid's name (Mi in the story doc) never appears. The planned emotional core, the kid deciding to stop erasing, belongs to an ending that does not exist yet.</li>
+    <li><b>The title has no payoff yet.</b> Level 2's end screen says "Next: Limp Works (coming soon)". The closing line exists only in the plan.</li>
+    <li><b>Most creatures tell no story in words.</b> Stapler, White-out Bottle, Megaphone Crab, Fog Jelly: their tip toasts explain the counter, never why they are here. Their link to the Red Pen lives in code comments.</li>
+    <li><b>Big story beats are small toasts.</b> Guardians waking, the barricades folding, the pier gate opening: mostly one-line toasts, not captions or shots. A naming slip shows the cost: the level-1 wake toast says "THE SLEEPY WALL WAKES UP!" while the Guardian is called "Sleepy Cliff" everywhere else.</li>
+    <li><b>The sticker-per-chapter idea leaks.</b> The plan gives each level one sticker. But level 1 already hands out the Legs (from the optional Mutant), and level 3 is meant to be "the Legs chapter".</li>
+  </ol></div>
+  <div class="card">
+    <h3>What already works in the story</h3>
+    <ul class="tight">
+      <li>The world rules are the game rules: what is seen is real (undrawn bridges), paint is life, falling off means being re-drawn.</li>
+      <li>"Your stickers stayed behind, keeping Blind Plaza awake." One line explains why level 2 starts empty-handed.</li>
+      <li>"I can draw my own now — thanks!" when a Guardian returns your sticker: things learning to draw themselves.</li>
+      <li>The Red Inkwell wash: a clear cause and effect you see happen (quarter washed, cross lifted off the statue's eye).</li>
+      <li>The Struck Street: the Red Pen's line literally tore the street. The strongest image of the antagonist in level 1.</li>
+    </ul>
+  </div>
+</div>
+<div data-l="zh" lang="zh-CN">
+  <h2>故事现在哪里偏弱</h2>
+  <p class="note">依据是游戏真正显示的文字：<code>src/story/*</code> 里的字幕、各关会话和导演类里的提示条和提示语，以及生物的台词。</p>
+  <div class="card" style="border-color:var(--pink)">
+    <h3 style="margin-top:0">拿现在的游戏对照已选定的方向</h3>
+    <p class="note">方向：红笔是一支好心的老师的笔，最后被打动，而不是被打败；画错了也没关系。</p>
+    <div class="scroll"><table>
+      <thead><tr><th>方向里的一条</th><th>第 1、2 关已经撑得住的</th><th>还缺什么</th></tr></thead>
+      <tbody>
+        <tr><td><b>主题：</b>画错了也没关系</td><td>整个画面都在说这件事：歪房子、歪王冠、长脸的楼。橡皮擦的嘲讽（“不对。重画。”“线歪了。”）把对立的观点说得很清楚，这是很好的铺垫。</td><td>没有一句话站在 WAI 这边说出主题，没人回应橡皮擦。关卡结尾说的是感官（“重见光明”“又能唱歌了”），而不是“可以画错”。</td></tr>
+        <tr><td><b>红笔是一支相信自己在帮忙的老师的笔</b></td><td>它留下的都是老师的批改记号：叉、一道划掉的线、一个红色的 X。橡皮擦已经在用老师的口吻说话。</td><td>游戏里红笔没有台词，也没有动机。它只在第 2 关出现过一次，大约 6 秒。没有任何暗示说明它是好心的。</td></tr>
+        <tr><td><b>反差：</b>它改得越多，城市越看不见、越安静</td><td>结构上撑得住：第 1 关是没有眼睛的城，第 2 关是没有声音的港；两关里红笔的记号都挡住了第三位守护者（雕像的眼睛、钟桥）。</td><td>游戏把“看不见”怪到橡皮擦头上，把“没声音”怪到寂静头上，而不是怪“改错”。现在玩家会把红笔理解成第三个、毫不相干的捣蛋鬼。</td></tr>
+        <tr><td><b>橡皮擦和寂静是它的工具</b></td><td>寂静是从橡皮擦的碎屑里长出来的；留声机“替红笔放着寂静的摇篮曲”，这是唯一一句把仆从和红笔连起来的话。</td><td>第 1 关开场把【橡皮擦】当成反派。两个 Boss 身上都没有红色记号（计划里要求过）。没有一句话说橡皮擦在替红笔干活。</td></tr>
+        <tr><td><b>文具生物是改错的工具</b></td><td>它们的样子已经在说了：订书机、修正液瓶、红墨水瓶；第 3 关的印章机、尺子蛇、圆规陀螺。到处都是红色的预警。</td><td>只存在于代码注释和文档里。提示条只讲打法，从不讲它们为什么在这里。</td></tr>
+        <tr><td><b>重新上色后，它们不再改错</b></td><td>玩法上已经是这样：上色后的生物变友好；修正液瓶不再抹掉颜料，反而给你补颜料；橡皮擦变成一块小橡皮；寂静变成灯塔边的一盏灯。守护者那句“我能自己画了 —— 谢啦！”正好是对的调子。</td><td>游戏从没把这种变化说成“不再改错”。结尾字幕只说“重新上色了！”。</td></tr>
+        <tr><td><b>档案室揭示被打叉的是孩子们的画</b></td><td>孩子的铅笔在两关里都出现，所以“孩子”作为一种存在是有的。</td><td>只能在第 3 关做。孩子从没被叫过名字，也还没有属于自己的一幕。</td></tr>
+        <tr><td><b>结局：最后一次盖章把颜料借给红笔，它开始画画</b></td><td>机制非常契合：盖章本来就是终结技，颜料本来就代表生命，“借出”本来就是游戏的核心动作。把颜料借出去，是很自然的最后一步。</td><td>还没做。第 2 关结尾写着“瘸腿工厂（即将推出）”。第 3 关的计划仍把这次盖章写成红笔的倒下。</td></tr>
+      </tbody>
+    </table></div>
+    <p>一句话：<b>机制已经比文字更支持这个方向。</b>借出、重新上色、生物变友好，都指向“被打动，而不是被打败”。缺的主要是文字和几个短镜头：给红笔一个动机和声音，一句把橡皮擦和寂静连到红笔身上的话，以及一句站在 WAI 这边、说“画错也没关系”的话。</p>
+  </div>
+  <h3>弱点细说</h3>
+  <div class="card"><ol class="weak">
+    <li><b>主题从没被说出来。</b>没有哪条字幕、提示或台词说过“画错了也没关系”。关于这件事唯一的话来自对立面：橡皮擦的嘲讽（“不对。重画。”“不许涂出线！”）。WAI 不说话，也没有人替他说。关卡结尾说的是“重见光明”“又能唱歌了”：讲的是感官，不是标题。</li>
+    <li><b>两个反派，谁听谁的没交代。</b>第 1 关开场把【橡皮擦】说成擦掉城市的元凶。红笔随后在关卡中段出现，没有任何介绍。第 2 关说寂静是从橡皮擦的碎屑里长出来的，接着又有一台留声机“替红笔放着寂静的摇篮曲”。游戏从没说清谁为谁效力。计划里的办法（每个 Boss 的过场里都让它身上带一个红色记号）没有出现在代码里：橡皮擦和寂静身上都没有红色记号。</li>
+    <li><b>红笔没有动机，也没有声音。</b>它一句台词都没有。橡皮擦至少还有一个动机（“它相信自己在帮忙”，通过老师一样的嘲讽表现出来）。红笔只是在打叉。玩家说不出它为什么这样做。</li>
+    <li><b>孩子几乎不在场。</b>一句字幕（“某个地方，一个孩子正在画画……”）和那支重画道路的铅笔。孩子的名字（故事文档里的小米）从没出现。计划中的情感核心——孩子决定不擦了——属于一个还不存在的结局。</li>
+    <li><b>标题还没有回报。</b>第 2 关的结算画面写着“下一站：瘸腿工厂（即将推出）”。收尾台词只存在于计划里。</li>
+    <li><b>大多数生物不用文字讲故事。</b>订书机、修正液瓶、喇叭蟹、雾水母：它们的提示条只解释打法，从不解释它们为什么在这里。它们和红笔的联系只写在代码注释里。</li>
+    <li><b>重要的故事节点只是小小的提示条。</b>守护者醒来、路障收起、栈桥大门打开：大多是一行提示条，不是字幕或镜头。一个名字上的小错暴露了代价：第 1 关的醒来提示写的是“瞌睡墙醒啦！”，而这位守护者在其他地方都叫“瞌睡悬崖”。</li>
+    <li><b>“一章一张贴纸”的设定漏了。</b>计划让每关对应一张贴纸。但第 1 关已经（从可选的歪腿怪那里）发了腿贴纸，而第 3 关本该是“腿”的一章。</li>
+  </ol></div>
+  <div class="card">
+    <h3>故事里已经做得好的地方</h3>
+    <ul class="tight">
+      <li>世界规则就是游戏规则：被看见的才是真的（没画出来的桥），颜料就是生命，掉出画布就是被重新画一遍。</li>
+      <li>“你的贴纸都留在了盲眼广场，让它保持清醒。”一句话就解释了第 2 关为什么两手空空。</li>
+      <li>守护者归还贴纸时说“我能自己画了 —— 谢啦！”：东西学会了自己画自己。</li>
+      <li>红墨水瓶被洗掉的那一幕：玩家亲眼看到清楚的因果（街区被洗干净，雕像眼睛上的叉被揭掉）。</li>
+      <li>被划断的街：红笔的那条线真的把街撕开了。这是第 1 关里反派最有力的画面。</li>
+    </ul>
+  </div>
+</div>
+</section>
+</main>
+<footer id="foot"></footer>
+
+<script>
+// ═════════════ baked terrain (sampled from the game's height functions) ═════════════
+const MAPS = {"plaza":{"bounds":[-60,60,-62,52],"paths":[["#77a56f","M45 4h27v1h-27zM41 5h35v1h-35zM38 6h42v1h-42zM34 7h50v1h-50zM31 8h57v1h-57zM28 9h60v1h-60zM25 10h31v1h-31zM64 10h24v1h-24zM24 11h30v1h-30zM66 11h22v1h-22zM23 12h30v1h-30zM67 12h21v1h-21zM22 13h30v1h-30zM68 13h20v1h-20zM21 14h31v1h-31zM68 14h20v1h-20zM20 15h31v1h-31zM69 15h19v1h-19zM19 16h32v1h-32zM69 16h19v1h-19zM18 17h33v1h-33zM69 17h19v1h-19zM17 18h34v1h-34zM69 18h19v1h-19zM16 19h35v1h-35zM69 19h19v1h-19zM15 20h36v1h-36zM69 20h19v1h-19zM14 21h37v1h-37zM69 21h19v1h-19zM13 22h38v1h-38zM12 23h40v1h-40zM11 24h41v1h-41zM10 25h43v1h-43zM67 25h2v1h-2zM10 26h44v1h-44zM66 26h3v1h-3zM10 27h46v1h-46zM64 27h5v1h-5zM9 28h43v1h-43zM68 28h1v1h-1zM9 29h43v1h-43zM68 29h1v1h-1zM87 29h1v1h-1zM9 30h43v1h-43zM68 30h1v1h-1zM87 30h1v1h-1zM8 31h44v1h-44zM68 31h1v1h-1zM87 31h1v1h-1zM8 32h44v1h-44zM68 32h1v1h-1zM87 32h1v1h-1zM8 33h44v1h-44zM68 33h1v1h-1zM87 33h1v1h-1zM8 34h44v1h-44zM68 34h1v1h-1zM87 34h1v1h-1zM7 35h45v1h-45zM68 35h1v1h-1zM87 35h1v1h-1zM7 36h45v1h-45zM68 36h1v1h-1zM87 36h1v1h-1zM7 37h45v1h-45zM68 37h1v1h-1zM87 37h1v1h-1zM7 38h45v1h-45zM68 38h1v1h-1zM87 38h1v1h-1zM6 39h46v1h-46zM68 39h1v1h-1zM87 39h1v1h-1zM6 40h46v1h-46zM68 40h1v1h-1zM6 41h46v1h-46zM68 41h1v1h-1zM5 42h47v1h-47zM68 42h1v1h-1zM5 43h47v1h-47zM68 43h1v1h-1z"],["#d6aabe","M88 9h3v1h-3zM56 10h8v1h-8zM88 10h4v1h-4zM54 11h12v1h-12zM88 11h6v1h-6zM53 12h14v1h-14zM88 12h7v1h-7zM52 13h16v1h-16zM88 13h9v1h-9zM52 14h16v1h-16zM88 14h10v1h-10zM51 15h18v1h-18zM88 15h11v1h-11zM51 16h18v1h-18zM88 16h13v1h-13zM51 17h18v1h-18zM88 17h14v1h-14zM51 18h18v1h-18zM88 18h16v1h-16zM51 19h18v1h-18zM88 19h17v1h-17zM51 20h18v1h-18zM88 20h18v1h-18zM51 21h18v1h-18zM88 21h19v1h-19zM51 22h18v1h-18zM88 22h19v1h-19zM52 23h16v1h-16zM88 23h20v1h-20zM52 24h16v1h-16zM88 24h20v1h-20zM53 25h14v1h-14zM88 25h21v1h-21zM54 26h12v1h-12zM88 26h21v1h-21zM56 27h8v1h-8zM88 27h22v1h-22zM88 28h22v1h-22zM88 29h23v1h-23zM88 30h23v1h-23zM88 31h24v1h-24zM91 32h21v1h-21zM91 33h22v1h-22zM91 34h22v1h-22zM91 35h23v1h-23zM91 36h23v1h-23zM91 37h24v1h-24zM91 38h24v1h-24zM91 39h25v1h-25zM91 40h25v1h-25zM91 41h25v1h-25zM91 42h25v1h-25zM88 43h28v1h-28zM88 44h28v1h-28zM88 45h28v1h-28zM88 46h28v1h-28zM88 47h29v1h-29zM88 48h29v1h-29zM88 49h29v1h-29zM88 50h29v1h-29zM88 51h29v1h-29z"],["#c79eb0","M69 22h12v1h-12zM68 23h13v1h-13zM68 24h13v1h-13zM52 28h5v1h-5zM63 28h5v1h-5zM52 29h5v1h-5zM63 29h5v1h-5zM52 30h5v1h-5zM63 30h5v1h-5zM52 31h5v1h-5zM63 31h5v1h-5zM52 32h16v1h-16zM52 33h16v1h-16zM52 34h16v1h-16zM52 35h16v1h-16zM52 36h16v1h-16zM52 37h16v1h-16zM52 38h16v1h-16zM52 39h16v1h-16zM52 40h16v1h-16zM52 41h16v1h-16zM52 42h16v1h-16zM52 43h16v1h-16z"],["#d2ad61","M81 22h7v1h-7zM81 23h7v1h-7zM81 24h7v1h-7zM81 25h6v1h-6zM81 26h6v1h-6zM81 27h6v1h-6zM81 28h6v1h-6zM81 29h6v1h-6zM81 30h6v1h-6zM57 31h6v1h-6zM81 31h6v1h-6zM81 32h6v1h-6zM81 33h6v1h-6zM88 33h3v1h-3zM81 34h6v1h-6zM88 34h3v1h-3zM88 35h3v1h-3zM88 36h3v1h-3zM88 37h3v1h-3z"],["#b29252","M69 25h12v1h-12zM69 26h12v1h-12zM69 27h12v1h-12zM69 28h12v1h-12zM69 29h12v1h-12zM69 30h12v1h-12zM75 31h6v1h-6zM75 32h6v1h-6zM75 33h6v1h-6zM75 34h6v1h-6zM75 35h6v1h-6z"],["#80b278","M87 25h1v1h-1zM87 26h1v1h-1zM87 27h1v1h-1zM87 28h1v1h-1z"],["#e2ba68","M57 28h6v1h-6zM57 29h6v1h-6zM57 30h6v1h-6zM88 32h3v1h-3z"],["#a1854a","M69 31h6v1h-6zM69 32h6v1h-6zM69 33h6v1h-6zM69 34h6v1h-6zM69 35h6v1h-6zM69 36h6v1h-6zM69 37h6v1h-6zM69 38h6v1h-6zM69 39h6v1h-6zM69 40h6v1h-6zM69 41h6v1h-6zM69 42h6v1h-6zM10 66h4v1h-4zM10 67h4v1h-4zM79 70h4v1h-4zM79 71h4v1h-4zM79 72h4v1h-4zM79 73h4v1h-4zM79 74h4v1h-4zM79 75h4v1h-4zM79 76h4v1h-4zM79 77h4v1h-4zM79 78h4v1h-4zM79 79h4v1h-4zM79 80h4v1h-4zM79 81h4v1h-4zM79 82h4v1h-4z"],["#c29f59","M81 35h6v1h-6zM75 36h12v1h-12zM75 37h12v1h-12zM75 38h12v1h-12zM88 38h3v1h-3zM75 39h12v1h-12zM88 39h3v1h-3zM75 40h12v1h-12zM88 40h3v1h-3zM75 41h16v1h-16zM75 42h16v1h-16zM75 43h12v1h-12z"],["#6e9967","M87 40h1v1h-1zM87 43h1v1h-1z"],["#917843","M69 43h6v1h-6zM10 68h4v1h-4zM10 69h4v1h-4zM10 70h4v1h-4zM10 71h4v1h-4zM79 83h4v1h-4z"],["#8a6d7a","M5 44h12v1h-12zM26 44h62v1h-62zM5 45h12v1h-12zM26 45h62v1h-62zM4 46h13v1h-13zM26 46h62v1h-62zM4 47h13v1h-13zM29 47h59v1h-59zM4 48h6v1h-6zM14 48h3v1h-3zM29 48h59v1h-59zM4 49h4v1h-4zM16 49h1v1h-1zM29 49h59v1h-59zM4 50h3v1h-3zM29 50h59v1h-59zM4 51h2v1h-2zM29 51h59v1h-59zM4 52h2v1h-2zM29 52h50v1h-50zM4 53h2v1h-2zM29 53h50v1h-50zM4 54h1v1h-1zM29 54h50v1h-50zM3 55h2v1h-2zM29 55h50v1h-50zM3 56h2v1h-2zM30 56h49v1h-49zM3 57h2v1h-2zM30 57h49v1h-49zM3 58h2v1h-2zM30 58h49v1h-49zM3 59h2v1h-2zM30 59h49v1h-49zM3 60h3v1h-3zM30 60h49v1h-49zM3 61h3v1h-3zM18 61h1v1h-1zM30 61h49v1h-49zM3 62h3v1h-3zM18 62h1v1h-1zM30 62h49v1h-49zM3 63h4v1h-4zM17 63h2v1h-2zM30 63h49v1h-49zM3 64h5v1h-5zM16 64h3v1h-3zM31 64h48v1h-48zM3 65h7v1h-7zM14 65h5v1h-5zM31 65h48v1h-48zM3 66h7v1h-7zM14 66h5v1h-5zM31 66h48v1h-48zM3 67h7v1h-7zM14 67h5v1h-5zM31 67h48v1h-48zM3 68h7v1h-7zM14 68h5v1h-5zM31 68h48v1h-48zM3 69h7v1h-7zM14 69h6v1h-6zM31 69h48v1h-48zM2 70h8v1h-8zM14 70h6v1h-6zM31 70h48v1h-48zM2 71h8v1h-8zM14 71h6v1h-6zM31 71h48v1h-48zM2 72h18v1h-18zM31 72h48v1h-48zM2 73h18v1h-18zM31 73h48v1h-48zM2 74h18v1h-18zM32 74h47v1h-47zM2 75h18v1h-18zM32 75h47v1h-47zM2 76h18v1h-18zM32 76h47v1h-47zM2 77h18v1h-18zM32 77h47v1h-47zM2 78h18v1h-18zM32 78h47v1h-47zM2 79h18v1h-18zM32 79h47v1h-47zM1 80h19v1h-19zM32 80h47v1h-47zM1 81h19v1h-19zM32 81h47v1h-47zM1 82h19v1h-19zM32 82h47v1h-47zM1 83h19v1h-19zM32 83h47v1h-47zM1 84h19v1h-19zM32 84h47v1h-47zM1 85h19v1h-19zM32 85h47v1h-47zM2 86h18v1h-18zM32 86h47v1h-47zM2 87h18v1h-18zM32 87h47v1h-47zM2 88h18v1h-18zM32 88h47v1h-47zM3 89h17v1h-17zM32 89h47v1h-47zM3 90h17v1h-17zM32 90h47v1h-47zM3 91h17v1h-17zM32 91h47v1h-47zM4 92h16v1h-16zM32 92h47v1h-47zM4 93h16v1h-16zM32 93h47v1h-47zM4 94h16v1h-16zM32 94h47v1h-47zM5 95h15v1h-15zM32 95h47v1h-47zM5 96h15v1h-15zM32 96h47v1h-47zM5 97h15v1h-15zM32 97h47v1h-47zM6 98h14v1h-14zM32 98h47v1h-47zM8 99h12v1h-12zM31 99h48v1h-48zM11 100h9v1h-9zM29 100h50v1h-50zM15 101h5v1h-5zM29 101h50v1h-50zM18 102h2v1h-2zM28 102h51v1h-51zM31 103h48v1h-48zM34 104h45v1h-45zM37 105h42v1h-42zM40 106h36v1h-36zM43 107h30v1h-30zM47 108h23v1h-23zM53 109h9v1h-9z"],["#192955","M17 44h9v1h-9zM17 45h9v1h-9zM17 46h9v1h-9zM17 47h9v1h-9zM17 48h9v1h-9zM17 49h9v1h-9zM17 50h9v1h-9zM17 51h9v1h-9zM17 52h9v1h-9zM18 53h8v1h-8zM18 54h8v1h-8zM18 55h9v1h-9zM18 56h9v1h-9zM18 57h9v1h-9zM18 58h9v1h-9zM18 59h9v1h-9zM18 60h9v1h-9zM19 61h8v1h-8zM19 62h8v1h-8zM19 63h9v1h-9zM19 64h9v1h-9zM19 65h9v1h-9zM19 66h9v1h-9zM19 67h9v1h-9zM19 68h9v1h-9zM20 69h8v1h-8zM20 70h8v1h-8zM20 71h9v1h-9zM20 72h9v1h-9zM20 73h9v1h-9zM20 74h9v1h-9zM20 75h9v1h-9zM20 76h9v1h-9zM20 77h9v1h-9zM20 78h9v1h-9zM20 79h9v1h-9zM20 80h9v1h-9zM20 81h9v1h-9zM20 82h9v1h-9zM20 83h9v1h-9zM20 84h9v1h-9zM20 85h9v1h-9zM20 86h9v1h-9zM20 87h9v1h-9zM20 88h9v1h-9zM20 89h9v1h-9zM20 90h9v1h-9zM20 91h9v1h-9zM20 92h9v1h-9zM20 93h9v1h-9zM20 94h9v1h-9zM20 95h9v1h-9zM20 96h9v1h-9zM20 97h9v1h-9zM20 98h9v1h-9zM20 99h9v1h-9zM20 100h9v1h-9zM20 101h9v1h-9zM20 102h8v1h-8z"],["#615b7a","M26 47h3v1h-3zM26 48h3v1h-3zM26 49h3v1h-3zM26 50h3v1h-3zM26 51h3v1h-3zM26 52h3v1h-3zM26 53h3v1h-3zM26 54h3v1h-3zM27 55h2v1h-2zM27 56h3v1h-3zM27 57h3v1h-3zM27 58h3v1h-3zM27 59h3v1h-3zM27 60h3v1h-3zM27 61h3v1h-3zM27 62h3v1h-3zM28 63h2v1h-2zM28 64h3v1h-3zM28 65h3v1h-3zM28 66h3v1h-3zM28 67h3v1h-3zM28 68h3v1h-3zM28 69h3v1h-3zM28 70h3v1h-3zM29 71h2v1h-2zM29 72h2v1h-2zM29 73h2v1h-2zM29 74h3v1h-3zM29 75h3v1h-3zM29 76h3v1h-3zM29 77h3v1h-3zM29 78h3v1h-3zM29 79h3v1h-3zM29 80h3v1h-3zM29 81h3v1h-3zM29 82h3v1h-3zM29 83h3v1h-3zM29 84h3v1h-3zM29 85h3v1h-3zM29 86h3v1h-3zM29 87h3v1h-3zM29 88h3v1h-3zM29 89h3v1h-3zM29 90h3v1h-3zM29 91h3v1h-3zM29 92h3v1h-3zM29 93h3v1h-3zM29 94h3v1h-3zM29 95h3v1h-3zM29 96h3v1h-3zM29 97h3v1h-3zM29 98h3v1h-3zM29 99h2v1h-2z"],["#8c6553","M10 48h4v1h-4zM8 49h8v1h-8zM7 50h10v1h-10zM6 51h11v1h-11zM6 52h11v1h-11zM6 53h12v1h-12zM5 54h13v1h-13zM5 55h13v1h-13zM5 56h13v1h-13zM5 57h13v1h-13zM5 58h13v1h-13zM5 59h13v1h-13zM6 60h12v1h-12zM6 61h12v1h-12zM6 62h12v1h-12zM7 63h10v1h-10zM8 64h8v1h-8zM10 65h4v1h-4z"],["#a88695","M79 52h38v1h-38zM79 53h38v1h-38zM79 54h38v1h-38zM79 55h38v1h-38zM79 56h38v1h-38zM79 57h38v1h-38zM79 58h38v1h-38zM79 59h38v1h-38zM79 60h39v1h-39zM79 61h39v1h-39zM79 62h39v1h-39zM79 63h39v1h-39zM79 64h39v1h-39zM79 65h39v1h-39zM79 66h39v1h-39zM79 67h39v1h-39zM79 68h39v1h-39zM79 69h39v1h-39zM83 70h35v1h-35zM83 71h35v1h-35zM83 72h35v1h-35zM83 73h34v1h-34zM83 74h34v1h-34zM83 75h34v1h-34zM83 76h34v1h-34zM83 77h34v1h-34zM83 78h34v1h-34zM83 79h34v1h-34zM83 80h34v1h-34zM83 81h34v1h-34zM83 82h34v1h-34zM83 83h34v1h-34zM79 84h38v1h-38zM79 85h38v1h-38zM79 86h38v1h-38zM79 87h38v1h-38zM79 88h37v1h-37zM79 89h35v1h-35zM79 90h34v1h-34zM79 91h32v1h-32zM79 92h31v1h-31zM79 93h30v1h-30zM79 94h28v1h-28zM79 95h27v1h-27zM79 96h25v1h-25zM79 97h24v1h-24zM79 98h21v1h-21zM79 99h18v1h-18zM79 100h15v1h-15zM79 101h12v1h-12zM79 102h9v1h-9zM79 103h6v1h-6zM79 104h3v1h-3z"]],"outline":[[-56,-14],[-50,-36],[-34,-52],[-12,-58.5],[10,-58],[30,-53],[46,-42],[56,-22],[58,4],[56.5,26],[42,36],[24,42],[9,47],[-4,48],[-16,46],[-30,41],[-40,41],[-54,37],[-59,23],[-57.5,8]]},"harbor":{"bounds":[-92,62,-104,54],"paths":[["#4f7e6b","M91 42h9v1h-9zM84 43h25v1h-25zM84 44h33v1h-33zM84 45h40v1h-40zM84 46h45v1h-45zM84 47h45v1h-45zM84 48h45v1h-45zM84 49h44v1h-44zM85 50h42v1h-42zM85 51h41v1h-41zM85 52h41v1h-41zM85 53h40v1h-40zM136 53h1v1h-1zM85 54h39v1h-39zM135 54h3v1h-3zM85 55h38v1h-38zM135 55h4v1h-4zM85 56h38v1h-38zM134 56h6v1h-6zM85 57h37v1h-37zM133 57h8v1h-8zM86 58h11v1h-11zM105 58h16v1h-16zM132 58h10v1h-10zM86 59h9v1h-9zM107 59h13v1h-13zM132 59h11v1h-11zM131 60h12v1h-12zM130 61h13v1h-13zM129 62h15v1h-15zM129 63h15v1h-15zM128 64h16v1h-16zM127 65h18v1h-18zM126 66h19v1h-19zM126 67h19v1h-19zM125 68h21v1h-21zM124 69h22v1h-22zM124 70h23v1h-23zM123 71h24v1h-24zM122 72h25v1h-25zM121 73h27v1h-27zM121 74h27v1h-27zM120 75h28v1h-28zM119 76h30v1h-30zM118 77h31v1h-31zM118 78h31v1h-31zM117 79h33v1h-33zM116 80h34v1h-34zM115 81h35v1h-35zM115 82h35v1h-35zM114 83h36v1h-36zM113 84h37v1h-37zM112 85h38v1h-38zM112 86h38v1h-38zM111 87h40v1h-40zM110 88h41v1h-41zM109 89h42v1h-42zM109 90h42v1h-42zM108 91h43v1h-43z"],["#133f4e","M82 43h2v1h-2zM76 44h8v1h-8zM76 45h8v1h-8zM76 46h8v1h-8zM76 47h8v1h-8zM129 47h1v1h-1zM76 48h8v1h-8zM129 48h2v1h-2zM76 49h8v1h-8zM128 49h4v1h-4zM76 50h9v1h-9zM127 50h6v1h-6zM77 51h8v1h-8zM126 51h8v1h-8zM77 52h8v1h-8zM126 52h10v1h-10zM77 53h8v1h-8zM125 53h11v1h-11zM77 54h8v1h-8zM124 54h11v1h-11zM77 55h8v1h-8zM123 55h12v1h-12zM77 56h8v1h-8zM123 56h11v1h-11zM77 57h8v1h-8zM122 57h11v1h-11zM77 58h9v1h-9zM121 58h11v1h-11zM78 59h8v1h-8zM120 59h12v1h-12zM78 60h8v1h-8zM120 60h11v1h-11zM78 61h8v1h-8zM119 61h11v1h-11zM78 62h8v1h-8zM118 62h11v1h-11zM78 63h8v1h-8zM118 63h11v1h-11zM78 64h8v1h-8zM117 64h11v1h-11zM78 65h9v1h-9zM116 65h11v1h-11zM79 66h8v1h-8zM115 66h11v1h-11zM79 67h8v1h-8zM115 67h11v1h-11zM79 68h8v1h-8zM114 68h11v1h-11zM79 69h8v1h-8zM113 69h11v1h-11zM79 70h8v1h-8zM112 70h12v1h-12zM79 71h8v1h-8zM112 71h11v1h-11zM79 72h8v1h-8zM111 72h11v1h-11zM79 73h9v1h-9zM110 73h11v1h-11zM80 74h8v1h-8zM109 74h12v1h-12zM80 75h8v1h-8zM109 75h11v1h-11zM80 76h8v1h-8zM108 76h11v1h-11zM80 77h8v1h-8zM107 77h11v1h-11zM80 78h8v1h-8zM106 78h12v1h-12zM80 79h8v1h-8zM106 79h11v1h-11zM80 80h9v1h-9zM105 80h11v1h-11zM81 81h8v1h-8zM104 81h11v1h-11zM81 82h8v1h-8zM103 82h12v1h-12zM81 83h8v1h-8zM103 83h11v1h-11zM81 84h8v1h-8zM102 84h11v1h-11zM81 85h8v1h-8zM101 85h11v1h-11zM81 86h8v1h-8zM100 86h12v1h-12zM81 87h15v1h-15zM100 87h11v1h-11zM81 88h29v1h-29zM82 89h27v1h-27zM82 90h27v1h-27zM81 91h27v1h-27zM80 92h27v1h-27zM79 93h27v1h-27zM79 94h27v1h-27zM78 95h28v1h-28zM78 96h28v1h-28zM78 97h28v1h-28zM78 98h28v1h-28zM77 99h29v1h-29zM76 100h30v1h-30zM76 101h29v1h-29zM76 102h29v1h-29zM76 103h28v1h-28zM75 104h28v1h-28zM75 105h27v1h-27zM75 106h26v1h-26zM75 107h8v1h-8zM85 107h14v1h-14zM75 108h8v1h-8zM88 108h8v1h-8zM75 109h8v1h-8zM74 110h8v1h-8zM74 111h8v1h-8zM74 112h8v1h-8zM74 113h8v1h-8zM74 114h8v1h-8zM73 115h9v1h-9zM73 116h8v1h-8zM73 117h8v1h-8zM73 118h8v1h-8zM73 119h8v1h-8zM72 120h9v1h-9zM72 121h8v1h-8zM72 122h8v1h-8zM72 123h8v1h-8zM72 124h8v1h-8zM72 125h8v1h-8zM71 126h8v1h-8zM71 127h8v1h-8zM71 128h8v1h-8zM71 129h8v1h-8zM71 130h8v1h-8zM70 131h9v1h-9zM70 132h8v1h-8zM70 133h8v1h-8zM70 134h8v1h-8zM70 135h8v1h-8zM69 136h9v1h-9zM69 137h8v1h-8zM69 138h8v1h-8zM69 139h8v1h-8zM69 140h8v1h-8zM69 141h8v1h-8zM68 142h8v1h-8zM68 143h8v1h-8zM68 144h8v1h-8zM68 145h8v1h-8zM68 146h8v1h-8zM67 147h9v1h-9zM67 148h8v1h-8zM67 149h8v1h-8zM67 150h8v1h-8zM67 151h8v1h-8zM66 152h9v1h-9zM66 153h8v1h-8zM66 154h8v1h-8zM69 155h5v1h-5z"],["#568a76","M74 44h2v1h-2zM66 45h10v1h-10zM61 46h15v1h-15zM59 47h17v1h-17zM56 48h20v1h-20zM54 49h22v1h-22zM52 50h24v1h-24zM50 51h27v1h-27zM47 52h30v1h-30zM45 53h32v1h-32zM44 54h33v1h-33zM43 55h34v1h-34zM43 56h34v1h-34zM43 57h34v1h-34zM42 58h35v1h-35zM42 59h36v1h-36zM41 60h37v1h-37zM41 61h37v1h-37zM41 62h37v1h-37zM40 63h38v1h-38zM40 64h38v1h-38zM39 65h39v1h-39zM39 66h40v1h-40zM39 67h17v1h-17zM64 67h15v1h-15zM38 68h16v1h-16zM66 68h13v1h-13zM38 69h14v1h-14zM68 69h11v1h-11zM37 70h14v1h-14zM69 70h10v1h-10zM37 71h13v1h-13zM37 72h12v1h-12zM36 73h13v1h-13zM36 74h12v1h-12zM36 75h12v1h-12zM36 76h11v1h-11zM35 77h12v1h-12zM73 77h7v1h-7zM35 78h12v1h-12zM73 78h7v1h-7zM35 79h12v1h-12zM73 79h7v1h-7zM35 80h12v1h-12zM73 80h7v1h-7zM35 81h12v1h-12zM73 81h8v1h-8zM34 82h13v1h-13zM73 82h8v1h-8zM34 83h13v1h-13zM73 83h8v1h-8zM34 84h14v1h-14zM72 84h9v1h-9zM34 85h14v1h-14zM72 85h9v1h-9zM34 86h15v1h-15zM71 86h10v1h-10zM34 87h15v1h-15zM71 87h10v1h-10zM33 88h17v1h-17zM70 88h11v1h-11zM33 89h18v1h-18zM69 89h13v1h-13zM33 90h19v1h-19zM68 90h14v1h-14zM33 91h21v1h-21zM66 91h15v1h-15zM33 92h23v1h-23zM65 92h15v1h-15zM32 93h27v1h-27zM65 93h14v1h-14zM32 94h27v1h-27zM65 94h14v1h-14zM32 95h27v1h-27zM65 95h13v1h-13zM32 96h14v1h-14zM32 97h14v1h-14zM32 98h14v1h-14zM32 99h14v1h-14zM32 100h14v1h-14zM32 101h14v1h-14zM33 102h13v1h-13zM33 103h13v1h-13zM33 104h13v1h-13zM33 105h13v1h-13zM33 106h13v1h-13zM33 107h13v1h-13zM33 108h13v1h-13zM33 109h13v1h-13zM33 110h13v1h-13zM33 111h13v1h-13zM33 112h13v1h-13zM33 113h13v1h-13zM34 114h12v1h-12zM34 115h12v1h-12zM34 116h12v1h-12zM34 117h12v1h-12zM34 118h12v1h-12zM34 119h12v1h-12zM34 120h12v1h-12zM35 121h11v1h-11zM35 122h11v1h-11zM35 123h11v1h-11zM36 124h10v1h-10zM36 125h10v1h-10zM37 126h9v1h-9zM37 127h9v1h-9zM37 128h9v1h-9zM38 129h8v1h-8zM38 130h8v1h-8zM39 131h7v1h-7zM39 132h7v1h-7zM39 133h7v1h-7zM40 134h6v1h-6zM40 135h6v1h-6zM41 136h5v1h-5zM41 137h5v1h-5zM41 138h5v1h-5zM42 139h4v1h-4zM43 140h3v1h-3zM44 141h2v1h-2zM45 142h1v1h-1z"],["#6f789a","M97 58h8v1h-8zM95 59h12v1h-12zM94 60h14v1h-14zM93 61h16v1h-16zM93 62h16v1h-16zM92 63h18v1h-18zM92 64h18v1h-18zM92 65h18v1h-18zM92 66h18v1h-18zM92 67h18v1h-18zM92 68h18v1h-18zM92 69h18v1h-18zM92 70h18v1h-18zM95 71h14v1h-14zM95 72h14v1h-14zM95 73h13v1h-13zM95 74h12v1h-12zM97 75h8v1h-8z"],["#82779a","M86 60h8v1h-8zM108 60h12v1h-12zM86 61h7v1h-7zM109 61h10v1h-10zM86 62h7v1h-7zM109 62h9v1h-9zM86 63h6v1h-6zM110 63h8v1h-8zM86 64h6v1h-6zM110 64h7v1h-7zM87 65h5v1h-5zM110 65h6v1h-6zM87 66h5v1h-5zM110 66h5v1h-5zM87 67h5v1h-5zM110 67h5v1h-5zM87 68h5v1h-5zM110 68h4v1h-4zM87 69h5v1h-5zM110 69h3v1h-3zM87 70h5v1h-5zM110 70h2v1h-2zM87 71h1v1h-1zM109 71h3v1h-3zM87 72h1v1h-1zM109 72h2v1h-2zM108 73h2v1h-2zM107 74h2v1h-2zM95 75h2v1h-2zM105 75h4v1h-4zM95 76h13v1h-13zM88 77h19v1h-19zM88 78h18v1h-18zM88 79h18v1h-18zM89 80h16v1h-16zM89 81h15v1h-15zM89 82h14v1h-14zM89 83h14v1h-14zM89 84h13v1h-13zM89 85h12v1h-12zM89 86h11v1h-11zM96 87h4v1h-4z"],["#8f82aa","M56 67h8v1h-8zM54 68h12v1h-12zM52 69h16v1h-16zM51 70h18v1h-18zM50 71h20v1h-20zM49 72h22v1h-22zM49 73h22v1h-22zM48 74h24v1h-24zM48 75h24v1h-24zM47 76h26v1h-26zM47 77h26v1h-26zM47 78h26v1h-26zM47 79h26v1h-26zM47 80h26v1h-26zM47 81h26v1h-26zM47 82h26v1h-26zM47 83h26v1h-26zM48 84h24v1h-24zM48 85h24v1h-24zM49 86h22v1h-22zM49 87h22v1h-22zM50 88h20v1h-20zM51 89h18v1h-18zM52 90h16v1h-16zM54 91h12v1h-12zM56 92h8v1h-8z"],["#b29252","M70 71h9v1h-9zM71 72h8v1h-8zM71 73h8v1h-8zM72 74h8v1h-8zM72 75h8v1h-8zM73 76h7v1h-7zM64 92h1v1h-1zM59 93h6v1h-6z"],["#a1854a","M88 71h7v1h-7zM88 72h7v1h-7zM88 73h7v1h-7zM88 74h7v1h-7zM88 75h7v1h-7zM88 76h7v1h-7zM132 92h6v1h-6zM132 93h6v1h-6zM59 94h6v1h-6zM132 94h6v1h-6zM59 95h6v1h-6zM132 95h6v1h-6zM59 96h6v1h-6zM132 96h6v1h-6zM59 97h6v1h-6zM132 97h6v1h-6zM59 98h6v1h-6zM59 99h6v1h-6zM59 100h6v1h-6zM59 101h6v1h-6zM59 102h6v1h-6zM59 103h6v1h-6zM59 104h6v1h-6z"],["#836351","M107 92h25v1h-25zM138 92h13v1h-13zM106 93h26v1h-26zM138 93h13v1h-13zM106 94h26v1h-26zM138 94h13v1h-13zM106 95h26v1h-26zM138 95h13v1h-13zM106 96h26v1h-26zM138 96h13v1h-13zM106 97h26v1h-26zM138 97h13v1h-13zM106 98h26v1h-26zM138 98h13v1h-13zM106 99h26v1h-26zM138 99h13v1h-13zM106 100h46v1h-46zM105 101h47v1h-47zM105 102h47v1h-47zM104 103h48v1h-48zM103 104h49v1h-49zM102 105h50v1h-50zM102 106h50v1h-50zM102 107h50v1h-50zM114 108h38v1h-38zM114 109h37v1h-37zM114 110h37v1h-37zM114 111h37v1h-37zM114 112h37v1h-37zM114 113h37v1h-37zM114 114h36v1h-36zM114 115h36v1h-36zM114 116h36v1h-36zM114 117h36v1h-36zM114 118h36v1h-36zM114 119h36v1h-36zM114 120h35v1h-35zM114 121h35v1h-35zM114 122h35v1h-35zM114 123h35v1h-35zM114 124h35v1h-35zM114 125h34v1h-34zM114 126h34v1h-34zM114 127h34v1h-34zM114 128h34v1h-34zM114 129h33v1h-33zM114 130h32v1h-32zM114 131h31v1h-31zM114 132h30v1h-30zM114 133h29v1h-29zM114 134h28v1h-28zM114 135h28v1h-28zM114 136h27v1h-27zM114 137h26v1h-26zM114 138h25v1h-25zM114 139h24v1h-24zM114 140h23v1h-23zM114 141h22v1h-22zM114 142h21v1h-21zM114 143h19v1h-19zM114 144h16v1h-16zM114 145h14v1h-14zM114 146h12v1h-12zM114 147h10v1h-10zM114 148h7v1h-7zM114 149h5v1h-5zM114 150h2v1h-2z"],["#8b6c66","M46 96h13v1h-13zM65 96h13v1h-13zM46 97h13v1h-13zM65 97h13v1h-13zM46 98h13v1h-13zM65 98h13v1h-13zM46 99h13v1h-13zM65 99h12v1h-12zM46 100h13v1h-13zM65 100h11v1h-11zM46 101h13v1h-13zM65 101h11v1h-11zM46 102h13v1h-13zM65 102h11v1h-11zM46 103h13v1h-13zM65 103h11v1h-11zM46 104h13v1h-13zM65 104h10v1h-10zM46 105h13v1h-13zM65 105h10v1h-10zM46 106h29v1h-29zM101 106h1v1h-1zM46 107h29v1h-29zM83 107h2v1h-2zM99 107h3v1h-3zM46 108h29v1h-29zM83 108h5v1h-5zM96 108h18v1h-18zM46 109h29v1h-29zM83 109h31v1h-31zM46 110h28v1h-28zM82 110h32v1h-32zM46 111h28v1h-28zM82 111h32v1h-32zM46 112h28v1h-28zM82 112h32v1h-32zM46 113h28v1h-28zM82 113h32v1h-32zM46 114h28v1h-28zM82 114h32v1h-32zM46 115h27v1h-27zM82 115h32v1h-32zM46 116h27v1h-27zM81 116h33v1h-33zM46 117h27v1h-27zM81 117h33v1h-33zM46 118h27v1h-27zM81 118h27v1h-27zM46 119h27v1h-27zM81 119h27v1h-27zM46 120h26v1h-26zM81 120h27v1h-27zM46 121h26v1h-26zM80 121h28v1h-28zM46 122h26v1h-26zM80 122h28v1h-28zM46 123h26v1h-26zM80 123h28v1h-28zM46 124h26v1h-26zM80 124h28v1h-28zM46 125h26v1h-26zM80 125h28v1h-28zM46 126h25v1h-25zM79 126h29v1h-29zM46 127h25v1h-25zM79 127h29v1h-29zM46 128h25v1h-25zM79 128h29v1h-29zM46 129h25v1h-25zM79 129h29v1h-29zM46 130h25v1h-25zM79 130h35v1h-35zM46 131h24v1h-24zM79 131h35v1h-35zM46 132h24v1h-24zM78 132h36v1h-36zM46 133h24v1h-24zM78 133h36v1h-36zM46 134h24v1h-24zM78 134h36v1h-36zM46 135h24v1h-24zM78 135h36v1h-36zM46 136h23v1h-23zM78 136h36v1h-36zM46 137h23v1h-23zM46 138h23v1h-23zM46 139h23v1h-23zM46 140h23v1h-23zM46 141h23v1h-23zM46 142h22v1h-22zM47 143h21v1h-21zM48 144h20v1h-20zM50 145h18v1h-18zM51 146h17v1h-17zM52 147h15v1h-15zM54 148h13v1h-13zM55 149h12v1h-12zM57 150h10v1h-10zM59 151h8v1h-8zM62 152h4v1h-4zM64 153h2v1h-2z"],["#917843","M132 98h6v1h-6zM132 99h6v1h-6zM59 105h6v1h-6zM108 118h6v1h-6zM108 119h6v1h-6zM108 120h6v1h-6zM108 121h6v1h-6zM108 122h6v1h-6zM108 123h6v1h-6zM108 124h6v1h-6zM108 125h6v1h-6zM108 126h6v1h-6zM108 127h6v1h-6zM108 128h6v1h-6zM108 129h6v1h-6z"],["#887156","M77 137h37v1h-37zM77 138h37v1h-37zM77 139h37v1h-37zM77 140h37v1h-37zM77 141h37v1h-37zM76 142h38v1h-38zM76 143h38v1h-38zM76 144h38v1h-38zM76 145h38v1h-38zM76 146h38v1h-38zM76 147h38v1h-38zM75 148h39v1h-39zM75 149h39v1h-39zM75 150h39v1h-39zM75 151h38v1h-38zM75 152h34v1h-34zM74 153h32v1h-32zM74 154h8v1h-8z"]],"outline":[[-56,-30],[-48,-50],[-30,-58],[-14,-60],[4,-62],[22,-60],[36,-58],[50,-46],[58,-24],[60,2],[56,24],[44,38],[26,46],[12,50],[-6,50],[-22,52],[-36,46],[-50,36],[-58,16],[-60,-8]]}};
+
+// ═════════════ features ═════════════
+const FEATURES = [
+  { t: 'Moving and painting', items: [
+    ['Move, run, jump, dodge', '<kbd>WASD</kbd>, <kbd>Shift</kbd> run, <kbd>Space</kbd> jump, <kbd>C</kbd> dodge. A dodge at the last instant is a PERFECT DODGE: Paint Time slows only the creatures, paint hits twice as hard and the can refills.'],
+    ['Spray and aim', 'Click sprays a paint stream; <kbd>Z</kbd> or right-click aims. <kbd>T</kbd> switches colour; new colours unlock as you play.'],
+    ['Jet hover and paint slam', 'In the air, hold <kbd>Space</kbd> again to hover on a jet of paint (uses paint). <kbd>C</kbd> in the air dives into a PAINT SLAM.'],
+    ['Lift and throw', '<kbd>G</kbd> lifts a prop; hold to charge a throw. The Eraser\'s crumbs and the Hush\'s dust balls land as rocks you throw back.'],
+    ['Springs, drops, cans', 'Sketched springs on the ground become real when you fill them with paint. Paint drops refill and count for rewards. Spray cans are checkpoints.'],
+  ]},
+  { t: 'Stickers and lending them', items: [
+    ['Three stickers', 'Eye, Mouth and Legs. Creatures drop them corrupted; hold <kbd>Q</kbd> / <kbd>R</kbd> / <kbd>F</kbd> to purify.'],
+    ['Wear for a power', 'Eye: True Sight (aim to make undrawn things real). Mouth: Chomp (<kbd>V</kbd>) in level 1, SHOUT (<kbd>X</kbd>, hold for BIG SHOUT) in level 2. Legs: huge jump, faster run.'],
+    ['Lend for a behaviour', '<kbd>E</kbd> sticks a sticker on a thing. An Eye keeps looking (keeps a bridge real), a Mouth eats or speaks, Legs make it walk after you or carry you.'],
+    ['Guardians', 'Three per level. Each needs one sticker, fixes a piece of the world, then gives the sticker back.'],
+  ]},
+  { t: 'Boons, ENCORE and rewards', items: [
+    ['TAG IT!', 'A reeling creature can be finished with <kbd>E</kbd>: WAI leaps and slaps a giant crown tag on it.'],
+    ['ENCORE stamps', 'Push your luck: after a TAG, press <kbd>E</kbd> again to keep stamping for a bigger payout; each stamp is less likely to stick. A slip loses the payout. 10 good stamps charge FRENZY (next encore cannot slip). ENCORE only exists after you pick the Golden Stamp boon, so a run may never see it.'],
+    ['Boons', 'Pick 1 of 3 cards: one shortly after the intro, one per Guardian woken. 17 boons, rarity-weighted, 2 free re-rolls per run. They reset each run.'],
+    ['Arsenal', 'Permanent unlocks you choose to equip: 1 spray cap (of 4), 1 gadget (of 4, <kbd>B</kbd>), up to 3 charms (of 8).'],
+    ['Challenges and rank', '15 challenges unlock arsenal items and capes. The end-of-level rank counts crowns most, then staying clean, then aim. Time is shown, never punished. Crowns in the code: 16 in level 1, 15 in level 2.'],
+  ]},
+  { t: 'Creatures', items: [
+    ['Repaint, don\'t kill', 'Each creature has a tell, a counter and a weak point. Repainted, it turns friendly (a lamp lights your way, a bottle refills your can).'],
+    ['How many', 'Level 1: Peeping Lamp, Chomper Bin, Crooked-Leg Mutant, Eraser Grub, Stapler, White-out Bottle (plus the Red Inkwell mid-boss). Level 2 adds Hush Moth, Megaphone Crab, Fog Jelly (plus the Red Gramophone), and reuses Lamp, Chomper and Grubs.'],
+  ]},
+  { t: 'Bosses', items: [
+    ['The Eraser (level 1)', 'Three phases on the summit. Every attack has a visual and audio tell and a punish window.'],
+    ['The Hush (level 2)', 'A jellyfish of eraser dust that eats sound. Shout its veil off, then paint.'],
+    ['Mid-bosses', 'The Red Inkwell teaches PAINT SLAM; the Red Gramophone teaches the BIG SHOUT counter. Each gates the third Guardian or the bridge to it.'],
+    ['The Red Pen (level 3)', 'Planned final boss. Not built.'],
+  ]},
+  { t: 'The AI partner', items: [
+    ['蓝色大肥鱼', 'An optional co-op partner who follows, fights, dodges, chats and makes jokes. Works fully without a model; a DeepSeek key adds a real voice and orders. See the AI partner tab.'],
+    ['Corner view', 'When she is off-screen or far away, a small live picture of her appears in a sticker frame.'],
+  ]},
+  { t: 'Look and art styles', items: [
+    ['Four art styles', 'Pause → Art style: Graffiti (default), Sunbleached Comic, Storybook, Riso Print. They restyle the running level without reloading. WAI and creatures keep their colours.'],
+    ['LOOK panel', '<kbd>L</kbd> or the title sticker: Lightroom-style sliders on top of the style; saved in the browser.'],
+    ['Graphics tiers', 'Auto / Low / Medium / High, guessed from the machine. Dynamic resolution lowers the render scale before frames stutter.'],
+  ]},
+  { t: 'Sound', items: [
+    ['Music', 'Recorded CC0 loops per mood, crossfaded as the action changes, with a per-level explore loop. A generative synth plays until a loop loads or if one is missing.'],
+    ['Effects', 'Recorded CC0 samples where they exist, synthesised cartoon sounds otherwise. Positional, with distance falloff and stereo pan.'],
+  ]},
+  { t: 'Language', items: [
+    ['English and Chinese', 'Toggle on the title screen corner or in the pause menu. The English text is the key; <code>src/i18n/zh.ts</code> holds the Chinese.'],
+    ['Chinese hand font', 'A bundled Xiaolai subset (805 KB, OFL), fetched only when Chinese text is on screen.'],
+  ]},
+  { t: 'Dev tools', items: [
+    ['Dev panel', '<kbd>`</kbd> or <kbd>F2</kbd> in the dev server (or <code>?dev</code>): teleport on a map, warp to any chapter, invincibility, give stickers, list creatures, game speed, graphics tier, unlock rewards.'],
+    ['Agent APIs', '<code>window.WD_AGENT</code> lets a script or a model drive WAI; <code>window.WD_COOP</code> drives the partner.'],
+    ['Bot harnesses', 'Walking bots for both levels in <code>docs/level1-expansion/bot</code> and <code>docs/level2-expansion/bot</code>; <code>?style=</code> in the URL picks an art style.'],
+  ]},
+];
+
+// ═════════════ places ═════════════
+// kind: story | guardian | gate | creature | midboss | boss | exit | optional | cp | crown
+const PLACES = {
+plaza: [
+  { n: 1, id: 'dock', kind: 'story', name: 'The Dock (spawn)', x: -2, z: 48, y: 0,
+    what: 'The level opens here. The kid\'s pencil traces WAI\'s outline on the planks and colour floods in. Then the Eraser streaks across the sky to the summit. The captions set the goal: wake 3 Guardians, climb, repaint the Eraser.',
+    why: 'A flat, safe start. The tower on the summit is the goal, and you can see it from here. The first spray can (cp-harbor) is 8 m north.',
+    story: '"Somewhere, a kid is drawing…" — the whole frame of the game in one shot. The Red Pen is not mentioned.' },
+  { n: 2, id: 'starterlamp', kind: 'creature', name: 'Starter Peeping Lamp', x: 7, z: 18, y: 1.5,
+    what: 'A gentle Peeping Lamp: slow beam, no grub summons, 230 paint instead of 520. Spray its pupil when it is tired after a sweep. It drops a Corrupted Eye; hold Q to purify it.',
+    why: 'Teaches the core of every fight: find the weak point, wait for the opening. It also hands out the first sticker, and everything after needs it. It sits by the spawn so the first fight comes in the first minute.',
+    story: 'The Eraser rubbed out the city\'s eyes; this lamp\'s eye went cold. Taking it back is the first step of giving the city its senses back.' },
+  { n: 3, id: 'cliff', kind: 'guardian', name: 'Sleepy Cliff (Guardian 1)', x: -11, z: -17.5, y: 1.5,
+    what: 'A giant sleeping face on the cliff north of the plaza. Face it and press E to lend the Eye. It wakes, its gaze paints the canal bridge for good, the pencil redraws road stretch 1 of 3, a crown appears, and the Eye flies back to you.',
+    why: 'Teaches lending, the game\'s main puzzle verb. Lend the Mouth by mistake and it only yawns ("It needs to SEE"), so a wrong guess gives a hint, not a failure. Waking it opens the west half of the level.',
+    story: 'The first time the kid\'s pencil comes down to help. Its "I can draw my own now — thanks!" is one of the best lines in the game. <span class="nc">The wake toast calls it "THE SLEEPY WALL".</span>' },
+  { n: 4, id: 'bridge', kind: 'gate', name: 'Canal bridge', x: -34, z: 12, y: 0.5,
+    what: 'A pencil-sketch bridge over the canal. The Sleepy Cliff\'s gaze keeps it real from now on.',
+    why: 'The first "undrawn" thing. It shows the rule that what is seen is real. The canal splits the island, so the west bank (and the Mouth) opens only after Guardian 1.',
+    story: 'The world rule from the story doc, shown rather than told.' },
+  { n: 5, id: 'chomper', kind: 'creature', name: 'Chomper Bin', x: -47, z: 10, y: 0,
+    what: 'A bin with a jaw for a lid on the west quay. Paint that hits its mouth is eaten and spat back. Spray its back, or hit it while it chews after a lunge. It drops a Corrupted Mouth (hold R). Spray can cp-quay at (-45, 15).',
+    why: 'Second lesson: flank. Second sticker. The objective hint says it outright: "Spray its back, not its mouth!"',
+    story: 'In the story doc it was a dockside bin that ate rubbish. Its Mouth is the Gatehouse\'s missing voice.' },
+  { n: 6, id: 'gatehouse', kind: 'guardian', name: 'Gatehouse (Guardian 2)', x: -47.3, z: -5, y: 3,
+    what: 'A fortress face on the west bastion with a gag over its mouth. Lend the Mouth: it shouts, the drawbridge comes down, road stretch 2 of 3 is redrawn.',
+    why: 'Repeats the lending rule with the other sticker. Lend the Eye and it says it sees fine but has no MOUTH. The drawbridge is the short way back to the hub.',
+    story: 'The story doc gives it a chatty personality. In the game it gets one toast.' },
+  { n: 7, id: 'road', kind: 'gate', name: 'Switchback road, hairpin 2', x: 24, z: -19.5, y: 8.5,
+    what: 'The hill road has three erased stretches (x 9–27, z −31 to −24.5); each Guardian redraws one. After two, the road reaches its second hairpin, where a sunken lane turns east. Spray can cp-road at (12, −16).',
+    why: 'The road is the level\'s progress bar: you see the summit all game and each Guardian visibly gets you closer. The lane puts the new district between Guardian 2 and Guardian 3, in the middle of the level.',
+    story: 'Each redraw is the kid\'s pencil helping.' },
+  { n: 8, id: 'gateyard', kind: 'creature', name: 'Gate Yard (encounter 1)', x: 34, z: -32.6, y: 13,
+    what: 'The entry square of the Crossed-Out Quarter. Spray can cp-quarter. One Stapler and three Eraser Grubs.',
+    why: 'Introduces the Stapler with light support, right after a checkpoint, so a failure is cheap. A first-meeting toast gives the counter in one line.',
+    story: 'Red crosses on walls and rocks: the first sign of the Red Pen. It is never seen in level 1, only its marks.' },
+  { n: 9, id: 'tear', kind: 'gate', name: 'The Struck Street (the tear)', x: 41.2, z: -36.6, y: 13,
+    what: 'A red line struck through the street tore the canvas: a chasm about 5.5 m wide. Cross on planks nobody drew (aim with the Eye) or jet-hover. A street lamp on the west bank takes the Eye and keeps the planks real for you. A second Stapler waits at (49, −34) to land on you as you step off. A crown hovers over the tear.',
+    why: 'Tests True Sight under pressure and shows that lending can hold a bridge for you. Knee-high kerbs and 3 m planks were added after the bot kept falling in; Staplers never leap at a spot without real ground.',
+    story: 'The clearest image of the antagonist in level 1: the Red Pen\'s line cut the city.' },
+  { n: 10, id: 'eastwalk', kind: 'creature', name: 'East Walk and the spring', x: 52.2, z: -27.4, y: 13,
+    what: 'Encounter 3: a gentle Peeping Lamp (drops nothing) and a White-out Bottle that rolls over the sketched spring and blanks the paint you put on it. Fill the spring (18 paint) and it throws you over the red barricade into Inkwell Square.',
+    why: 'The one spot where the bottle\'s ability matters to the route: it attacks the very paint you need. The lamp here adds pressure but teaches nothing new.',
+    story: 'Correction fluid against paint fits the Red Pen\'s side. The game never says so.' },
+  { n: 11, id: 'inkwell', kind: 'midboss', name: 'Inkwell Square: The Red Inkwell', x: 46.5, z: -16.3, y: 13,
+    what: 'Mid-boss, 1400 paint. Ink flicks onto red rings, a red line to jump, a red CROSS in phase 2, and a White-out Bottle called in at half paint. It corks itself so spray slides off: PAINT SLAM (jump, then C in mid-air) next to it pops the cork, then TAG.',
+    why: 'Teaches PAINT SLAM, which the Eraser fight needs and nothing earlier taught. Repainting it washes the quarter, opens two shortcuts (the barricade to the Gate Yard, a drop onto the workyard rooftop) and lifts the red cross from the Blind Statue\'s eye.',
+    story: '"The Red Pen\'s ink is washed out of the quarter! …and off the Blind Statue\'s eye." The only cause and effect for the Red Pen that the player sees in level 1.' },
+  { n: 12, id: 'statue', kind: 'guardian', name: 'Blind Statue (Guardian 3)', x: -17, z: 7, y: 1.5,
+    what: 'The statue in the central plaza. While the red cross is on its eye, it refuses the Eye ("Wash the Red Pen\'s ink out of the Crossed-Out Quarter first"). After the wash, lend the Eye: it looks up at the tower and road stretch 3 of 3 is redrawn.',
+    why: 'This gate makes the quarter part of the main path. It stands in the hub, so you pass it early, see the refusal, and come back.',
+    story: 'The story doc calls it the city\'s builder. In the game it has only the refusal line and the wake toast.' },
+  { n: 13, id: 'summit', kind: 'boss', name: 'The Summit: THE ERASER', x: 0, z: -43, y: 14,
+    what: 'On the climb the Eraser lobs crumbs; they land as rocks you can throw back (G). The arena locks. Three phases: RUB dash (it dazes itself on the wall), crumb shower, spin sweep, shockwave slam, bounce-bounce-bounce, ricochet. Spray can cp-summit at (0, −31).',
+    why: 'The level\'s final exam: dodging into a crash (the Mutant, the Stapler), weak-point timing (the Lamp), throwing, PAINT SLAM (the Inkwell).',
+    story: 'Its taunts ("WRONG. REDRAW.", "THAT LINE IS CROOKED.") are the only lines in the game about the title\'s theme. Repainted, it shrinks into a little pink eraser.' },
+  { n: 14, id: 'door', kind: 'exit', name: 'The tower door', x: 0, z: -50, y: 14,
+    what: 'After the Eraser, every sleeping face in town opens its eyes and the tower door opens. Walk through to finish the level.',
+    why: 'Level 2 starts by stepping out of this same door, so the two levels join in space.',
+    story: '"Blind Plaza can SEE again. The tower door is open."' },
+  // optional
+  { id: 'mutant', kind: 'optional', name: 'Workyard: Crooked-Leg Mutant', x: 40, z: 12, y: 4.5,
+    what: 'A 3 m bin on two wrong legs. KICK, STOMP ring (jump it), CHARGE down a red lane (dodge; if it hits a wall it dazes and shows its glowing knees). Its charge can knock the scaffold at (39, −2.5) into a ramp up to the rooftop. Drops the Legs. Repainting it is a challenge (reward: Extra Heart).',
+    why: 'Off the main path: no objective hint sends you here. It rehearses the Eraser\'s RUB-into-the-wall daze, and it opens the rooftop. Its Legs are not needed on level 1\'s main path.',
+    story: 'The story doc says it was a building-site porter whose legs were rubbed crooked. It carries the Legs, which the plan saves for level 3.' },
+  { id: 'rooftop', kind: 'optional', name: 'Rooftop: Peeping Lamp mini-boss', x: 47, z: -3.5, y: 9,
+    what: 'The full-strength Peeping Lamp (520 paint, summons grubs). It guards a crown. Spray can cp-roof at (44, −3). A water tank and a chimney crown up here too.',
+    why: 'A harder optional fight for players who want it; also the landing spot of the drop from Inkwell Square.',
+    story: 'None.' },
+  { id: 'nest', kind: 'optional', name: 'Grub nest', x: -21, z: -6, y: 1.5,
+    what: 'An Eraser Grub nest: clear all five grubs and a crown pops out of the crumbs.',
+    why: 'A small crowd fight near the hub; a good place to use the Mouth (grubs can be eaten).',
+    story: 'Grubs are the Eraser\'s crumbs. The best story fit of any fodder in the game.' },
+  { id: 'skystair', kind: 'optional', name: 'Painted eye and the sky stairs', x: 1, z: -13, y: 4,
+    what: 'Fill in the eye graffiti on the cliff and it opens: it can see a stair nobody drew, up to a ledge crown. A spring from the hub also reaches the ledge.',
+    why: 'Shows that painting can create a looker, not only the Eye sticker.',
+    story: 'None in words.' },
+],
+harbor: [
+  { n: 1, id: 'arrive', kind: 'story', name: 'Arrival pier (the tower door)', x: 2, z: 50, y: 0.6,
+    what: 'WAI hops out of Blind Plaza\'s tower door onto a silent pier at dusk. The captions introduce the Hush and the lost ships, and explain that WAI starts with no stickers. Spray can h2-cp-pier.',
+    why: 'Joins level 1 to level 2 in space. Starting empty-handed lets the level teach the Mouth again, now as SHOUT.',
+    story: '"MUTE HARBOR. Not a bell, not a gull — not a single sound." / "Your stickers stayed behind, keeping Blind Plaza awake."' },
+  { n: 2, id: 'chomper2', kind: 'creature', name: 'Chomper Bin on the landing', x: 24, z: 38, y: 0.6,
+    what: 'The same Chomper Bin as level 1. Spray its back; it drops the Mouth. Purified, the Mouth gives SHOUT (X; hold for a BIG SHOUT).',
+    why: 'The level\'s verb comes first. A known creature makes the start easy.',
+    story: 'None new.' },
+  { n: 3, id: 'gatebell', kind: 'gate', name: 'Market gate bell', x: 2, z: 31.2, y: 6.6,
+    what: 'A little bell in the gate arch. Look up and SHOUT: it rings and the gate rises.',
+    why: 'The first shout target, with no enemy around. The toast states the rule: "Shouting works on anything that makes a sound!"',
+    story: 'The harbour gets its first sound back.' },
+  { n: 4, id: 'ferry', kind: 'guardian', name: 'Foghorn Ferry (Guardian 1)', x: 2, z: 1.6, y: -1,
+    what: 'Lend the Mouth to the ferry at the quay. Its horn blows, the fog parts, the lost boats sail home and line up across the west channel; the kid\'s pencil lays planks over them.',
+    why: 'Lending again, now with the Mouth. The boat pontoon is the only way to the old town.',
+    story: '"The lost boats are home!" — the ships-finding-home thread from the intro, paid off.' },
+  { n: 5, id: 'oldquay', kind: 'creature', name: 'Old-town quay (Hush Moths)', x: -31, z: 8, y: 1.5,
+    what: 'Cross the pontoon (-15, 16). Two Hush Moths: their dust veil soaks up paint, so SHOUT first, then paint them while they ring. Spray can h2-cp-oldquay. A grand stair climbs to the Clock Square.',
+    why: 'Turns SHOUT into a combat skill: shout, then paint.',
+    story: 'Hush Moths are eraser dust that learned to fly.' },
+  { n: 6, id: 'square', kind: 'guardian', name: 'Clock Square and Clock Tower (Guardian 2)', x: -33, z: -36, y: 5,
+    what: 'Three tuning forks around the square (-41,−21), (−24,−16.5), (−26.5,−32). SHOUT at each so all three hum at once; the dust cocoon on the bell breaks and the Clock Tower rings. Three moths guard the square. Spray can h2-cp-square.',
+    why: 'A timing puzzle with the shout, under light pressure.',
+    story: 'BONG — the clock gets its voice back.' },
+  { n: 7, id: 'bellbridge', kind: 'story', name: 'The Bell Bridge (sky moment)', x: -8.4, z: -30, y: 5,
+    what: 'The Bell Bridge starts to come down, then THE RED PEN swoops out of the sky and strikes it out with a red X. The bridge snaps back up. The clock\'s BONG has also opened the old pier gate behind the tower.',
+    why: 'Inserts the new district between Guardian 2 and Guardian 3, the same trick as level 1\'s quarter. The X stays visible until the Gramophone is beaten.',
+    story: 'The first and only time the Red Pen is on screen. About six seconds, two captions, no lines of its own.' },
+  { n: 8, id: 'yard', kind: 'creature', name: 'Pier gate and Ticket Yard', x: -48, z: -66, y: 5.85,
+    what: 'Through the gate (−47.6, −49.7) and the causeway. Spray can cp-pier. Two Megaphone Crabs. On the ticket booth, the Lost & Found bell: SHOUT at it and it coughs up an Eye if you have none. An iron turnstile to the Fog Walk opens when both crabs are repainted.',
+    why: 'Introduces the crab. The Eye comes from the level\'s own verb, not from another fight (a Peeping Lamp here first smudged the bot in 20 s). The turnstile stops players from running past the encounter.',
+    story: 'None in words.' },
+  { n: 9, id: 'fogwalk', kind: 'creature', name: 'The Fog Walk', x: -69, z: -66, y: 5.85,
+    what: 'The pier is broken for 14 m. A zigzag plank walkway crosses the gap, hidden in the fog of two Fog Jellies. Aim with the Eye (True Sight) to see through the fog. The Fog Lamp at the near end takes the Eye and keeps looking for you. A crown sits on a stump off the walkway. Falls send you back to cp-pier.',
+    why: 'The Eye\'s exam in level 2, and the only main-path reason to carry it here.',
+    story: 'Sea fog: harbour flavour, no Red Pen link.' },
+  { n: 10, id: 'landing', kind: 'gate', name: 'West Landing', x: -81, z: -65, y: 5.85,
+    what: 'A rest stop after the fog. A crown on top of the crates. The Echo Gallery is to the north.',
+    why: 'Breathing room between two encounters.',
+    story: 'None.' },
+  { n: 11, id: 'carousel', kind: 'creature', name: 'Carousel Deck', x: -80, z: -89, y: 5.85,
+    what: 'Encounter 3: the Barker (a big crab), a crab and a jelly round the carousel. A velvet cordon round the sketched spring drops when all three are repainted. Paint the spring and it throws you over the red barricade to the bandstand. Spray can cp-carousel.',
+    why: 'Mixes both new creatures, so shout timing and True Sight are needed together. The spray can here means a loss in the next fight does not send you back over the fog.',
+    story: 'None in words.' },
+  { n: 12, id: 'gramophone', kind: 'midboss', name: 'The Bandstand: The Red Gramophone', x: -54, z: -88, y: 9.85,
+    what: 'Mid-boss on a giant record, 1400 paint. BLARE (step aside), SWEEP of the tonearm (jump), INHALE: a lilac circle pulls you in; a BIG SHOUT into the horn scratches the record (DAZED, TAG). Phase 2: the Red Pen scratches an X into its record and a crab joins.',
+    why: 'Teaches the counter-shout that the Hush\'s silence dome needs. Repainted: the pier\'s marks wash off, a shortcut stair opens to the Ticket Yard, and the X lifts off the Bell Bridge.',
+    story: '"It plays the Hush\'s lullaby for the Red Pen." Why the Red Pen wants the Hush to have a lullaby is never said.' },
+  { n: 13, id: 'headland', kind: 'gate', name: 'Bell Bridge down, the headland', x: 3, z: -30, y: 4,
+    what: '"The Red Pen\'s X comes off the Bell Bridge!" The bridge comes down; cross to the headland. Spray can h2-cp-headland.',
+    why: 'Pays off the sky moment: the player sees the mid-boss undo the Red Pen\'s mark.',
+    story: 'Cause and effect, shown.' },
+  { n: 14, id: 'lighthouse', kind: 'guardian', name: 'Lighthouse (Guardian 3)', x: 13, z: -51, y: 4,
+    what: 'A dust cocoon blocks the stair: BIG SHOUT. Climb the spiral stair (two moths beside it) to the gallery and BIG SHOUT into the brass horn. The lighthouse sings, and THE HUSH rises from the fog. Spray can h2-cp-lighthouse.',
+    why: 'Uses the BIG SHOUT twice in a calm space right after the Gramophone taught it.',
+    story: '"…the ships can see their way home." Then the villain arrives, angry that the quiet is gone.' },
+  { n: 15, id: 'hush', kind: 'boss', name: 'Headland plaza: THE HUSH', x: 9, z: -37, y: 4,
+    what: 'Veil (shout it off, then paint), STING lanes, DUST RAIN (throw the dust balls back), SILENCE DOME (shout into it), BROOD of moths, DIVE (jump the ring, then PAINT SLAM it while stranded).',
+    why: 'Final exam of level 2: shout, BIG SHOUT counter, throwing, PAINT SLAM.',
+    story: 'Taunts: "SHHHH.", "QUIET, PLEASE.". Repainted, it becomes a little jelly lantern that floats up to the lighthouse.' },
+  { n: 16, id: 'jetty', kind: 'exit', name: 'Jetty and the paper boat', x: 25.9, z: -37, y: 0.9,
+    what: 'A paper boat sails in to the jetty below the plaza (east stairs). Climb aboard to finish.',
+    why: 'The level\'s exit. The plan says level 3 is reached by this boat.',
+    story: '"Mute Harbor can SING again." The end screen: "Next: Limp Works (coming soon)".' },
+  // optional
+  { id: 'boardlamp', kind: 'optional', name: 'East boardwalk: Peeping Lamp', x: 33, z: 13, y: 1.2,
+    what: 'A gentle Peeping Lamp that drops an Eye. Spray can h2-cp-board at (30, 4).',
+    why: 'An early, optional way to get the Eye (the Lost & Found bell is the other).',
+    story: 'None.' },
+  { id: 'nest2', kind: 'optional', name: 'Moth nest by the net sheds', x: 45, z: -20, y: 3,
+    what: 'Four Hush Moths. Clear them for a crown.', why: 'Optional crowd fight with the shout.', story: 'None.' },
+  { id: 'grotto', kind: 'optional', name: 'East rocks grotto', x: 53, z: 4, y: 1.2,
+    what: '"Something in the east rocks wants to shout back." A crown.', why: 'Side goal for the shout.', story: 'None.' },
+  { id: 'stack', kind: 'optional', name: 'Sea stack', x: 33.7, z: -44, y: 0,
+    what: 'A crown on the sea stack, up steps only an Eye can see.', why: 'Side goal for True Sight.', story: 'None.' },
+  { id: 'buoy', kind: 'optional', name: 'Bell buoy in the lagoon', x: -3.2, z: -7.2, y: -1.2,
+    what: 'Ring the bell buoy for a crown.', why: 'Side goal for the shout.', story: 'None.' },
+  { id: 'gallery', kind: 'optional', name: 'Echo Gallery (challenge)', x: -81, z: -53.4, y: 5.85,
+    what: 'Step on and brass horns pop up one at a time; SHOUT each before it sinks. 8 of 10 wins a crown.',
+    why: 'The plan\'s "optional challenge room" for level 2.', story: 'None.' },
+],
+};
+
+// checkpoints and crowns (positions from the code; y omitted)
+const EXTRA = {
+plaza: {
+  cp: [['cp-harbor',2,40],['cp-hub',2,13],['cp-yard',26,2],['cp-roof',44,-3],['cp-quay',-45,15],['cp-road',12,-16],['cp-summit',0,-31],['cp-quarter',32.2,-30.6]],
+  crown: [['On a chimney above the rooftop',48.6,-2.6],['On a cliff ledge — up stairs nobody drew',5,-17.2],['Something hungry swallowed it long ago (mailbox, Mouth)',-6.8,36],['Under something that would rather be walking (bench, Legs)',-6,19],['On a shelf only an eye could see',7.6,34],['Wake the Sleepy Cliff',-11,-15.6],['Give the Gatehouse its voice back',-45.5,-5],['Clear the grub nest',-21,-6],['Up on the workyard rooftop',50,-8.6],['An island in the canal',-35.2,27],['Repaint the Peeping Lamp on the rooftop',47,-2],['Fill in the crown graffiti',-13.4,30],['High in the upper town',-6,-46],['On a kiosk, up stairs nobody drew',35.6,-35],['Hovering over the torn street',41.25,-40.6],['Repaint the Red Inkwell',46.5,-19.6]],
+  grub: [[4,-8],[-14,-2],[-48,4],[-49,22],[30.6,-34.5],[35.2,-30.8],[32.2,-36]],
+},
+harbor: {
+  cp: [['h2-cp-pier',-0.4,44.2],['h2-cp-market',6,18],['h2-cp-oldquay',-26,12],['h2-cp-square',-28,-13],['h2-cp-headland',1,-27],['h2-cp-lighthouse',8,-46],['h2-cp-board',30,4],['cp-pier',-48.4,-62.6],['cp-carousel',-82,-81.6]],
+  crown: [['On the fish-market awning (paint the spring)',12.5,39],['Ring the bell buoy in the lagoon',-5.6,-4.8],['The square\'s mailbox has something stuck in its throat',-35.2,-14.4],['Something in the east rocks wants to shout back',51,4],['On the sea stack — up steps only an Eye can see',33.7,-44],['Wake the Foghorn Ferry',7.2,7],['Make the Clock Tower ring',-33,-36.6],['On the lighthouse gallery, round the back',9.4,-53.4],['Clear the Hush Moth nest by the net sheds',46,-18],['On an old-town rooftop (a spring helps)',-41,12],['On a stump in the fog, off the hidden walkway',-72.6,-60.4],['On top of the crates on the West Landing',-77.9,-71],['Win the Echo Gallery',-81,-54.6],['Ride the carousel… (well, walk round it)',-82,-86.5],['Repaint the Red Gramophone',-54,-92]],
+  grub: [[-44,20],[-46,8],[36,-2]],
+  moth: [[-31,10],[-35,4],[-36,-24],[-27,-20],[-30,-30],[44,-20],[47,-24],[42,-16],[49,-18]],
+},
+};
+
+// district labels (from the dev panel's map labels, translated) + drawn overlays
+const LABELS = {
+plaza: [['Dock',-2,52.5],['Harbor Street',0,31],['Central Plaza',-6,3],['Canal',-37,36],['West quay',-50,25],['Gatehouse bastion',-46,-13],['Workyard',30,20],['Hill road',18,-38.5],['Summit',-3,-55],['Sleepy Cliff',-21,-22],['Crossed-Out Quarter',41,-49],['Upper Town',-24,-40],['Rooftop',44,-12]],
+harbor: [['Arrival pier',-10,53],['Landing',20,46],['Market quay',-4,24],['Lagoon',-2,-14],['Old-town quay',-48,24],['Clock Square',-44,-12],['Headland',2,-44],['Lighthouse',20,-56],['Boardwalk',38,12],['Net sheds',38,-28],['Ticket Yard',-48,-74],['Fog Walk',-69,-58],['Carousel Deck',-80,-100],['Bandstand',-54,-100],['Echo Gallery',-81,-46.5],['fog sea',-74,-44]],
+};
+
+const KIND = {
+  story: { c: '#7d95ff', label: 'Story beat' }, guardian: { c: '#ffd23a', label: 'Guardian' }, gate: { c: '#22c4c0', label: 'Route / gate' },
+  creature: { c: '#ff4fa3', label: 'Creature encounter' }, midboss: { c: '#ff8a2a', label: 'Mid-boss' }, boss: { c: '#ff4a52', label: 'Boss' },
+  exit: { c: '#8fdc7a', label: 'Exit' }, optional: { c: '#c9b6e8', label: 'Optional' },
+};
+
+// ═════════════ creatures ═════════════
+const CREATURES = [
+  { name: 'Peeping Lamp', lv: [1, 2], kind: 'creature · reused', file: 'src/enemy/PeepingLamp.ts',
+    beh: 'A crooked 5 m street lamp whose head is a corrupted eye. It sweeps an ink beam, then gets tired. The full version also summons grubs.',
+    counter: 'Hide behind cover or jump the low sweep; paint the pupil while it is tired.', act: 'Aim at a weak point and wait for the opening.',
+    where: 'L1: starter by the spawn (gentle, drops the Eye), rooftop (full mini-boss, guards a crown), East Walk (gentle, drops nothing). L2: east boardwalk (gentle, drops the Eye).',
+    story: 'The Eraser rubbed the city\'s eyes; this one\'s eye went cold. It is the Eye source.',
+    v: 'mixed', vt: 'The starter earns its place: it teaches the basic fight and hands out the sticker the level runs on. The rooftop one is a fair optional challenge. The East Walk copy is <b>thin</b>: the third lamp in one level, gentle, no drop, no story link to the Red Pen\'s quarter. It is there to add pressure to the bottle fight.' },
+  { name: 'Chomper Bin', lv: [1, 2], kind: 'creature · Mouth source', file: 'src/enemy/ChomperBin.ts',
+    beh: 'A metal bin whose lid is a jaw. It eats paint that hits its open mouth and spits it back; it lunges.',
+    counter: 'Spray its back, or hit it while it chews after a lunge.', act: 'Flank.',
+    where: 'L1: west quay (−47, 10). L2: the landing (24, 38).',
+    story: 'It drops the Mouth, which the Gatehouse (L1) and the Ferry (L2) need.',
+    v: 'earns', vt: '<b>Earns its place</b> as the Mouth source in both levels. In level 2 it is a straight repeat, which the "your stickers stayed behind" line justifies.' },
+  { name: 'Crooked-Leg Mutant', lv: [1], kind: 'creature · optional', file: 'src/enemy/CrookedLegMutant.ts',
+    beh: 'A 3 m bin on two wrong legs: KICK up close, STOMP shockwave ring, CHARGE down a red lane. Hitting a wall dazes it and exposes its glowing knees. A charge can knock down the scaffold into a ramp to the rooftop.',
+    counter: 'Jump the ring; dodge the charge so it hits a wall; paint the knees.', act: 'Dodge so it crashes.',
+    where: 'L1 workyard (40, 12). Not on the main path.',
+    story: 'Carries the Legs. The plan makes Legs the level-3 sticker, and level 3\'s plan has its own Mutant ("THE LIMP") holding the Legs.',
+    v: 'thin', vt: '<b>Thin, for now.</b> Its fight is good and it rehearses the Eraser\'s wall daze. But it is optional, so the rehearsal can be skipped, and its reward is not needed on the main path (Legs open a bench crown, a long jump and walking hosts). It also spends the Legs sticker one chapter early.' },
+  { name: 'Eraser Grub', lv: [1, 2], kind: 'fodder', file: 'src/enemy/EraserGrub.ts',
+    beh: 'A little pink eraser that rubs out paint and half a heart. Comes in groups. Mouths can eat it; WAI can swallow and spit it.',
+    counter: 'Any spray; chomp it.', act: 'Crowd control; a target for the Mouth.',
+    where: 'L1: hub, the nest (−21, −6), the Gate Yard, and summoned by the rooftop Lamp and the Eraser. L2: three spots.',
+    story: 'Literally the Eraser\'s crumbs: the best story fit of any small creature.',
+    v: 'earns', vt: '<b>Earns its place</b> as cheap fodder that also gives the Mouth something to eat. Small oddity: grubs fight in the Red Pen\'s quarter too, which mixes the two villains\' sides.' },
+  { name: 'Stapler', lv: [1], kind: 'creature · L1 expansion', file: 'src/enemy/Stapler.ts',
+    beh: 'A desk stapler on crooked legs. It crouches (a red ring marks the landing), leaps, and if it lands on WAI it staples him down: mash to wriggle free or it clamps again.',
+    counter: 'Dodge or step out of the ring; its staple jams into the ground, it is STUCK: TAG it.', act: 'Dodge the leap, then TAG.',
+    where: 'Gate Yard (34, −32.6); past the tear (49, −34.2), placed to land on you as you step off the planks.',
+    story: 'Stationery: "the Red Pen\'s servants all walk wrong" is a code comment. The game text does not say it.',
+    v: 'earns', vt: '<b>Earns its place.</b> The only creature whose main answer is TAG, it adds a new threat (being pinned), and its second placement is real level design. Some overlap with the Mutant\'s dodge-into-crash, but the TAG makes it different.' },
+  { name: 'White-out Bottle', lv: [1], kind: 'creature · L1 expansion', file: 'src/enemy/WhiteoutBottle.ts',
+    beh: 'A bottle of correction fluid. It rolls over WAI\'s fresh paint and blanks it, and squirts white blobs that erase paint where they land. Its hard front cap absorbs spray; the soft back panel takes ×2.5. After a roll it is dizzy. Repainted, it refills WAI\'s can.',
+    counter: 'Run round behind it and spray the back; side-step the roll.', act: 'Flank.',
+    where: 'East Walk (52.6, −29), on the spring you need. Called in by the Red Inkwell at half paint.',
+    story: 'Correction fluid fits a Red Pen\'s side. Never said in the game.',
+    v: 'mixed', vt: '<b>Mixed.</b> Its counter duplicates the Chomper Bin ("get behind it") in the same level. What it adds is one good idea: it erases the paint on the spring you must fill, so it fights the world rule, not just WAI. The bot found it the hardest creature (it is bad at flanking), which may hold for players too.' },
+  { name: 'The Red Inkwell', lv: [1], kind: 'mid-boss', file: 'src/enemy/RedInkwell.ts',
+    beh: 'A squat glass inkwell full of the Red Pen\'s ink. FLICK (ink blobs on red rings), LINE (a red line to jump), CROSS in phase 2. It corks itself so spray slides off. 1400 paint.',
+    counter: 'PAINT SLAM beside it pops the cork: DAZED, ×2.5, TAG.', act: 'PAINT SLAM.',
+    where: 'Inkwell Square (46.5, −16.3).',
+    story: 'Holds the Red Pen\'s ink. Its defeat washes the quarter and the cross on the Blind Statue\'s eye.',
+    v: 'earns', vt: '<b>Earns its place.</b> It gates Guardian 3, teaches a move the Eraser needs, and is the only on-screen cause and effect for the Red Pen in level 1.' },
+  { name: 'The Eraser', lv: [1], kind: 'boss', file: 'src/enemy/EraserBoss.ts',
+    beh: 'A giant pink rubber. RUB dash, CRUMB SHOWER, SPIN SWEEP, SHOCKWAVE SLAM, BOUNCE BOUNCE BOUNCE, RICOCHET RUB, over three phases. Every attack has a tell and a punish window.',
+    counter: 'Side-step the rub so it hits the wall; walk out of rings; throw landed crumbs back; PAINT SLAM when it is dizzy.', act: 'Everything level 1 taught.',
+    where: 'The summit (0, −43). It waits there from the start, visible from everywhere.',
+    story: 'It believes crooked things are mistakes. Taunts: "WRONG. REDRAW.", "COLOUR INSIDE THE LINES!". Repainted, it becomes a little pencil eraser.',
+    v: 'earns', vt: '<b>Earns its place</b>, and it has the clearest voice in the game. Gap: the plan makes it the Red Pen\'s servant with a red mark on it. There is no red mark and no line linking the two.' },
+  { name: 'Hush Moth', lv: [2], kind: 'creature', file: 'src/enemy/HushMoth.ts',
+    beh: 'Eraser dust that learned to fly. Wrapped in a grey veil, paint soaks in. It dives along a grey streak; a hit mutes WAI for 2 s.',
+    counter: 'SHOUT (or hit it with a thrown rock): the veil shatters and it tumbles, dazed, for 4.5 s. Paint it then (×1.5).', act: 'Shout, then paint.',
+    where: 'Old-town quay, Clock Square, beside the lighthouse stair, the nest by the net sheds; the Hush\'s brood.',
+    story: 'The Hush\'s little ones; they eat sound.',
+    v: 'earns', vt: '<b>Earns its place.</b> It turns the level\'s verb into a fight and appears from start to boss.' },
+  { name: 'Megaphone Crab', lv: [2], kind: 'creature · L2 expansion', file: 'src/enemy/MegaphoneCrab.ts',
+    beh: 'A crab wearing a brass megaphone for a shell. It scuttles sideways; it opens the lid and BLARES a wall of noise. A shout at the shut lid is caught and fired back (and mutes WAI).',
+    counter: 'SHOUT into the open horn: it flips onto its back, TAG it. Paint on the shut shell does ×0.3.', act: 'Shout at the right moment.',
+    where: 'Ticket Yard ×2; the Carousel Deck (the Barker, a bigger one, plus one more); the Gramophone\'s helper.',
+    story: 'None in words. Its shell fits a sound level.',
+    v: 'earns', vt: '<b>Earns its place.</b> It adds timing to the shout, which the moths do not ask for, and it punishes shout spam. The Barker is just a bigger crab.' },
+  { name: 'Fog Jelly', lv: [2], kind: 'creature · L2 expansion', file: 'src/enemy/FogJelly.ts',
+    beh: 'A sleepy jelly in a ball of sea fog. Inside its fog, paint vanishes, and so do the paint drops and the walkway posts. It stings when WAI is under it.',
+    counter: 'Aim with the Eye on: you see through, its heart lights up (×1.4), paint lands. A shout only shoves it.', act: 'Look with the Eye.',
+    where: 'The Fog Walk ×2 (over the hidden walkway); the Carousel Deck ×1.',
+    story: 'Harbour fog. No Red Pen link.',
+    v: 'earns', vt: '<b>Earns its place.</b> It is the only main-path reason to carry the Eye in level 2, and it ties the Eye to a sound level without a new rule.' },
+  { name: 'The Red Gramophone', lv: [2], kind: 'mid-boss', file: 'src/enemy/RedGramophone.ts',
+    beh: 'A cabinet gramophone on the bandstand. BLARE, SWEEP (tonearm at knee height), INHALE (pulls you in; left alone it lets out a HUSH ring that mutes). The music shakes paint off (×0.3) unless it is dazed. 1400 paint.',
+    counter: 'BIG SHOUT into the horn during the inhale: the record scratches, DAZED, TAG.', act: 'BIG SHOUT counter.',
+    where: 'The Bandstand (−54, −88).',
+    story: '"It plays the Hush\'s lullaby for the Red Pen." Phase 2: the Red Pen scratches an X into its record.',
+    v: 'earns', vt: '<b>Earns its place.</b> It rehearses the Hush\'s silence dome and gates the Bell Bridge. Story gap: why the Red Pen wants a lullaby for the Hush is never explained.' },
+  { name: 'The Hush', lv: [2], kind: 'boss', file: 'src/enemy/HushBoss.ts',
+    beh: 'A huge jellyfish of eraser dust. VEIL, STING lanes, DUST RAIN, SILENCE DOME, BROOD of moths, DIVE. Phase gates at ⅔ and ⅓.',
+    counter: 'Shout the veil off; stand between lanes; throw the dust balls; shout into the dome; jump the dive ring and PAINT SLAM it while stranded.', act: 'Everything level 2 taught.',
+    where: 'The headland plaza (9, −37).',
+    story: 'The Eraser\'s crumbs, grown at sea. Taunts: "SHHHH.", "QUIET, PLEASE.". Repainted, a jelly lantern for the lighthouse.',
+    v: 'earns', vt: '<b>Earns its place.</b> Same gap as the Eraser: no red mark, no link to the Red Pen in the text.' },
+  { name: 'Stamp Press', lv: [3], kind: 'planned · code exists', file: 'src/enemy/StampPress.ts',
+    beh: 'Winds up and slams CORRECT stamps on the floor in four hops.', counter: 'Sprint under the raised ram to its back: STUCK, TAG.', act: 'Run through with long Legs.',
+    where: 'F1 Conveyor Hall, F2, F3 (plan).', story: 'A Red Pen correction tool, by design.',
+    v: 'na', vt: 'Not playable yet. No verdict.' },
+  { name: 'Ruler Snake', lv: [3], kind: 'planned · code exists', file: 'src/enemy/RulerSnake.ts',
+    beh: 'Lies straight along a crooked platform and measures it; the platform straightens and falls. SNAP: rears up and lunges down a red lane.', counter: 'Paint it to bend it back; at half paint it is too bendy to measure.', act: 'Paint to bend.',
+    where: 'F2 Shredder Pit, F3 Index (plan).', story: 'The theme in one creature: straightening what was drawn crooked.',
+    v: 'na', vt: 'Not playable yet. On paper, the most on-theme creature in the game.' },
+  { name: 'Compass Spinner', lv: [3], kind: 'planned · code exists', file: 'src/enemy/CompassSpinner.ts',
+    beh: 'Plants its needle and draws red circles that hurt; the circle stays 3.5 s.', counter: 'Jump the pencil and the line; paint the needle (×3): it topples, TAG.', act: 'Jump the line, hit the needle.',
+    where: 'F3 Reading Room and Index (plan).', story: 'A drawing tool for perfect circles.',
+    v: 'na', vt: 'Not playable yet. No verdict.' },
+];
+
+// ═════════════ tabs ═════════════
+
+// ═════════════ 简体中文 (parallel to the English data above; game names from src/i18n/zh.ts) ═════════════
+const FEATURES_ZH = [
+  { t: '移动与喷漆', items: [
+    ['移动、奔跑、跳跃、闪避', '<kbd>WASD</kbd> 移动，<kbd>Shift</kbd> 奔跑，<kbd>空格</kbd> 跳，<kbd>C</kbd> 闪避。在最后一刻闪开就是“完美闪避”：触发“颜料时间”，只有生物变慢，颜料伤害翻倍，喷漆罐回满。'],
+    ['喷漆与瞄准', '点击喷出一道颜料；<kbd>Z</kbd> 或右键瞄准。<kbd>T</kbd> 换颜色，新颜色在游戏中逐步解锁。'],
+    ['喷漆悬浮与喷漆砸地', '空中再按住 <kbd>空格</kbd>，靠一股颜料悬浮（消耗颜料）。空中按 <kbd>C</kbd> 俯冲，就是“喷漆砸地”。'],
+    ['举起与投掷', '<kbd>G</kbd> 举起道具，按住蓄力投掷。橡皮擦的碎屑和寂静的灰尘球落地后会变成石头，可以扔回去。'],
+    ['弹簧、颜料滴、喷漆罐', '地上铅笔画的弹簧，喷满颜料就会变成真的。颜料滴能补充颜料，也计入奖励。喷漆罐就是检查点。'],
+  ]},
+  { t: '贴纸与借出', items: [
+    ['三种贴纸', '眼睛、嘴巴、腿。生物掉出来的是被腐化的贴纸；长按 <kbd>Q</kbd> / <kbd>R</kbd> / <kbd>F</kbd> 净化。'],
+    ['戴上获得能力', '眼睛：真视（瞄准时，没画出来的东西会变成真的）。嘴巴：第 1 关是啃咬（<kbd>V</kbd>），第 2 关是大喊（<kbd>X</kbd>，按住是怒吼）。腿：长腿，跳得超高，跑得更快。'],
+    ['借出获得行为', '<kbd>E</kbd> 把贴纸贴到东西上。借出的眼睛会一直看着（让一座桥保持真实），嘴巴会吃东西或说话，腿会让它跟着你走，或者驮着你走。'],
+    ['守护者', '每关三位。每位需要一张贴纸，修好世界的一部分，然后把贴纸还给你。'],
+  ]},
+  { t: '增益、再盖一章与奖励', items: [
+    ['盖上涂鸦！', '对摇摇晃晃的生物按 <kbd>E</kbd> 收尾：WAI 跳起来，往它身上拍一个巨大的皇冠涂鸦。'],
+    ['再盖一章（ENCORE）', '赌一把：盖章之后再按 <kbd>E</kbd> 继续盖，奖励越来越大，但每一章都更容易失手；失手就拿不到奖励。连续盖好 10 章会攒满“狂热”（下一次再盖一章不会失手）。只有选了“黄金印章”增益才有这个玩法，所以一局里可能根本见不到它。'],
+    ['增益', '三选一卡牌：开场后不久给一次，每唤醒一位守护者再给一次。共 17 种增益，按稀有度抽取，每局有 2 次免费重抽，每局重置。'],
+    ['装备库', '自己选择装备的永久解锁：1 个喷头（共 4 个）、1 个道具（共 4 个，<kbd>B</kbd>）、最多 3 个护符（共 8 个）。'],
+    ['挑战与评级', '15 个挑战，解锁装备库物品和披风。关卡结束的评级最看重皇冠，其次是干净（少挨打），再是准头。时间只显示，不扣分。代码里的皇冠：第 1 关 16 顶，第 2 关 15 顶。'],
+  ]},
+  { t: '生物', items: [
+    ['上色，而不是消灭', '每种生物都有预警、打法和弱点。重新上色后它会变友好（路灯给你照路，修正液瓶给你补颜料）。'],
+    ['有哪些', '第 1 关：偷窥路灯、大嘴垃圾桶、歪腿怪、橡皮虫、订书机、修正液瓶（外加中 Boss 红墨水瓶）。第 2 关新增寂静蛾、喇叭蟹、雾水母（外加红色留声机），并沿用路灯、垃圾桶和橡皮虫。'],
+  ]},
+  { t: 'Boss', items: [
+    ['橡皮擦（第 1 关）', '山顶上的三阶段战斗。每个招式都有画面和声音预警，以及一个反击窗口。'],
+    ['寂静（第 2 关）', '一只由橡皮灰尘组成、会吃掉声音的大水母。先喊掉它的灰纱，再喷它。'],
+    ['中 Boss', '红墨水瓶教你喷漆砸地；红色留声机教你用怒吼反制。它们分别挡着第三位守护者，或者通往它的桥。'],
+    ['红笔（第 3 关）', '计划中的最终 Boss，还没做。'],
+  ]},
+  { t: 'AI 搭档', items: [
+    ['蓝色大肥鱼', '一个可选的合作搭档：跟着你、帮你打、自己闪避、会聊天、会出糗。没有模型也能完整运作；有 DeepSeek 密钥时，她有真正的声音和指令。见“AI 搭档”标签页。'],
+    ['角落画面', '她不在屏幕里或离得很远时，会出现一个贴纸边框的小窗口，实时显示她在干什么。'],
+  ]},
+  { t: '画面与美术风格', items: [
+    ['四种美术风格', '暂停 → 美术风格：涂鸦（默认）、日晒漫画、绘本、孔版印刷。切换时不重新加载关卡。WAI 和生物保持自己的颜色。'],
+    ['LOOK 面板', '<kbd>L</kbd> 或标题画面的贴纸：在风格之上再用类似 Lightroom 的滑块调色，保存在浏览器里。'],
+    ['画质档位', '自动 / 低 / 中 / 高，按机器自动猜测。动态分辨率会在掉帧之前先降低渲染比例。'],
+  ]},
+  { t: '声音', items: [
+    ['音乐', '按情绪分的 CC0 录音循环，随战斗与探索交叉淡入淡出，每关有自己的探索曲。循环加载完之前或文件缺失时，由一个生成式合成器顶上。'],
+    ['音效', '有 CC0 录音采样的就用采样，没有的就实时合成卡通音效。带位置感：随距离衰减，左右声像。'],
+  ]},
+  { t: '语言', items: [
+    ['英文与中文', '在标题画面角落或暂停菜单切换。英文原文就是翻译的键；中文在 <code>src/i18n/zh.ts</code>。'],
+    ['中文手写字体', '内置小赖字体子集（805 KB，OFL），只在屏幕上出现中文时才加载。'],
+  ]},
+  { t: '开发工具', items: [
+    ['开发面板', '开发服务器里（或加 <code>?dev</code>）按 <kbd>`</kbd> 或 <kbd>F2</kbd>：在地图上传送、跳到任意章节、无敌、给贴纸、生物列表、游戏速度、画质档位、解锁奖励。'],
+    ['代理接口', '<code>window.WD_AGENT</code> 让脚本或模型操控 WAI；<code>window.WD_COOP</code> 操控搭档。'],
+    ['机器人测试', '两关都有步行机器人：<code>docs/level1-expansion/bot</code> 和 <code>docs/level2-expansion/bot</code>；URL 里的 <code>?style=</code> 可以指定美术风格。'],
+  ]},
+];
+
+// [name, what happens, why it is here, story]
+const PLACES_ZH = {
+  dock: ['码头（出生点）', '关卡从这里开始。孩子的铅笔在木板上描出 WAI 的轮廓，颜色涌进来。接着橡皮擦划过天空，飞上山顶。字幕交代目标：唤醒 3 位守护者，爬上山，给橡皮擦重新上色。', '平坦、安全的起点。山顶的塔就是目标，从这里就能看见。第一个喷漆罐（cp-harbor）在北边 8 米。', '“某个地方，一个孩子正在画画……”——整个游戏的框架都在这一个镜头里。没有提到红笔。'],
+  starterlamp: ['开场的偷窥路灯', '一只温和版的偷窥路灯：光束慢，不召唤橡皮虫，血量 230（完整版是 520）。等它扫完一圈累了，喷它的瞳孔。它会掉出一只被腐化的眼睛，长按 Q 净化。', '用一个地方教会所有战斗的核心：找弱点，等破绽。它还发出第一张贴纸，后面的一切都要用到。它就在出生点旁边，所以第一场战斗在第一分钟内就来了。', '橡皮擦擦掉了城市的眼睛，这盏灯的眼睛变冷了。把它拿回来，是把感官还给城市的第一步。'],
+  cliff: ['瞌睡悬崖（守护者 1）', '广场北边悬崖上一张巨大的睡脸。面对它按 E，借出眼睛。它醒来，目光把运河上的桥永久画出来，铅笔重画山路的第 1 段（共 3 段），出现一顶皇冠，然后眼睛飞回你身上。', '教会“借出”，这是游戏最主要的解谜动作。如果错借了嘴巴，它只会打个哈欠（“它需要「看见」”），所以猜错得到的是提示，不是失败。唤醒它会打开关卡的西半边。', '孩子的铅笔第一次下来帮忙。它那句“我能自己画了 —— 谢啦！”是游戏里最好的台词之一。<span class="nc">醒来的提示条却叫它“瞌睡墙”。</span>'],
+  bridge: ['运河桥', '一座横跨运河的铅笔草稿桥。瞌睡悬崖的目光让它从此一直是真的。', '第一样“没画出来”的东西，演示“被看见的才是真的”这条规则。运河把岛切成两半，所以西岸（和嘴巴）只有在守护者 1 醒来后才能去。', '故事文档里的世界规则，用画面演出来，而不是用文字讲。'],
+  chomper: ['大嘴垃圾桶', '西岸码头上一个盖子就是下巴的垃圾桶。打进它嘴里的颜料会被吃掉再吐回来。喷它的后背，或者趁它扑咬后在嚼的时候打。它会掉出一张被腐化的嘴巴（长按 R）。喷漆罐 cp-quay 在 (-45, 15)。', '第二课：绕到侧面。第二张贴纸。目标提示直接说了：“喷它的后背，别喷它的嘴！”', '故事文档说它原本是码头边吃垃圾的桶。它的嘴巴就是门楼丢掉的声音。'],
+  gatehouse: ['门楼（守护者 2）', '西边堡垒上的一张城堡脸，嘴上塞着布。借出嘴巴：它一喊，吊桥放下，山路第 2 段被重画。', '换一张贴纸重复“借出”的规则。借眼睛给它，它会说自己看得很清楚，只是没有嘴巴。吊桥是回中心广场的近路。', '故事文档给了它一个话痨性格；游戏里它只有一条提示。'],
+  road: ['之字山路，第二个弯', '山路有三段被擦掉了（x 9–27，z −31 到 −24.5），每位守护者重画一段。重画两段后，路通到第二个弯，那里有一条下沉小巷向东拐。喷漆罐 cp-road 在 (12, −16)。', '山路就是这一关的进度条：整局都看得见山顶，每位守护者都让你看得见地更近一步。小巷把新街区放在守护者 2 和守护者 3 之间，也就是关卡的正中间。', '每次重画都是孩子的铅笔在帮忙。'],
+  gateyard: ['门前场（Gate Yard，遭遇 1）', '打叉街区的入口广场。喷漆罐 cp-quarter。一只订书机和三只橡皮虫。', '在一个检查点之后、用很轻的配角介绍订书机，所以失败的代价很小。第一次遇到时，提示条用一句话讲清打法。', '墙上和岩石上的红叉：红笔的第一个迹象。第 1 关里从没见过红笔本身，只见到它的记号。'],
+  tear: ['被划断的街（Struck Street）', '一道划过街道的红线把画布撕开了：一道约 5.5 米宽的裂口。走没人画过的木板过去（戴着眼睛瞄准），或者喷漆悬浮飞过去。西岸的一盏路灯可以借眼睛，替你让木板保持真实。第二只订书机在 (49, −34) 等着，你一踩下木板它就扑过来。裂口上空悬着一顶皇冠。', '在压力下考验真视，也展示“借出可以替你撑住一座桥”。机器人老是掉下去，所以后来加了齐膝的路缘和 3 米宽的木板；订书机也不会往没有真实地面的地方跳。', '第 1 关里反派最清楚的画面：红笔的那条线真的把城市切开了。'],
+  eastwalk: ['东步道（East Walk）和弹簧', '遭遇 3：一只温和的偷窥路灯（什么也不掉）和一只修正液瓶。修正液瓶会滚过铅笔画的弹簧，把你喷上去的颜料抹掉。把弹簧喷满（18 份颜料），它会把你弹过红色路障，落进墨水瓶广场。', '这是修正液瓶的能力唯一影响路线的地方：它攻击的正是你需要的那片颜料。这里的路灯增加了压力，但没教新东西。', '修正液对抗颜料，很适合站在红笔一边。但游戏里没这么说。'],
+  inkwell: ['墨水瓶广场：红墨水瓶', '中 Boss，血量 1400。把墨点甩到红圈上、一道要跳过去的红线、阶段 2 的红色大叉，血量过半时还会叫来一只修正液瓶。它会塞上瓶塞，颜料就滑下来：在它旁边用喷漆砸地（跳起来，空中按 C）把瓶塞震飞，然后盖章。', '教会喷漆砸地。橡皮擦之战需要它，而之前没有任何地方教过。给它上好色后，街区被洗干净，打开两条捷径（通往门前场的路障、跳到工坊屋顶的落差），雕像眼睛上的红叉也被揭掉。', '“红笔的墨水被洗出了街区！……盲眼雕像眼睛上的也洗掉了。”这是第 1 关里玩家唯一亲眼看到的、与红笔有关的因果。'],
+  statue: ['盲眼雕像（守护者 3）', '中心广场上的雕像。红叉还在它眼睛上时，它拒绝接受眼睛（“先去把红笔的墨水从「打叉街区」洗掉”）。洗掉之后借出眼睛：它抬头看向高塔，山路第 3 段被重画。', '这道关卡把街区变成了主线的一部分。它就站在中心广场，所以你很早就会路过、看到它拒绝，然后再回来。', '故事文档说它是这座城的建造者。游戏里它只有那句拒绝和醒来的提示。'],
+  summit: ['山顶：橡皮擦', '爬山时橡皮擦会扔碎屑，落地变成石头，可以用 G 扔回去。竞技场会封锁。三个阶段：擦地冲刺（撞墙会晕）、碎屑雨、旋转横扫、冲击波重压、连跳三下、反弹冲刺。喷漆罐 cp-summit 在 (0, −31)。', '这一关的期末考：闪避让对手撞墙（歪腿怪、订书机）、抓弱点时机（路灯）、投掷、喷漆砸地（红墨水瓶）。', '它的嘲讽（“不对。重画。”“线歪了。”）是游戏里唯一谈到标题主题的话。重新上色后，它缩成一块粉色的小橡皮。'],
+  door: ['塔门', '打败橡皮擦后，城里每一张睡脸都睁开眼睛，塔门打开。走进去就通关了。', '第 2 关就从这扇门走出来开始，两关在空间上接在一起。', '“盲眼广场重见光明！塔门打开了。”'],
+  mutant: ['工坊：歪腿怪', '一只 3 米高、长着两条歪腿的垃圾桶。近身踢、跺地冲击环（跳过去）、沿红线冲锋（闪开；撞墙会晕，露出发光的膝盖）。它的冲锋能把 (39, −2.5) 的脚手架撞倒，变成上屋顶的斜坡。掉落腿贴纸。给它上色是一个挑战（奖励：额外一颗心）。', '不在主线上：没有任何目标提示会把你带到这里。它预演了橡皮擦“冲刺撞墙变晕”的招式，也打开了屋顶。它给的腿在第 1 关主线上用不到。', '故事文档说它原本是工地的搬运工，腿被擦歪了。它带着腿，而计划把腿留给第 3 关。'],
+  rooftop: ['屋顶：偷窥路灯小 Boss', '完整版的偷窥路灯（血量 520，会召唤橡皮虫），守着一顶皇冠。喷漆罐 cp-roof 在 (44, −3)。上面还有一个水塔和烟囱上的皇冠。', '给想挑战的玩家一场更难的可选战斗；也是从墨水瓶广场跳下来的落点。', '无。'],
+  nest: ['橡皮虫窝', '一窝橡皮虫：清掉全部五只，碎屑里会蹦出一顶皇冠。', '中心广场附近的一场小型群战；很适合用嘴巴（橡皮虫可以吃）。', '橡皮虫就是橡皮擦的碎屑。所有小怪里和故事最贴的。'],
+  skystair: ['画上的眼睛和天空台阶', '把悬崖上的眼睛涂鸦喷满，它就睁开：它能看见一段没人画过的楼梯，通往一个放皇冠的小平台。广场上的一个弹簧也能把你弹上去。', '说明“看见”不只能靠眼睛贴纸，喷漆也能画出一个会看的东西。', '没有文字上的故事。'],
+  arrive: ['到港栈桥（塔门）', 'WAI 从盲眼广场的塔门跳出来，落在黄昏里一座寂静的栈桥上。字幕介绍寂静和迷路的船，并说明 WAI 没有贴纸。喷漆罐 h2-cp-pier。', '在空间上把第 1 关和第 2 关接起来。两手空空地开始，让这一关可以重新教嘴巴，这次是“大喊”。', '“无声码头。没有钟声，没有海鸥——一点声音都没有。”／“你的贴纸都留在了盲眼广场，让它保持清醒。”'],
+  chomper2: ['登岸处的大嘴垃圾桶', '和第 1 关一样的大嘴垃圾桶。喷它的后背，它会掉出嘴巴。净化后，嘴巴给你“大喊”（X，按住是怒吼）。', '这一关的核心动作最先出现。熟悉的生物让开头很轻松。', '没有新内容。'],
+  gatebell: ['集市大门的铃铛', '大门拱顶下挂着一个小铃铛。抬头大喊：它一响，大门就升起来。', '第一个大喊的目标，周围没有敌人。提示条直接说出规则：“会发声的东西都吃这一招！”', '码头找回了第一声响动。'],
+  ferry: ['雾笛渡轮（守护者 1）', '把嘴巴借给码头边的渡轮。雾笛一响，雾散开，迷路的小船回家，在西边水道上排成一排；孩子的铅笔在船上铺上木板。', '再一次“借出”，这次用嘴巴。小船浮桥是去老城的唯一通路。', '“迷路的小船回家了！”——开场里“船找不到家”的线索在这里得到回报。'],
+  oldquay: ['老城码头（寂静蛾）', '走过小船浮桥 (-15, 16)。两只寂静蛾：它们的灰纱会吸掉颜料，所以先大喊，趁它们嗡嗡作响时再喷。喷漆罐 h2-cp-oldquay。一道大台阶通向钟楼广场。', '把“大喊”变成战斗技能：先喊，再喷。', '寂静蛾是学会了飞的橡皮灰尘。'],
+  square: ['钟楼广场和钟楼（守护者 2）', '广场周围有三个音叉 (-41, −21)、(−24, −16.5)、(−26.5, −32)。对每个大喊，让三个同时响起来；大钟上的灰尘茧碎掉，钟楼就响了。三只寂静蛾守着广场。喷漆罐 h2-cp-square。', '一个用大喊做的时机谜题，压力不大。', '当——钟楼找回了自己的声音。'],
+  bellbridge: ['钟桥（天空一幕）', '钟桥开始放下，这时红笔从天上俯冲下来，用一个红色的 X 把它划掉。桥又弹了回去。同时，钟声也打开了钟楼后面的旧栈桥大门。', '把新街区插在守护者 2 和守护者 3 之间，和第 1 关的街区是同一个手法。这个 X 一直留着，直到打败留声机。', '红笔唯一一次出现在画面里。大约 6 秒，两条字幕，它自己一句话都没有。'],
+  yard: ['栈桥大门和售票场', '穿过大门 (−47.6, −49.7) 和堤道。喷漆罐 cp-pier。两只喇叭蟹。售票亭上挂着失物招领的铃铛：对它大喊，如果你没有眼睛，它会咳出一只。两只蟹都上好色后，通往雾中栈道的铁转门才会打开。', '介绍喇叭蟹。眼睛来自这一关自己的动作，而不是另一场战斗（这里原本放过一只偷窥路灯，机器人 20 秒就被抹花了）。转门让玩家没法直接跑过这场遭遇。', '没有文字上的故事。'],
+  fogwalk: ['雾中栈道', '栈桥断了 14 米。一条之字形木板栈道横跨缺口，藏在两只雾水母的雾里。戴着眼睛瞄准（真视）就能看穿雾。近端的雾灯可以借眼睛，替你一直看着。栈道岔出去的木桩上有一顶皇冠。掉下去会回到 cp-pier。', '第 2 关对眼睛的考试，也是这一关主线上唯一需要带着眼睛的理由。', '海雾：码头的气氛，与红笔无关。'],
+  landing: ['西平台', '穿过雾之后的休息点。木箱堆顶上有一顶皇冠。回声廊在北边。', '两场遭遇之间喘口气。', '无。'],
+  carousel: ['旋转木马平台', '遭遇 3：揽客蟹（Barker，一只大号喇叭蟹）、一只喇叭蟹和一只雾水母围着旋转木马。三只都上好色后，弹簧周围的天鹅绒围绳才会落下。把弹簧喷满，它会把你弹过红色路障，落到乐台上。喷漆罐 cp-carousel。', '把两种新生物混在一起，喊的时机和真视要一起用。这里的喷漆罐让你在下一场战斗失败时不用再过一次雾。', '没有文字上的故事。'],
+  gramophone: ['乐台：红色留声机', '站在一张巨大唱片上的中 Boss，血量 1400。噪音墙（侧身躲开）、唱臂横扫（跳过去）、吸气：地上一个淡紫色的圈把你往里拉；对着喇叭怒吼，唱片就会刮花（晕眩，盖章）。阶段 2：红笔在它的唱片上划一个 X，再来一只喇叭蟹。', '教会用怒吼反制，寂静的“静音罩”需要这一招。给它上好色后：栈桥上的红印被洗掉，一条通往售票场的捷径楼梯打开，钟桥上的 X 也掉了。', '“它替红笔放着「寂静」的摇篮曲。”红笔为什么要给寂静放摇篮曲，游戏从没解释。'],
+  headland: ['钟桥放下，海岬', '“红笔画的叉从钟桥上掉了！”桥放下来，走到海岬。喷漆罐 h2-cp-headland。', '回应天空那一幕：玩家亲眼看到中 Boss 解开了红笔的记号。', '因果关系，用画面演出来。'],
+  lighthouse: ['灯塔（守护者 3）', '灰尘茧堵住了楼梯：怒吼。沿螺旋楼梯往上爬（旁边有两只寂静蛾），到瞭望台对着铜喇叭怒吼。灯塔唱起歌来，寂静从雾里升起。喷漆罐 h2-cp-lighthouse。', '在留声机刚教完怒吼之后，在安全的地方让你连用两次。', '“……船看得见回家的路了。”接着反派来了，因为安静被打破而生气。'],
+  hush: ['海岬广场：寂静', '灰纱（先喊掉，再喷）、蛰刺线、灰尘雨（把灰尘球扔回去）、静音罩（对着它喊）、放出一群寂静蛾、俯冲（跳过冲击环，趁它搁浅时用喷漆砸地）。', '第 2 关的期末考：大喊、怒吼反制、投掷、喷漆砸地。', '嘲讽：“嘘——。”“请安静。”重新上色后，它变成一盏小水母灯，飘上去陪着灯塔。'],
+  jetty: ['小码头和纸船', '一只纸船驶进广场下方的小码头（东边台阶下）。上船就通关了。', '这一关的出口。计划里说第 3 关就是坐这只船去的。', '“无声码头又能唱歌了。”结算画面：“下一站：瘸腿工厂（即将推出）”。'],
+  boardlamp: ['东边木栈道：偷窥路灯', '一只温和的偷窥路灯，会掉出眼睛。喷漆罐 h2-cp-board 在 (30, 4)。', '一个提早拿到眼睛的可选办法（另一个是失物招领的铃铛）。', '无。'],
+  nest2: ['渔网棚边的寂静蛾窝', '四只寂静蛾，清掉就有一顶皇冠。', '用大喊打的可选群战。', '无。'],
+  grotto: ['东边礁石洞', '“东边的礁石里有东西想喊回来。”一顶皇冠。', '大喊的支线目标。', '无。'],
+  stack: ['海蚀柱', '海蚀柱顶上有一顶皇冠，要走只有眼睛看得见的台阶。', '真视的支线目标。', '无。'],
+  buoy: ['潟湖里的铃铛浮标', '敲响铃铛浮标，得到一顶皇冠。', '大喊的支线目标。', '无。'],
+  gallery: ['回声廊（挑战）', '踩上去，铜喇叭一个接一个弹出来；在它沉下去之前对它大喊。10 个喊中 8 个赢一顶皇冠。', '这就是计划里第 2 关的“可选挑战房间”。', '无。'],
+};
+
+// crown hints, Chinese (same order as EXTRA[level].crown; from src/i18n/zh.ts where the game has them)
+const CROWNS_ZH = {
+  plaza: ['在屋顶上方的烟囱上', '在悬崖的小平台上——要走一段没人画过的楼梯', '很久以前被某个贪吃的家伙吞掉了（邮筒，嘴巴）', '藏在某个更想出去走走的东西底下（长椅，腿）', '在一个只有眼睛才能看见的架子上', '唤醒瞌睡悬崖', '让门楼重新开口说话', '清理橡皮虫窝', '在工坊的屋顶上', '运河中的小岛', '重新粉刷屋顶上的偷窥路灯', '把皇冠涂鸦喷满', '在上城的高处', '在报亭顶上，要走没人画过的台阶', '悬在撕裂的街道上空', '重新涂好红墨水瓶'],
+  harbor: ['鱼市的雨棚上（把弹簧画出来）', '敲响潟湖里的铃铛浮标', '广场的邮筒喉咙里卡着东西', '东边的礁石里有东西想喊回来', '海蚀柱顶上——只有眼睛看得见的台阶', '唤醒雾笛渡轮', '让钟楼响起来', '灯塔瞭望台的背面', '清掉渔网棚边的寂静蛾窝', '老城的屋顶上（弹簧能帮你）', '在雾里的木桩上，隐藏栈道的岔路尽头', '在西平台的木箱堆顶上', '赢下回声廊', '坐旋转木马……（好吧，绕着它走一圈）', '给红色留声机重新上色'],
+};
+
+// district labels, Chinese (same order as LABELS[level])
+const LABELS_ZH = {
+  plaza: ['码头', '港口街', '中心广场', '运河', '门楼码头', '门楼堡垒', '工坊', '之字山路', '山顶', '瞌睡悬崖', '打叉街区', '上城', '屋顶'],
+  harbor: ['到港栈桥', '登岸处', '集市码头', '潟湖', '老城码头', '钟楼广场', '海岬', '灯塔', '木栈道', '渔网棚', '售票场', '雾中栈道', '旋转木马', '乐台', '回声廊', '雾海'],
+};
+
+const KIND_ZH = { story: '故事节点', guardian: '守护者', gate: '路线 / 关口', creature: '生物遭遇', midboss: '中 Boss', boss: 'Boss', exit: '出口', optional: '可选' };
+
+// creature cards, Chinese, keyed by the English name
+const CREATURES_ZH = {
+  'Peeping Lamp': { name: '偷窥路灯', kind: '生物 · 多次复用', beh: '一盏 5 米高的歪路灯，灯头是一只被腐化的眼睛。它会扫出一道墨水光束，扫完就累了。完整版还会召唤橡皮虫。', counter: '躲到掩体后面，或跳过低扫的光束；趁它累了喷它的瞳孔。', act: '瞄准弱点，等破绽。', where: '第 1 关：出生点旁（温和版，掉眼睛）、屋顶（完整版小 Boss，守着皇冠）、东步道（温和版，什么也不掉）。第 2 关：东边木栈道（温和版，掉眼睛）。', story: '橡皮擦擦掉了城市的眼睛，这盏灯的眼睛变冷了。它是眼睛贴纸的来源。', vt: '开场那只站得住：它教会基本战斗，还发出整关都要用的贴纸。屋顶那只是公平的可选挑战。东步道那只<b>偏弱</b>：一关里的第三盏路灯，温和版，不掉东西，也和红笔的街区没有故事联系。它的作用只是给修正液瓶那场战斗加压力。' },
+  'Chomper Bin': { name: '大嘴垃圾桶', kind: '生物 · 嘴巴来源', beh: '一个盖子就是下巴的铁皮桶。打进它张开的嘴里的颜料会被吃掉再吐回来；它会扑咬。', counter: '喷它的后背，或者趁它扑咬后在嚼的时候打。', act: '绕到侧面。', where: '第 1 关：西岸码头 (−47, 10)。第 2 关：登岸处 (24, 38)。', story: '它掉出嘴巴，门楼（第 1 关）和雾笛渡轮（第 2 关）都需要。', vt: '作为两关的嘴巴来源，<b>站得住</b>。第 2 关里它是原样重复，“你的贴纸都留在了盲眼广场”这句话给了它理由。' },
+  'Crooked-Leg Mutant': { name: '歪腿怪', kind: '生物 · 可选', beh: '一只 3 米高、长着两条歪腿的垃圾桶：近身踢、跺地冲击环、沿红线冲锋。撞到墙会晕，露出发光的膝盖。冲锋能把脚手架撞倒，变成上屋顶的斜坡。', counter: '跳过冲击环；闪开冲锋让它撞墙；喷它的膝盖。', act: '闪避，让它撞上去。', where: '第 1 关工坊 (40, 12)。不在主线上。', story: '带着腿贴纸。计划把腿留给第 3 关，而第 3 关的计划里也有一只自己的歪腿怪（“瘸子”）拿着腿。', vt: '<b>目前偏弱。</b>它的战斗不错，也预演了橡皮擦的撞墙变晕。但它是可选的，这个预演可以被跳过；它的奖励在主线上用不到（腿只用来拿长椅下的皇冠、跳远和让东西走路）。它还提前一章用掉了腿贴纸。' },
+  'Eraser Grub': { name: '橡皮虫', kind: '小怪', beh: '一块粉色小橡皮，会擦掉颜料和半颗心。成群出现。嘴巴可以吃它；WAI 也能把它吞下再吐出去。', counter: '随便喷；或者咬它。', act: '清群；给嘴巴一个目标。', where: '第 1 关：中心广场、虫窝 (−21, −6)、门前场，以及屋顶路灯和橡皮擦召唤的。第 2 关：三处。', story: '名副其实的橡皮擦碎屑：所有小生物里和故事最贴的。', vt: '作为便宜的小怪，同时给嘴巴东西吃，<b>站得住</b>。小问题：橡皮虫也出现在红笔的街区里，把两个反派的阵营混在了一起。' },
+  'Stapler': { name: '订书机', kind: '生物 · 第 1 关扩展', beh: '一台长着歪腿的订书机。它蹲下（地上的红圈标出落点）、扑过来；落在 WAI 身上就把他钉在地上：狂按按键挣脱，不然它会再夹一次。', counter: '闪避或走出红圈；订书钉扎进地里，它就卡住了：盖章。', act: '闪开扑击，然后盖章。', where: '门前场 (34, −32.6)；裂口另一边 (49, −34.2)，专门在你踩下木板时扑过来。', story: '文具：“红笔的仆从走路都是歪的”只是一句代码注释，游戏文字里没有。', vt: '<b>站得住。</b>唯一一个以盖章为主要打法的生物，带来了新的威胁（被钉住），第二只的摆放也是真正的关卡设计。和歪腿怪的“闪开让它撞”有些重叠，但盖章让它不一样。' },
+  'White-out Bottle': { name: '修正液瓶', kind: '生物 · 第 1 关扩展', beh: '一瓶修正液。它滚过 WAI 刚喷的颜料把它抹白，还会喷出白色的团，落在哪里就擦掉哪里的颜料。正面的硬瓶盖会吸掉颜料；背后的软挤压面受 2.5 倍伤害。滚完会晕。上色后，它会给 WAI 补颜料。', counter: '绕到背后喷软的那面；侧身躲开滚动。', act: '绕到侧面。', where: '东步道 (52.6, −29)，就在你需要的弹簧上。红墨水瓶血量过半时也会叫它来。', story: '修正液很适合站在红笔一边。游戏里没这么说。', vt: '<b>一半一半。</b>它的打法和同一关的大嘴垃圾桶重复（“绕到它背后”）。它带来的是一个好点子：它会擦掉你必须喷满的弹簧上的颜料，所以它对抗的是世界规则，而不只是 WAI。机器人觉得它是最难的生物（机器人不擅长绕后），玩家可能也会这样觉得。' },
+  'The Red Inkwell': { name: '红墨水瓶', kind: '中 Boss', beh: '一只矮胖的玻璃墨水瓶，装满红笔的墨水。甩墨（墨点落在红圈上）、画线（一道要跳过去的红线）、阶段 2 画大叉。它会塞上瓶塞，颜料就滑下来。血量 1400。', counter: '在它旁边用喷漆砸地把瓶塞震飞：晕眩，2.5 倍伤害，盖章。', act: '喷漆砸地。', where: '墨水瓶广场 (46.5, −16.3)。', story: '装着红笔的墨水。打败它会洗掉街区和盲眼雕像眼睛上的叉。', vt: '<b>站得住。</b>它挡着守护者 3，教会一个橡皮擦战需要的招式，也是第 1 关里唯一一个能看见的、与红笔有关的因果。' },
+  'The Eraser': { name: '橡皮擦', kind: 'Boss', beh: '一块巨大的粉色橡皮。擦地冲刺、碎屑雨、旋转横扫、冲击波重压、连跳三下、反弹冲刺，分三个阶段。每个招式都有预警和反击窗口。', counter: '侧身躲开冲刺让它撞墙；走出红圈；把落地的碎屑扔回去；它晕的时候用喷漆砸地。', act: '第 1 关教过的一切。', where: '山顶 (0, −43)。从一开始就等在那里，到处都看得见。', story: '它认为歪的东西就是错。嘲讽：“不对。重画。”“不许涂出线！”重新上色后，它变成一块小铅笔橡皮。', vt: '<b>站得住</b>，而且它是游戏里性格最鲜明的角色。缺口：计划让它成为红笔的仆从，身上带一个红色记号。现在既没有红色记号，也没有一句话把两者连起来。' },
+  'Hush Moth': { name: '寂静蛾', kind: '生物', beh: '学会了飞的橡皮灰尘。裹着一层灰纱，颜料会被吸进去。它沿一道灰色的线俯冲；被撞到 WAI 会被静音 2 秒。', counter: '大喊（或用扔出的石头砸它）：灰纱碎掉，它晕乎乎地翻滚 4.5 秒。这时喷它（1.5 倍）。', act: '先喊，再喷。', where: '老城码头、钟楼广场、灯塔楼梯旁、渔网棚边的虫窝；寂静放出来的那一群。', story: '寂静的孩子们；它们吃声音。', vt: '<b>站得住。</b>它把这一关的核心动作变成战斗，而且从开头一直出现到 Boss。' },
+  'Megaphone Crab': { name: '喇叭蟹', kind: '生物 · 第 2 关扩展', beh: '一只背着铜喇叭当壳的螃蟹。它横着走；掀开盖子，喷出一堵噪音墙。对着合上的盖子喊，它会接住你的喊声再射回来（并让 WAI 静音）。', counter: '对着张开的喇叭大喊：它翻个底朝天，盖章。喷在合上的壳上只有 0.3 倍。', act: '在对的时机大喊。', where: '售票场两只；旋转木马平台（揽客蟹，大一号的，再加一只）；留声机的帮手。', story: '没有文字上的故事。它的壳很配一个讲声音的关卡。', vt: '<b>站得住。</b>它给大喊加上了时机，这是寂静蛾没有的，还会惩罚乱喊。揽客蟹只是大一号的喇叭蟹。' },
+  'Fog Jelly': { name: '雾水母', kind: '生物 · 第 2 关扩展', beh: '一只裹在海雾团里、睡眼惺忪的水母。在它的雾里，颜料会消失，颜料滴和栈道的木桩也会消失。WAI 在它下面时它会蛰。', counter: '戴着眼睛瞄准：能看穿雾，它的心会亮起来（1.4 倍），颜料也能打中。大喊只能把它推开。', act: '用眼睛看。', where: '雾中栈道两只（在隐藏栈道上方）；旋转木马平台一只。', story: '码头的海雾。和红笔无关。', vt: '<b>站得住。</b>它是第 2 关主线上唯一需要带眼睛的理由，而且没加新规则，就把眼睛和一个讲声音的关卡连了起来。' },
+  'The Red Gramophone': { name: '红色留声机', kind: '中 Boss', beh: '乐台上的一台柜式留声机。噪音墙、唱臂横扫（膝盖高）、吸气（把你拉过去；不管它的话，它会放出一圈让人静音的“嘘”）。没晕的时候，音乐会把颜料震掉（0.3 倍）。血量 1400。', counter: '它吸气时对着喇叭怒吼：唱片刮花，晕眩，盖章。', act: '用怒吼反制。', where: '乐台 (−54, −88)。', story: '“它替红笔放着「寂静」的摇篮曲。”阶段 2：红笔在它的唱片上划一个 X。', vt: '<b>站得住。</b>它预演了寂静的静音罩，也挡着钟桥。故事缺口：红笔为什么要给寂静放摇篮曲，从没解释。' },
+  'The Hush': { name: '寂静', kind: 'Boss', beh: '一只由橡皮灰尘组成的巨大水母。灰纱、蛰刺线、灰尘雨、静音罩、放出寂静蛾、俯冲。在三分之二和三分之一血量时换阶段。', counter: '喊掉灰纱；站在两道线之间；扔灰尘球；对着静音罩喊；跳过俯冲的冲击环，趁它搁浅时用喷漆砸地。', act: '第 2 关教过的一切。', where: '海岬广场 (9, −37)。', story: '橡皮擦的碎屑在海上长大了。嘲讽：“嘘——。”“请安静。”重新上色后，变成灯塔边的一盏水母灯。', vt: '<b>站得住。</b>和橡皮擦一样的缺口：没有红色记号，文字里也没有和红笔的联系。' },
+  'Stamp Press': { name: '印章机（Stamp Press）', kind: '计划中 · 已有代码', beh: '蓄力后连跳四下，在地上砸出“正确”的印章。', counter: '趁冲头抬起时冲到它背后：它卡住了，盖章。', act: '用长腿冲过去。', where: '一层传送带大厅、二层、三层（计划）。', story: '按设计是红笔的改错工具。', vt: '还不能玩，不下结论。' },
+  'Ruler Snake': { name: '尺子蛇（Ruler Snake）', kind: '计划中 · 已有代码', beh: '沿着一块歪平台直直地躺下“测量”它；平台被拉直后就掉下去。猛扑：它立起来，沿一道红线扑下来。', counter: '喷它，把它弄弯回去；喷到一半它就软得没法测量了。', act: '喷漆把它弄弯。', where: '二层碎纸坑、三层索引室（计划）。', story: '一只生物就讲完了主题：把画歪的东西拉直。', vt: '还不能玩。纸面上，它是全游戏最贴主题的生物。' },
+  'Compass Spinner': { name: '圆规陀螺（Compass Spinner）', kind: '计划中 · 已有代码', beh: '扎下针脚，画出会伤人的红圈；圈会停留 3.5 秒。', counter: '跳过铅笔和线；喷它的针（3 倍）：它倒下，盖章。', act: '跳过线，打它的针。', where: '三层阅览室和索引室（计划）。', story: '一件用来画标准圆的绘图工具。', vt: '还不能玩，不下结论。' },
+};
+
+// ═════════════ language: English / 简体中文 ═════════════
+const UI = {
+  en: {
+    title: 'Wrongly Drawn / 错画之城 — a guide for the author',
+    sub: 'A plain guide for the author: what the game has today, where things are, why they are there, and where it is thin. Taken from the docs and code on 2026-11-13.',
+    tabs: ['The game in one screen', 'Features', 'Map · Level 1', 'Map · Level 2', 'Level 3', 'Creatures & bosses', 'The AI partner', 'Where the story is weak'],
+    tablist: 'Guide sections', langBtn: '中文', langAria: 'Switch the guide to Simplified Chinese',
+    footer: 'Generated from the project\'s own docs and code · not part of the game build · docs/guide/index.html',
+    erased: 'erased stretches', blot: 'the Blot', north: 'N ↑', scale: '20 m',
+    layersAria: 'Map layers', route: 'route', opt: 'optional places', cp: 'spray cans (checkpoints)', crown: 'crowns', small: 'small creatures', lbl: 'district names',
+    legendCan: 'spray can', legendCrown: 'crown', mainPath: 'Main path, in order', prev: '◀ Previous', next: 'Next ▶', optional: 'Optional places',
+    mapAria: { plaza: 'Top-down map of Blind Plaza', harbor: 'Top-down map of Mute Harbor' },
+    canTitle: 'Spray can (checkpoint) ', crownTitle: 'Crown: ', grub: 'Eraser Grub', moth: 'Hush Moth',
+    stepAria: (n) => `Step ${n}: `, optAria: 'Optional: ', stepTag: (n) => `Step ${n} · `, ground: 'ground y ≈ ',
+    what: 'What happens here', why: 'Why it is here', story: 'What story it tells',
+    pos: (i, n) => `Step ${i} of ${n}`, optPlace: 'Optional place',
+    filtersAria: 'Filter creatures', filters: ['All', 'Level 1', 'Level 2', 'Level 3 (planned)', 'Thin or mixed only'],
+    vt: { earns: 'earns its place', thin: 'thin', mixed: 'mixed', na: 'not built yet' },
+    level: (l) => `Level ${l.join(' + ')}`, dt: ['Behaviour', 'Counter', 'Built around', 'Where', 'Story'],
+  },
+  zh: {
+    title: '错画之城 Wrongly Drawn —— 写给作者的指南',
+    sub: '一份写给作者的大白话指南：游戏现在有什么，东西在哪里，为什么放在那里，哪里还单薄。根据 2026-11-13 的文档和代码整理。',
+    tabs: ['一屏看懂游戏', '功能一览', '地图 · 第 1 关', '地图 · 第 2 关', '第 3 关', '生物与 Boss', 'AI 搭档', '故事哪里偏弱'],
+    tablist: '指南分区', langBtn: 'English', langAria: '把指南切换成英文',
+    footer: '根据项目自己的文档和代码生成 · 不属于游戏构建 · docs/guide/index.html',
+    erased: '被擦掉的路段', blot: '墨渍岩', north: '北 ↑', scale: '20 米',
+    layersAria: '地图图层', route: '路线', opt: '可选地点', cp: '喷漆罐（检查点）', crown: '皇冠', small: '小生物', lbl: '区域名称',
+    legendCan: '喷漆罐', legendCrown: '皇冠', mainPath: '主线路径（按顺序）', prev: '◀ 上一步', next: '下一步 ▶', optional: '可选地点',
+    mapAria: { plaza: '盲眼广场俯视地图', harbor: '无声码头俯视地图' },
+    canTitle: '喷漆罐（检查点）', crownTitle: '皇冠：', grub: '橡皮虫', moth: '寂静蛾',
+    stepAria: (n) => `第 ${n} 步：`, optAria: '可选：', stepTag: (n) => `第 ${n} 步 · `, ground: '地面高度 y ≈ ',
+    what: '这里发生什么', why: '为什么放在这里', story: '讲了什么故事',
+    pos: (i, n) => `第 ${i} 步，共 ${n} 步`, optPlace: '可选地点',
+    filtersAria: '筛选生物', filters: ['全部', '第 1 关', '第 2 关', '第 3 关（计划中）', '只看偏弱或一半一半'],
+    vt: { earns: '站得住', thin: '偏弱', mixed: '一半一半', na: '还没做' },
+    level: (l) => `第 ${l.join(' + ')} 关`, dt: ['行为', '打法', '核心动作', '位置', '故事'],
+  },
+};
+const LANG_KEY = 'wd.guide.lang';
+function pickLang() {
+  const q = new URLSearchParams(location.search).get('lang');
+  if (q === 'zh' || q === 'en') return q;
+  try { const s = localStorage.getItem(LANG_KEY); if (s === 'zh' || s === 'en') return s; } catch (e) { /* file:// may block storage */ }
+  return (navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+}
+let LANG = pickLang();
+const T = (k) => UI[LANG][k];
+const placeText = (lv, p) => {
+  if (LANG !== 'zh') return { name: p.name, what: p.what, why: p.why, story: p.story };
+  const z = PLACES_ZH[p.id];
+  return { name: z[0], what: z[1], why: z[2], story: z[3] };
+};
+
+// ═════════════ tabs ═════════════
+const tabs = [...document.querySelectorAll('[role=tab]')];
+function selectTab(tab, focus) {
+  for (const t of tabs) {
+    const on = t === tab;
+    t.setAttribute('aria-selected', on);
+    t.tabIndex = on ? 0 : -1;
+    document.getElementById(t.getAttribute('aria-controls')).classList.toggle('on', on);
+  }
+  if (focus) tab.focus();
+  const id = tab.id.replace('tab-', '');
+  if (location.hash !== '#' + id) history.replaceState(null, '', location.pathname + location.search + '#' + id);
+}
+tabs.forEach((t, i) => {
+  t.addEventListener('click', () => selectTab(t));
+  t.addEventListener('keydown', (e) => {
+    let j = null;
+    if (e.key === 'ArrowRight') j = (i + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') j = 0;
+    else if (e.key === 'End') j = tabs.length - 1;
+    if (j !== null) { e.preventDefault(); selectTab(tabs[j], true); }
+  });
+});
+selectTab(tabs.find((t) => '#' + t.id.replace('tab-', '') === location.hash) || tabs[0]);
+
+// ═════════════ features render ═════════════
+function renderFeatures() {
+  const data = LANG === 'zh' ? FEATURES_ZH : FEATURES;
+  document.getElementById('featgrid').innerHTML = data.map((g) =>
+    `<div class="card feat"><h3>${g.t}</h3><dl>${g.items.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl></div>`).join('');
+}
+
+// ═════════════ maps render ═════════════
+// ═════════════ maps render ═════════════
+const NS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs = {}, parent) => {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+};
+const OVERLAYS = {
+  plaza(g) {
+    // switchback road legs (x0..x1, z range) and the three erased stretches
+    for (const [x0, x1, za, zb] of [[9.5, 14.5, -34, -18], [15.5, 20.5, -34, -21], [21.5, 26.5, -36, -21]])
+      el('rect', { x: x0, y: za, width: x1 - x0, height: zb - za, fill: 'rgba(226,186,104,.35)', stroke: '#e2ba68', 'stroke-width': .3 }, g);
+    for (const [x0, x1] of [[9.3, 14.7], [15.3, 20.7], [21.3, 26.7]])
+      el('rect', { x: x0, y: -31, width: x1 - x0, height: 6.5, fill: 'rgba(255,74,82,.25)', stroke: '#ff4a52', 'stroke-width': .35, 'stroke-dasharray': '1 .6' }, g);
+    el('text', { x: 16, y: -23.6, class: 'lbl small', 'text-anchor': 'middle' }, g).textContent = T('erased');
+    // canal bridge (drawn by the Sleepy Cliff's gaze), drawbridge
+    el('line', { x1: -40, y1: 12, x2: -28.5, y2: 12, stroke: '#22c4c0', 'stroke-width': 1.6, 'stroke-dasharray': '1.2 .5' }, g);
+    el('line', { x1: -42.2, y1: -5, x2: -30.4, y2: -5, stroke: '#c48a52', 'stroke-width': 1.6 }, g);
+    // quarter: sunken lane, tear, planks, pillars, barricades
+    el('rect', { x: 27.6, y: -29.6, width: 3.4, height: 8.6, fill: 'rgba(226,186,104,.35)', stroke: '#e2ba68', 'stroke-width': .3 }, g);
+    el('rect', { x: 38.5, y: -42.5, width: 5.5, height: 11.5, fill: '#0b080d', stroke: '#ff4a52', 'stroke-width': .5 }, g);
+    el('line', { x1: 38, y1: -36.6, x2: 44.5, y2: -36.6, stroke: '#22c4c0', 'stroke-width': 1.4, 'stroke-dasharray': '1 .5' }, g);
+    for (const [x, z, r] of [[34, -16, 4.5], [44, -28, 6], [51, -12, 3.5], [47, -40, 3], [38, -44, 5], [30, -50, 4]])
+      el('circle', { cx: x, cy: z, r, fill: 'rgba(120,96,110,.55)', stroke: '#9a8494', 'stroke-width': .3 }, g);
+    el('text', { x: 44, y: -27.4, class: 'lbl small', 'text-anchor': 'middle' }, g).textContent = T('blot');
+    for (const [a, b, c, d] of [[35.8, -18.4, 41.2, -24.7], [48.6, -24.4, 55.8, -24.4]])
+      el('line', { x1: a, y1: b, x2: c, y2: d, stroke: '#ff4a52', 'stroke-width': .9 }, g);
+    // summit arena
+    el('circle', { cx: 0, cy: -43, r: 9.5, fill: 'none', stroke: '#ff4a52', 'stroke-width': .4, 'stroke-dasharray': '1.4 .8' }, g);
+    // scaffold
+    el('rect', { x: 38.7, y: -3.8, width: 1.4, height: 2.6, fill: '#c48a52' }, g);
+  },
+  harbor(g) {
+    // the pier decks (layout rects) over the fog sea
+    const deck = (x0, x1, z0, z1) => el('rect', { x: x0, y: z0, width: x1 - x0, height: z1 - z0, fill: '#8fb8ad', stroke: '#e8e0c8', 'stroke-width': .35 }, g);
+    deck(-49.6, -45.6, -60, -49.3); deck(-56, -40, -72, -60); deck(-62, -56, -68, -64); deck(-86, -76, -72, -58); deck(-86, -76, -58, -49); deck(-85, -79, -80, -72); deck(-90, -70, -98, -80);
+    el('rect', { x: -76, y: -70, width: 14, height: 9, fill: 'rgba(230,230,240,.18)', stroke: '#cfd3e0', 'stroke-width': .3, 'stroke-dasharray': '1 .8' }, g);
+    el('polyline', { points: '-62,-66 -64.6,-63.4 -68.2,-67.8 -71.6,-63.6 -74.4,-67.2 -76,-66', fill: 'none', stroke: '#22c4c0', 'stroke-width': .8, 'stroke-dasharray': '.9 .5' }, g);
+    el('circle', { cx: -54, cy: -88, r: 9.5, fill: '#b9a1d6', stroke: '#e8e0c8', 'stroke-width': .4 }, g);
+    el('circle', { cx: -54, cy: -88, r: 6, fill: 'none', stroke: '#ff4a52', 'stroke-width': .3 }, g);
+    el('line', { x1: -54, y1: -78.3, x2: -54, y2: -69.8, stroke: '#e8e0c8', 'stroke-width': 1.6 }, g);
+    el('line', { x1: -76, y1: -88, x2: -63.3, y2: -88, stroke: '#e8e0c8', 'stroke-width': 1.6 }, g);
+    // pontoon of boats, Bell Bridge, arena, lighthouse
+    el('line', { x1: -19.4, y1: 16, x2: -11.4, y2: 16, stroke: '#22c4c0', 'stroke-width': 1.6, 'stroke-dasharray': '1.2 .5' }, g);
+    el('line', { x1: -12.8, y1: -30, x2: -4, y2: -30, stroke: '#ff4a52', 'stroke-width': 1.6, 'stroke-dasharray': '1.2 .5' }, g);
+    el('circle', { cx: 9, cy: -37, r: 9.5, fill: 'none', stroke: '#ff4a52', 'stroke-width': .4, 'stroke-dasharray': '1.4 .8' }, g);
+    el('circle', { cx: 13, cy: -51, r: 3.4, fill: '#f3e6cf', stroke: '#120e15', 'stroke-width': .4 }, g);
+    el('circle', { cx: -33, cy: -41.5, r: 2.4, fill: '#d9a46a', stroke: '#120e15', 'stroke-width': .4 }, g);
+    for (const [x, z] of [[-41, -21], [-24, -16.5], [-26.5, -32]]) el('circle', { cx: x, cy: z, r: .9, fill: '#e8c25a', stroke: '#120e15', 'stroke-width': .3 }, g);
+    el('line', { x1: 2.8, y1: 31.2, x2: 1.2, y2: 31.2, stroke: '#e8e0c8', 'stroke-width': 0 }, g);
+  },
+};
+
+function shape(kind, g, x, z, big) {
+  const c = KIND[kind].c, r = big ? 2.3 : 1.8;
+  if (kind === 'guardian') el('polygon', { class: 'shape', points: star(x, z, r * 1.25, r * .55), fill: c, stroke: '#120e15', 'stroke-width': .4 }, g);
+  else if (kind === 'gate') el('rect', { class: 'shape', x: x - r * .8, y: z - r * .8, width: r * 1.6, height: r * 1.6, transform: `rotate(45 ${x} ${z})`, fill: c, stroke: '#120e15', 'stroke-width': .4 }, g);
+  else el('circle', { class: 'shape', cx: x, cy: z, r: kind === 'boss' ? r * 1.2 : r, fill: c, stroke: '#120e15', 'stroke-width': .4, 'stroke-dasharray': kind === 'optional' ? '.8 .4' : null }, g);
+}
+function star(x, z, R, r) {
+  const p = [];
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, k = i % 2 ? r : R; p.push((x + Math.cos(a) * k).toFixed(2) + ',' + (z + Math.sin(a) * k).toFixed(2)); }
+  return p.join(' ');
+}
+
+
+const mapSel = {};
+function buildMap(row) {
+  const lv = row.dataset.level;
+  const M = MAPS[lv];
+  const [x0, x1, z0, z1] = M.bounds;
+  const places = PLACES[lv];
+  const steps = places.filter((p) => p.n).sort((a, b) => a.n - b.n);
+  const opts = places.filter((p) => !p.n);
+  const kindLabel = (k) => (LANG === 'zh' ? KIND_ZH[k] : KIND[k].label);
+  const nm = (p) => placeText(lv, p).name;
+  // keep the layer switches as they were before a language change
+  const was = {};
+  row.querySelectorAll('input[data-layer]').forEach((cb) => (was[cb.dataset.layer] = cb.checked));
+  const on = (k, d) => (k in was ? was[k] : d);
+  const box = (k, d) => `<label><input type="checkbox" data-layer="${k}"${on(k, d) ? ' checked' : ''}> ${T(k)}</label>`;
+
+  row.innerHTML = `
+    <div>
+      <div class="mapbox">
+        <div class="layers" role="group" aria-label="${T('layersAria')}">
+          ${box('route', true)}${box('opt', true)}${box('cp', false)}${box('crown', false)}${box('small', false)}${box('lbl', true)}
+        </div>
+        <div class="svgwrap"></div>
+        <div class="legend">${Object.keys(KIND).map((k) => `<span><b style="background:${KIND[k].c}"></b>${kindLabel(k)}</span>`).join('')}
+          <span><b style="background:#fff;border-radius:2px"></b>${T('legendCan')}</span><span><b style="background:#ffd23a;border-radius:2px;transform:rotate(45deg)"></b>${T('legendCrown')}</span></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h3 style="margin-top:0">${T('mainPath')}</h3>
+        <div class="stepper"><button class="btn alt" data-act="prev">${T('prev')}</button><button class="btn" data-act="next">${T('next')}</button><span class="note" data-role="pos"></span></div>
+        <ol class="steps">${steps.map((p) => `<li><button data-id="${p.id}"><span class="n">${p.n}</span><span>${nm(p)}</span></button></li>`).join('')}</ol>
+        <h3>${T('optional')}</h3>
+        <div class="optlist">${opts.map((p) => `<button data-id="${p.id}">${nm(p)}</button>`).join('')}</div>
+      </div>
+    </div>
+    <aside class="card panel" aria-live="polite"></aside>`;
+
+  const W = x1 - x0, H = z1 - z0;
+  const svg = el('svg', { viewBox: `${x0} ${z0} ${W} ${H}`, role: 'img', 'aria-label': T('mapAria')[lv] });
+  row.querySelector('.svgwrap').appendChild(svg);
+  el('rect', { x: x0, y: z0, width: W, height: H, fill: lv === 'harbor' ? '#1a2128' : '#16121c' }, svg);
+  const ter = el('g', { transform: `translate(${x0} ${z0})` }, svg);
+  for (const [c, d] of M.paths) el('path', { d, fill: c, 'shape-rendering': 'crispEdges' }, ter);
+  el('polygon', { points: M.outline.map((p) => p.join(',')).join(' '), fill: 'none', stroke: '#f3e6cf', 'stroke-width': .5, 'stroke-opacity': .7 }, svg);
+  const ov = el('g', {}, svg);
+  OVERLAYS[lv](ov);
+  // compass + scale bar
+  el('text', { x: x1 - 4, y: z0 + 5, class: 'lbl', 'text-anchor': 'middle' }, svg).textContent = T('north');
+  el('line', { x1: x0 + 3, y1: z1 - 3, x2: x0 + 23, y2: z1 - 3, stroke: '#f3e6cf', 'stroke-width': .5 }, svg);
+  el('text', { x: x0 + 13, y: z1 - 4.2, class: 'lbl small', 'text-anchor': 'middle' }, svg).textContent = T('scale');
+
+  const layer = (name) => { const g = el('g', { 'data-layer': name }, svg); if (!on(name, ['route', 'opt', 'lbl'].includes(name))) g.style.display = 'none'; return g; };
+  const lblG = layer('lbl');
+  LABELS[lv].forEach(([t, x, z], i) => { el('text', { x, y: z, class: 'lbl', 'text-anchor': 'middle' }, lblG).textContent = LANG === 'zh' ? LABELS_ZH[lv][i] : t; });
+  const routeG = layer('route');
+  el('polyline', { points: steps.map((p) => `${p.x},${p.z}`).join(' '), fill: 'none', stroke: '#f3e6cf', 'stroke-width': .55, 'stroke-dasharray': '1.6 1', 'stroke-opacity': .85 }, routeG);
+  const ex = EXTRA[lv];
+  const cpG = layer('cp');
+  for (const [id, x, z] of ex.cp) { const r = el('rect', { x: x - .9, y: z - .9, width: 1.8, height: 1.8, fill: '#fff', stroke: '#120e15', 'stroke-width': .3 }, cpG); el('title', {}, r).textContent = T('canTitle') + id; }
+  const crG = layer('crown');
+  ex.crown.forEach(([hint, x, z], i) => { const r = el('rect', { x: x - .75, y: z - .75, width: 1.5, height: 1.5, fill: '#ffd23a', stroke: '#120e15', 'stroke-width': .3, transform: `rotate(45 ${x} ${z})` }, crG); el('title', {}, r).textContent = T('crownTitle') + (LANG === 'zh' ? CROWNS_ZH[lv][i] : hint); });
+  const smG = layer('small');
+  for (const [x, z] of ex.grub) { const r = el('circle', { cx: x, cy: z, r: .7, fill: '#ffb3d1', stroke: '#120e15', 'stroke-width': .25 }, smG); el('title', {}, r).textContent = T('grub'); }
+  for (const [x, z] of ex.moth || []) { const r = el('circle', { cx: x, cy: z, r: .75, fill: '#cfc8e2', stroke: '#120e15', 'stroke-width': .25 }, smG); el('title', {}, r).textContent = T('moth'); }
+
+  const optG = layer('opt');
+  const mkG = el('g', {}, svg);
+  const marks = new Map();
+  for (const p of places) {
+    const g = el('g', { class: 'mk', tabindex: 0, role: 'button', 'aria-label': (p.n ? T('stepAria')(p.n) : T('optAria')) + nm(p), 'data-id': p.id }, p.n ? mkG : optG);
+    el('circle', { class: 'hit', cx: p.x, cy: p.z, r: 3.4 }, g);
+    el('circle', { class: 'halo', cx: p.x, cy: p.z, r: 4 }, g);
+    shape(p.kind, g, p.x, p.z, !!p.n);
+    if (p.n) el('text', { x: p.x, y: p.z + .1, class: 'stepn' }, g).textContent = p.n;
+    el('title', {}, g).textContent = nm(p);
+    g.addEventListener('click', () => show(p.id));
+    g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(p.id); } });
+    marks.set(p.id, g);
+  }
+  row.querySelectorAll('input[data-layer]').forEach((cb) => {
+    cb.addEventListener('change', () => { svg.querySelector(`g[data-layer=${cb.dataset.layer}]`).style.display = cb.checked ? '' : 'none'; });
+  });
+
+  const panel = row.querySelector('.panel');
+  const pos = row.querySelector('[data-role=pos]');
+  let cur = null;
+  function show(id) {
+    const p = places.find((q) => q.id === id);
+    const tx = placeText(lv, p);
+    cur = p;
+    mapSel[lv] = id;
+    for (const [k, g] of marks) g.classList.toggle('sel', k === id);
+    row.querySelectorAll('.steps button, .optlist button').forEach((b) => b.classList.toggle('cur', b.dataset.id === id));
+    panel.innerHTML = `<span class="tag" style="background:${KIND[p.kind].c}">${p.n ? T('stepTag')(p.n) : ''}${kindLabel(p.kind)}</span>
+      <h3>${tx.name}</h3><div class="where">x ${p.x}, z ${p.z}${p.y !== undefined ? ' · ' + T('ground') + p.y : ''}</div>
+      <h4 class="w">${T('what')}</h4><p>${tx.what}</p>
+      <h4 class="y">${T('why')}</h4><p>${tx.why}</p>
+      <h4 class="s">${T('story')}</h4><p>${tx.story}</p>`;
+    const i = steps.indexOf(p);
+    pos.textContent = i >= 0 ? T('pos')(i + 1, steps.length) : T('optPlace');
+    row.querySelector('[data-act=prev]').disabled = i === 0;
+    row.querySelector('[data-act=next]').disabled = i === steps.length - 1;
+  }
+  row.querySelectorAll('.steps button, .optlist button').forEach((b) => b.addEventListener('click', () => show(b.dataset.id)));
+  row.querySelector('[data-act=prev]').addEventListener('click', () => { const i = steps.indexOf(cur); show(steps[Math.max(0, i < 0 ? 0 : i - 1)].id); });
+  row.querySelector('[data-act=next]').addEventListener('click', () => { const i = steps.indexOf(cur); show(steps[Math.min(steps.length - 1, i + 1)].id); });
+  show(mapSel[lv] || steps[0].id);
+}
+
+// ═════════════ creatures render ═════════════
+const FILTER_KEYS = ['all', '1', '2', '3', 'thin'];
+const VT_CLS = { earns: 't-earn', thin: 't-thin', mixed: 't-mixed', na: 't-na' };
+const fbox = document.getElementById('cfilters');
+let cFilter = 'all';
+function renderFilters() {
+  fbox.setAttribute('aria-label', T('filtersAria'));
+  fbox.innerHTML = FILTER_KEYS.map((k, i) => `<button data-f="${k}" aria-pressed="${k === cFilter}">${T('filters')[i]}</button>`).join('');
+  fbox.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+    cFilter = b.dataset.f;
+    fbox.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    renderCreatures();
+  }));
+}
+function renderCreatures() {
+  const f = cFilter;
+  const list = CREATURES.filter((c) => f === 'all' || (f === 'thin' ? c.v === 'thin' || c.v === 'mixed' : c.lv.includes(+f)));
+  const dt = T('dt');
+  document.getElementById('cgrid').innerHTML = list.map((c0) => {
+    const c = LANG === 'zh' ? { ...c0, ...CREATURES_ZH[c0.name] } : c0;
+    return `
+    <article class="card cc">
+      <span class="tag ${VT_CLS[c.v]}">${T('vt')[c.v]}</span><span class="tag" style="background:#3d3245;color:#f3e6cf">${T('level')(c.lv)}</span>
+      <h3>${c.name}</h3><div class="kind">${c.kind} · <code>${c.file}</code></div>
+      <dl><dt>${dt[0]}</dt><dd>${c.beh}</dd><dt>${dt[1]}</dt><dd>${c.counter}</dd><dt>${dt[2]}</dt><dd>${c.act}</dd><dt>${dt[3]}</dt><dd>${c.where}</dd><dt>${dt[4]}</dt><dd>${c.story}</dd></dl>
+      <div class="verdict ${c.v === 'earns' ? '' : c.v}">${c.vt}</div>
+    </article>`;
+  }).join('');
+}
+
+// ═════════════ apply a language ═════════════
+function applyLang(l, save) {
+  LANG = l;
+  if (save) { try { localStorage.setItem(LANG_KEY, l); } catch (e) { /* ignore */ } }
+  const root = document.documentElement;
+  root.lang = l === 'zh' ? 'zh-CN' : 'en';
+  root.dataset.lang = l;
+  document.title = T('title');
+  document.getElementById('sub').textContent = T('sub');
+  document.getElementById('foot').textContent = T('footer');
+  document.querySelector('[role=tablist]').setAttribute('aria-label', T('tablist'));
+  tabs.forEach((t, i) => (t.textContent = T('tabs')[i]));
+  const btn = document.getElementById('langbtn');
+  btn.textContent = T('langBtn');
+  btn.setAttribute('aria-label', T('langAria'));
+  btn.setAttribute('lang', l === 'zh' ? 'en' : 'zh-CN');
+  renderFeatures();
+  document.querySelectorAll('.maprow').forEach(buildMap);
+  renderFilters();
+  renderCreatures();
+}
+document.getElementById('langbtn').addEventListener('click', () => applyLang(LANG === 'zh' ? 'en' : 'zh', true));
+applyLang(LANG, false);
+</script>
+</body>
+</html>

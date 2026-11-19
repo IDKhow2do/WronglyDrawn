@@ -1,0 +1,33 @@
+import { serve, launch, sleep, START } from './cdp.mjs';
+const [dist, level = "plaza", tier = "low", n = "500", pre = "1"] = process.argv.slice(2);
+const srv = await serve(dist);
+const c = await launch({ width: 1425, height: 657 });
+await c.send('Emulation.setDeviceMetricsOverride', { width: 1425, height: 657, deviceScaleFactor: 1, mobile: false });
+await c.send('Page.addScriptToEvaluateOnNewDocument', { source: `try{localStorage.setItem('wd.gfx','${tier}');localStorage.setItem('wd.levels','["plaza","harbor","works"]')}catch{}` });
+await c.send('Page.navigate', { url: `http://127.0.0.1:${srv.port}/?test&dev&level=${level}&style=graffiti` });
+await c.waitFor(`window.T && document.querySelector('.start-btn') && window.__WD && __WD.state === 'TITLE'`);
+console.error(JSON.stringify(await c.ev(START)));
+await sleep(1500);
+await c.ev(`__WD.app.loop.stop(); __WD.advance(1.0); ${pre}; for(let i=0;i<30;i++)__WD.app.renderer.render(); 1`);
+await c.send('Profiler.enable');
+await c.send('Profiler.setSamplingInterval', { interval: 100 });
+await c.send('Profiler.start');
+const ms = await c.ev(`(() => { const t=performance.now(); for(let i=0;i<${n};i++){ __WD.app.renderer.render(); if(i%20===19) __WD.app.renderer.renderer.getContext().finish(); } return (performance.now()-t)/${n}; })()`);
+const { profile } = await c.send('Profiler.stop');
+const byId = new Map(profile.nodes.map((x) => [x.id, x]));
+const parent = new Map();
+for (const x of profile.nodes) for (const ch of x.children ?? []) parent.set(ch, x.id);
+const dts = profile.timeDeltas; const tot = dts.reduce((a, b) => a + b, 0);
+const self = new Map(), incl = new Map();
+profile.samples.forEach((id, i) => {
+  const nd = byId.get(id);
+  const k = (nd.callFrame.functionName || '(anon)') + ':' + nd.callFrame.lineNumber;
+  self.set(k, (self.get(k) ?? 0) + dts[i]);
+  const seen = new Set();
+  for (let x = id; x; x = parent.get(x)) { const f = byId.get(x).callFrame; const fn = (f.functionName || '(anon)') + ':' + f.lineNumber; if (!seen.has(fn)) { seen.add(fn); incl.set(fn, (incl.get(fn) ?? 0) + dts[i]); } }
+});
+const f = (v) => ((v / tot) * ms).toFixed(2).padStart(6) + 'ms';
+console.log('ms/render', ms.toFixed(2));
+console.log('--- self'); for (const [k, v] of [...self].sort((a, b) => b[1] - a[1]).slice(0, 40)) console.log(f(v), k);
+console.log('--- inclusive'); for (const [k, v] of [...incl].sort((a, b) => b[1] - a[1]).slice(0, 40)) console.log(f(v), k);
+c.close(); srv.close();

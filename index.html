@@ -1,0 +1,58 @@
+<!doctype html>
+<!--
+  [INPUT]: 浏览器请求入口；无需等待游戏脚本。
+  [OUTPUT]: 游戏画布、启动占位贴纸和 TapTap 触屏横屏提示。网页版脚本 8 秒未到时，贴纸下加一句网络提示。
+  [POS]: 脚本加载时由占位贴纸接管首屏，运行后交给正式加载界面。
+  [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+-->
+<html lang="en" data-build-mode="%MODE%">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#1a1420" />
+    <title>Wrongly Drawn · 错画之城</title>
+    <style>
+      #boot-paint { position:fixed; inset:0; display:grid; place-items:center; align-content:center; z-index:30; background:#1a1420; font:700 16px/1.45 "Marker Felt","Chalkboard SE",system-ui,sans-serif; }
+      #boot-paint p { margin:14px; padding:14px 21px; text-align:center; color:#141014; background:#f6e8d0; border:4px solid #141014; box-shadow:6px 6px #ff4fa3; transform:rotate(-2deg); }
+      #boot-paint i { display:inline-block; width:11px; height:9px; border:1px solid #141014; border-radius:54% 43% 53% 38%; background:#ff4fa3; animation:boot-dab 1s ease-in-out infinite alternate; }
+      #boot-paint i:nth-of-type(2) { background:#22c4c0; animation-delay:.14s; }
+      #boot-paint i:nth-of-type(3) { background:#ffd23a; animation-delay:.28s; }
+      @keyframes boot-dab { to { transform:translateY(-4px) rotate(12deg); opacity:.65; } }
+      @media (prefers-reduced-motion:reduce) { #boot-paint i { animation:none; } }
+      #landscape-note {
+        position:fixed; inset:0; z-index:31; display:none; place-items:center;
+        background:#1a1420; color:#f6e8d0; text-align:center;
+        font:700 20px/1.5 "Marker Felt","Chalkboard SE",system-ui,sans-serif;
+      }
+      @media (orientation:portrait) and (pointer:coarse) {
+        html[data-build-mode=taptap] #landscape-note { display:grid; }
+      }
+      @media (orientation:portrait) {
+        html[data-build-mode=taptap] body.touch-mode #landscape-note { display:grid; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game-canvas"></canvas>
+      <div id="ui-root"></div>
+    </div>
+    <div id="boot-paint" role="status">
+      <p><i></i> <i></i> <i></i><br/><span lang="zh-CN">正在打开画册…</span><br/>Opening the sketchbook…</p>
+    </div>
+    <script>
+      // 网页版：脚本 8 秒还没到，多半是网络卡。和 src/ui/PlayTips.ts 的网络提示同一句。
+      setTimeout(function () {
+        var boot = document.getElementById('boot-paint');
+        if (!boot || window.__WD_IOS_APP === true || '%MODE%' === 'taptap') return;
+        var tip = document.createElement('p');
+        tip.innerHTML = '<span lang="zh-CN">加载有点慢？网络卡顿的话，建议开加速器再试。</span><br/>Loading slowly? If your connection is lagging, try a network accelerator.';
+        tip.style.cssText = 'font-size:14px;transform:rotate(1deg);box-shadow:5px 5px #22c4c0';
+        boot.appendChild(tip);
+      }, 8000);
+    </script>
+    <div id="landscape-note" role="status"><p><span lang="zh-CN">请横屏游玩</span><br/>Rotate your device to play</p></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,188 @@
+# [INPUT]: main 上的源码和锁文件；仓库变量 SITE_DEPLOY（可选 SITE_URL）；发到服务器时还要 DEPLOY_* 这几个密钥。
+# [OUTPUT]: 拼好的网站（落地页在根部，游戏在 play/）。SITE_DEPLOY 是 server 时同步到自己的服务器，
+#           是 pages 时发到 GitHub Pages，没设置时只构建和自查，什么都不发。
+# [POS]: 网站的自动发布。只管网页；各商店的包不走这里。设置步骤和回滚办法见 docs/DEPLOY.md。
+# [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'landing/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.ts'
+      - 'tsconfig.json'
+      - 'scripts/assemble-site.mjs'
+      - '.github/workflows/deploy-site.yml'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: '要发布的提交、标签或分支（留空 = 最新提交；回滚时填旧提交的哈希）'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+# 一次只发一个；后来的排队，不打断正在同步的那一次。
+concurrency:
+  group: deploy-site
+  cancel-in-progress: false
+
+jobs:
+  site:
+    name: Build and publish the site
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      mode: ${{ steps.target.outputs.mode }}
+    steps:
+      - name: Check out the source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # 游戏住在 /play/，所以用相对路径构建；反馈接口留在网站根部。
+      - name: Build the game for a sub-folder
+        env:
+          VITE_FEEDBACK_URL: /api/feedback
+        run: npm run build -- --base ./ --outDir "$RUNNER_TEMP/game" --emptyOutDir
+
+      - name: Assemble the site (landing at /, game at /play/)
+        id: assemble
+        run: |
+          label="$(git rev-parse --short HEAD)"
+          node scripts/assemble-site.mjs "$RUNNER_TEMP/game" "$RUNNER_TEMP/site" "$label"
+          echo "label=$label" >> "$GITHUB_OUTPUT"
+
+      # 往哪儿发由仓库变量 SITE_DEPLOY 决定。这里只比较密钥是否为空，不读出它们的值。
+      - name: Decide where to publish
+        id: target
+        env:
+          TARGET: ${{ vars.SITE_DEPLOY }}
+          HAS_KEY: ${{ secrets.DEPLOY_SSH_KEY != '' }}
+          HAS_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS != '' }}
+          HAS_HOST: ${{ secrets.DEPLOY_HOST != '' }}
+          HAS_USER: ${{ secrets.DEPLOY_USER != '' }}
+          HAS_PATH: ${{ secrets.DEPLOY_PATH != '' }}
+        run: |
+          case "$TARGET" in
+            server)
+              missing=""
+              [ "$HAS_KEY" = true ] || missing="$missing DEPLOY_SSH_KEY"
+              [ "$HAS_KNOWN_HOSTS" = true ] || missing="$missing DEPLOY_KNOWN_HOSTS"
+              [ "$HAS_HOST" = true ] || missing="$missing DEPLOY_HOST"
+              [ "$HAS_USER" = true ] || missing="$missing DEPLOY_USER"
+              [ "$HAS_PATH" = true ] || missing="$missing DEPLOY_PATH"
+              if [ -n "$missing" ]; then
+                echo "::error::SITE_DEPLOY is 'server' but these secrets are not set:$missing (see docs/DEPLOY.md)"
+                exit 1
+              fi
+              echo "mode=server" >> "$GITHUB_OUTPUT" ;;
+            pages)
+              echo "mode=pages" >> "$GITHUB_OUTPUT" ;;
+            "")
+              echo "::notice::Built and checked only. Nothing was published: the repository variable SITE_DEPLOY is not set (see docs/DEPLOY.md)."
+              echo "mode=off" >> "$GITHUB_OUTPUT" ;;
+            *)
+              echo "::error::SITE_DEPLOY must be 'server' or 'pages'"
+              exit 1 ;;
+          esac
+
+      # ── 目标一：自己的服务器（rsync over SSH）──
+      # 只加文件、换文件，不删服务器上的任何东西。先传资源，最后才换入口页；
+      # 被换掉的旧入口页由 rsync 存进服务器上的 .previous/<时间-提交>/。
+      - name: Publish to the server
+        if: steps.target.outputs.mode == 'server'
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          LABEL: ${{ steps.assemble.outputs.label }}
+        run: |
+          set -euo pipefail
+          bad() { echo "::error::$1 has an unexpected form (see docs/DEPLOY.md)"; exit 1; }
+          [[ "$DEPLOY_HOST" =~ ^[A-Za-z0-9.-]+$ ]] || bad DEPLOY_HOST
+          [[ "$DEPLOY_USER" =~ ^[A-Za-z0-9._-]+$ ]] || bad DEPLOY_USER
+          [[ "${DEPLOY_PORT:=22}" =~ ^[0-9]+$ ]] || bad DEPLOY_PORT
+          [[ "$DEPLOY_PATH" =~ ^/[A-Za-z0-9._/-]*[A-Za-z0-9._-]$ && "$DEPLOY_PATH" != *..* ]] || bad DEPLOY_PATH
+
+          umask 077
+          mkdir -p "$RUNNER_TEMP/ssh"
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$RUNNER_TEMP/ssh/key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/ssh/known_hosts"
+          rsh="ssh -i $RUNNER_TEMP/ssh/key -p $DEPLOY_PORT -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$RUNNER_TEMP/ssh/known_hosts -o ConnectTimeout=20"
+          dest="$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+          stamp="$(date -u +%Y%m%d-%H%M%S)-$LABEL"
+
+          echo "1/2 resources (the pages still point at the old build)"
+          rsync -rlzc --chmod=D755,F644 --exclude='*.html' --exclude='build.txt' -e "$rsh" "$RUNNER_TEMP/site/" "$dest"
+          echo "2/2 entry pages (the old ones are kept in .previous/$stamp/)"
+          rsync -rlzc --chmod=D755,F644 --backup --backup-dir=".previous/$stamp" \
+            --include='*/' --include='*.html' --include='build.txt' --exclude='*' -e "$rsh" "$RUNNER_TEMP/site/" "$dest"
+
+      - name: Remove the SSH key from the runner
+        if: always() && steps.target.outputs.mode == 'server'
+        run: rm -rf "$RUNNER_TEMP/ssh"
+
+      # 从玩家的入口回验：线上的 build.txt 是这次的提交，/ 和 /play/ 都打得开。
+      - name: Check the live site
+        if: steps.target.outputs.mode == 'server'
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://wrongdraw.maequeen.top' }}
+          LABEL: ${{ steps.assemble.outputs.label }}
+        run: |
+          set -euo pipefail
+          live=""
+          for attempt in 1 2 3 4 5 6; do
+            live="$(curl -fsS --max-time 20 "${SITE_URL%/}/build.txt?run=$GITHUB_RUN_ID-$attempt" | tr -d '[:space:]' || true)"
+            [ "$live" = "$LABEL" ] && break
+            sleep 10
+          done
+          if [ "$live" != "$LABEL" ]; then
+            echo "::error::The live site does not show build $LABEL. The files were uploaded; check that the server serves the folder in DEPLOY_PATH."
+            exit 1
+          fi
+          curl -fsS --max-time 20 -o /dev/null "${SITE_URL%/}/"
+          curl -fsS --max-time 20 -o /dev/null "${SITE_URL%/}/play/"
+          echo "::notice::Live: ${SITE_URL%/}/ is build $LABEL"
+
+      # ── 目标二：GitHub Pages ──
+      - name: Hand the site to GitHub Pages
+        if: steps.target.outputs.mode == 'pages'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: ${{ runner.temp }}/site
+
+  pages:
+    name: Publish to GitHub Pages
+    needs: site
+    if: needs.site.outputs.mode == 'pages'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

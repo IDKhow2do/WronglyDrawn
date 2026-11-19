@@ -1,0 +1,22 @@
+// Mobile viewport screenshots. node mobile.mjs <dist> <level> <out.png> [ios=0|1] [js-before-shot] [w] [h] [lang]
+import { writeFile } from 'node:fs/promises';
+import { serve, launch, sleep, START } from './cdp.mjs';
+const [dist, level, out, ios = '0', pre = '1', w = '844', h = '390', lang = ''] = process.argv.slice(2);
+const srv = await serve(dist);
+const c = await launch({ width: +w, height: +h });
+await c.send('Emulation.setDeviceMetricsOverride', { width: +w, height: +h, deviceScaleFactor: 2, mobile: true });
+await c.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
+await c.send('Emulation.setUserAgentOverride', { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1' });
+await c.send('Page.addScriptToEvaluateOnNewDocument', { source: `try{${ios === '1' ? 'window.__WD_IOS_APP=true;' : ''}localStorage.setItem('wd.levels','["plaza","harbor","works"]');${lang ? `localStorage.setItem('wd.lang','${lang}');` : ''}}catch{}` });
+await c.send('Page.navigate', { url: `http://127.0.0.1:${srv.port}/?test&dev&level=${level}&style=graffiti` });
+await c.waitFor(`window.T && document.querySelector('.start-btn') && window.__WD && __WD.state === 'TITLE'`);
+await c.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: 5, y: 5 }] });
+await c.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+console.error(JSON.stringify(await c.ev(START)));
+await sleep(500);
+const r = await c.ev(`(async () => { ${pre}; await new Promise(r => setTimeout(r, 400)); return { touch: document.body.classList.contains('touch-mode'), ios: document.documentElement.classList.contains('wd-ios'), kbd: [...document.querySelectorAll('kbd, .key, .keycap, [class*=key]')].filter(e => e.offsetParent).slice(0, 30).map(e => e.className + ':' + e.textContent.trim().slice(0, 14)) }; })()`);
+console.log(JSON.stringify(r));
+const { data } = await c.send('Page.captureScreenshot', { format: 'png' });
+await writeFile(out, Buffer.from(data, 'base64'));
+if (c.errors.length) console.log('errors', c.errors.slice(0, 3));
+c.close(); srv.close();

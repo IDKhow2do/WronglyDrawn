@@ -1,0 +1,52 @@
+/* ---------- level select (title screen): a second graffiti tag + taped level stickers ---------- */
+.levels-btn.graffiti { pointer-events: auto; cursor: pointer; position: relative; border: 0; background: none; padding: 14px 44px 20px; transform: rotate(2deg);
+  font-family: var(--marker), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; transition: transform .18s cubic-bezier(.3,1.8,.5,1); -webkit-tap-highlight-color: transparent; }
+.levels-btn.graffiti .splat { position: absolute; inset: -4px -8px -12px; width: calc(100% + 16px); height: calc(100% + 16px); overflow: visible; z-index: 0;
+  filter: drop-shadow(5px 6px 0 rgba(20,16,20,.9)); transition: transform .25s cubic-bezier(.3,1.8,.5,1); }
+.levels-btn.graffiti .halo { fill: rgba(34, 196, 192, .45); }
+.levels-btn.graffiti .blob { fill: #22c4c0; stroke: #141014; stroke-width: 5; stroke-linejoin: round; }
+.levels-btn.graffiti .tag { position: relative; z-index: 1; display: inline-block; font-size: clamp(20px, 2vw, 32px); font-weight: 900; letter-spacing: .05em; color: #fff8ee;
+  -webkit-text-stroke: 2.5px #141014; paint-order: stroke fill; text-shadow: 3px 3px 0 #ff4fa3, 5px 5px 0 #141014; transform: skewX(-8deg); }
+.levels-btn.graffiti .tape { position: absolute; z-index: 2; width: 44px; height: 15px; background: rgba(255, 246, 220, .8); border: 1px solid rgba(20,16,20,.25); left: -6px; top: 2px; transform: rotate(-28deg); }
+.levels-btn.graffiti:hover, .levels-btn.graffiti.on { transform: rotate(-1deg) scale(1.08); }
+.levels-btn.graffiti:hover .tag, .levels-btn.graffiti.on .tag { color: #ffd23a; }
+.title-screen.bursting .levels-btn { opacity: 0; }
+
+.level-picker { position: absolute; inset: 0; z-index: 30; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+  background: rgba(20, 16, 20, .7); pointer-events: auto; font-family: var(--marker), "PingFang SC", "Hiragino Sans GB", sans-serif; }
+.level-picker.hidden { display: none; }
+.picker-title { font-size: clamp(26px, 3vw, 46px); font-weight: 900; color: #ffd23a; -webkit-text-stroke: 3px #141014; paint-order: stroke fill; text-shadow: 4px 4px 0 #141014; transform: rotate(-2deg); }
+.picker-row { display: flex; gap: 34px; flex-wrap: wrap; justify-content: center; }
+.level-card { position: relative; width: clamp(200px, 20vw, 290px); padding: 14px 14px 18px; border: 5px solid #141014; background: #fff8ee; box-shadow: 9px 9px 0 var(--c);
+  display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transform: rotate(var(--r)); transition: transform .18s cubic-bezier(.3,1.8,.5,1);
+  font-family: inherit; color: #141014; pointer-events: auto; }
+.level-card:hover { transform: rotate(0deg) scale(1.06); }
+.level-card .lc-num { position: absolute; left: -18px; top: -18px; width: 46px; height: 46px; border-radius: 50%; background: var(--c); border: 4px solid #141014; color: #fff;
+  font-size: 26px; font-weight: 900; display: flex; align-items: center; justify-content: center; -webkit-text-stroke: 1px #141014; }
+.level-card .lc-art { width: 100%; aspect-ratio: 16 / 9; border: 3px solid #141014; background-size: cover; background-position: center; }
+.level-card.lv-plaza .lc-art { background: linear-gradient(180deg, #2a4be0 0%, #4f86ff 45%, #bfd2ff 70%, #ffd23a 71%, #ff7a1a 82%, #ff4fa3 100%); }
+.level-card.lv-harbor .lc-art { background: radial-gradient(circle at 22% 66%, #ffcf8a 0 9%, transparent 10%), linear-gradient(180deg, #120c3a 0%, #2c1f78 30%, #6a3aa8 48%, #d1508f 58%, #ff7a6b 66%, #1fb5b0 67%, #0f6f78 100%); }
+.level-card.lv-works .lc-art { background: repeating-linear-gradient(0deg, transparent 0 15px, rgba(70,110,190,.35) 15px 16px), repeating-linear-gradient(90deg, transparent 0 15px, rgba(70,110,190,.35) 15px 16px), linear-gradient(180deg, #8fb6f0 0%, #f5d6c8 55%, #ece6d6 56%, #d8283a 100%); }
+.level-card .lc-name { font-size: clamp(20px, 1.8vw, 28px); font-weight: 900; letter-spacing: .03em; }
+.level-card .lc-state { font-size: 15px; background: #141014; color: #ffd23a; padding: 3px 12px; transform: rotate(-1deg); }
+.level-card .tape { position: absolute; right: -14px; top: 8px; width: 58px; height: 18px; background: rgba(255, 246, 220, .85); border: 1px solid rgba(20,16,20,.25); transform: rotate(32deg); }
+.level-card.locked { filter: grayscale(.85); cursor: not-allowed; }
+.level-card.locked .lc-state { background: #5a3a9e; color: #fff; }
+.level-card.shake { animation: lcshake .4s; }
+@keyframes lcshake { 0%, 100% { translate: 0; } 25% { translate: -8px; } 50% { translate: 8px; } 75% { translate: -4px; } }
+.picker-hint { color: #fff8ee; font-size: 15px; opacity: .85; }
+.complete .paint-btn.next-level { background: #22c4c0; }
+.complete .paint-btn.next-level.hidden { display: none; }
+@media (max-width: 760px) { .levels-btn.graffiti { padding: 10px 28px 14px; } .picker-row { gap: 22px; } }
+.t-shout { position: absolute; pointer-events: auto; right: calc(4vw + 186px + env(safe-area-inset-right)); bottom: calc(6vh + 140px); width: 58px; height: 58px; background: #22c4c0; color: #fff; font-size: 11px; }
+.title-screen.picking .st-start .start-btn, .title-screen.picking .st-start .subtitle { visibility: hidden; }
+
+/* level cards: a real picture of the level (polaroid), rank stamp, record line */
+.level-card { width: clamp(240px, 26vw, 400px); }
+.level-card .lc-art { position: relative; background-size: cover !important; background-position: center !important; box-shadow: inset 0 0 0 2px rgba(255,255,255,.35), inset 0 -40px 50px -30px rgba(20,16,20,.55); overflow: hidden; }
+.level-card.lv-plaza .lc-art, .level-card.lv-harbor .lc-art, .level-card.lv-works .lc-art { background-color: #2a2230; }
+.level-card:hover .lc-art { filter: saturate(1.15) brightness(1.05); }
+.level-card.locked .lc-art { filter: grayscale(1) brightness(.55) blur(1.5px); }
+.lc-rank { position: absolute; right: 8px; bottom: 8px; width: 54px; height: 54px; border-radius: 50%; border: 5px solid var(--rc, #22c4c0); color: var(--rc, #22c4c0); background: rgba(255,248,238,.92); font-style: normal; font-weight: 900; font-size: 34px; line-height: 44px; text-align: center; transform: rotate(-14deg); box-shadow: 0 0 0 3px #141014; -webkit-text-stroke: 1px #141014; }
+.lc-rank.r-S { --rc: #ffb800; } .lc-rank.r-A { --rc: #ff4fa3; } .lc-rank.r-C { --rc: #2a4be0; }
+.level-card .lc-rec { font-size: 14px; color: #6b5c4a; min-height: 18px; }

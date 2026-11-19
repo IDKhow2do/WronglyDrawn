@@ -1,0 +1,6 @@
+{"kind":"snake","mode":"still","sec":30.2,"hits":2,"halfHearts":2,"by":{"THWACK!":2},"states":{"IDLE":1,"CHASE":2,"SNAP_TELL":2,"SNAP":2,"REST":2,"STUNNED":1,"CALM":1},"paint":1,"repainted":true,"bot":null,"errs":[]}
+{"kind":"compass","mode":"still","sec":30.1,"hits":8,"halfHearts":8,"by":{"SCRATCH!":8},"states":{"IDLE":1,"CHASE":4,"PLANT":4,"SPIN":4,"CIRCLE":3,"LIFT":3},"paint":0,"repainted":false,"bot":null,"errs":[]}
+{"kind":"press","mode":"still","sec":30.1,"hits":8,"halfHearts":8,"by":{"SHOCKWAVE!":4,"CORRECTED!":4},"states":{"IDLE":1,"CHASE":4,"TELL_RUN":4,"RUN":4},"paint":0,"repainted":false,"bot":null,"errs":[]}
+{"kind":"limp","mode":"still","sec":30,"hits":12,"halfHearts":24,"by":{"CrookedLegMutant.ai":12},"states":{"IDLE":1,"NOTICE":1,"CHASE":13,"STOMP":1,"KICK":11},"paint":0,"repainted":false,"bot":null,"errs":[]}
+{"kind":"snake","mode":"stroll","sec":30.1,"hits":6,"halfHearts":6,"by":{"THWACK!":6},"states":{"IDLE":1,"CHASE":8,"SNAP_TELL":7,"SNAP":7,"REST":7},"paint":0,"repainted":false,"bot":{"jumps":0,"sidesteps":0,"sprayT":0},"errs":[]}
+{"kind":"compass","mode":"stroll","sec":30,"hits":6,"halfHearts":6,"by":{"CORRECTED!":6},"states":{"IDLE":1,"CHASE":4,"PLANT":4,"SPIN":4,"CIRCLE":3,"LIFT":3},"paint":0,"repainted":false,"bot":{"jumps":0,"sidesteps":0,"sprayT":0},"errs":[]}

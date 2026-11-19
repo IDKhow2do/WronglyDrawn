@@ -1,0 +1,71 @@
+/**
+ * [INPUT]: 游戏调色板、手写字体与 PaintLoading 的 DOM。
+ * [OUTPUT]: 手绘贴纸和仅用合成属性循环的三颗颜料点。
+ * [POS]: 绘制启动与彩刷过场上的同一张贴纸。
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
+.paint-loading {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  width: min(74vw, 240px);
+  padding: 13px 17px 14px;
+  color: var(--black);
+  background: var(--cream);
+  border: 4px solid var(--black);
+  border-radius: 5% 3% 7% 3% / 5% 5% 4% 7%;
+  box-shadow: 6px 6px 0 var(--black);
+  text-align: center;
+}
+.paint-wipe .paint-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-2deg);
+}
+.paint-loading-number {
+  font-size: clamp(28px, 8vmin, 48px);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-shadow: 2px 2px 0 var(--pink);
+}
+.paint-loading-track {
+  width: 94%;
+  height: 11px;
+  overflow: hidden;
+  border: 2px solid var(--black);
+  border-radius: 5px 2px 5px 3px;
+  background: var(--black);
+}
+.paint-loading-fill {
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: repeating-linear-gradient(45deg, var(--yellow) 0 10px, var(--orange) 10px 20px);
+  transition: transform .14s ease-out;
+}
+.paint-loading-label { font-size: clamp(12px, 3vmin, 16px); line-height: 1.15; }
+.paint-loading-ink { display: flex; gap: 7px; align-items: center; min-height: 15px; }
+.paint-loading-ink i {
+  width: 12px;
+  height: 10px;
+  border: 2px solid var(--black);
+  border-radius: 52% 42% 54% 38%;
+  background: var(--pink);
+  animation: paint-loading-dab 1s ease-in-out infinite;
+}
+.paint-loading-ink i:nth-child(2) { background: var(--turq); animation-delay: .14s; }
+.paint-loading-ink i:nth-child(3) { background: var(--yellow); animation-delay: .28s; }
+.paint-loading.has-error .paint-loading-ink,
+.paint-loading.has-error .paint-loading-number,
+.paint-loading.has-error .paint-loading-track { display: none; }
+.paint-loading.has-error .paint-loading-label { color: #7a1725; overflow-wrap: anywhere; }
+@keyframes paint-loading-dab {
+  0%, 70%, 100% { transform: translateY(2px) rotate(-12deg); opacity: .72; }
+  34% { transform: translateY(-3px) rotate(13deg); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .paint-loading-ink i { animation: none; }
+  .paint-loading-fill { transition: none; }
+}

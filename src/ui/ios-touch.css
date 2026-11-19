@@ -1,0 +1,289 @@
+/*
+ * [INPUT]: body.touch-mode 与设备安全区。
+ * [OUTPUT]: the touch HUD: thumb arc around SPRAY, sticker icons, hint pulse, tool drawer, collapsed task card,
+ *           organ stickers, touch layouts of the menus
+ * [POS]: 各端共用触屏 HUD。右侧按钮沿弧线留间距。工具抽屉排在最外侧按钮上方。
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
+:is(.wd-ios, body.touch-mode) #app { touch-action: auto; }
+.wd-ios .t-zone, body.touch-mode .t-zone { touch-action: none; }
+
+/* ---- 安全区 ---- */
+:is(.wd-ios, body.touch-mode) {
+  --game-left: max(10px, env(safe-area-inset-left));
+  --game-right: max(10px, env(safe-area-inset-right));
+  --game-top: max(8px, env(safe-area-inset-top));
+  --game-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+:is(.wd-ios, body.touch-mode) .hud-tl { left: var(--game-left); top: var(--game-top); }
+:is(.wd-ios, body.touch-mode) .hud-tr {
+  right: calc(var(--game-right) + 53px);
+  top: var(--game-top);
+  max-width: 41vw;
+}
+:is(.wd-ios, body.touch-mode) .objective-box { max-width: 100%; }
+body.touch-mode .title-screen .st-logo { margin-left: var(--game-left); }
+body.touch-mode .title-screen :is(.st-level, .st-cards) { margin-right: var(--game-right); }
+body.touch-mode :is(.title-screen .st-lang, .title-screen .st-look, .title-screen .st-credit, .sb-skip, .su-lang) { right: var(--game-right); }
+body.touch-mode .title-screen .st-story { left: var(--game-left); }
+body.touch-mode :is(.title-screen .st-story, .title-screen .st-credit, .sb-skip) { bottom: var(--game-bottom); }
+body.touch-mode .su-group { width: min(1080px, 100%); }
+body.touch-mode:not(.paused) .hud > .cards { display: none; }
+body.touch-mode.paused .hud.under-menu > .cards { display: none; }
+
+/* ---- 菜单 ---- */
+:is(.wd-ios, body.touch-mode) :is(.pause, .complete, .setup-screen, .boon-pick) {
+  padding: var(--game-top) var(--game-right) var(--game-bottom) var(--game-left);
+}
+:is(.wd-ios, body.touch-mode) .pause {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(190px, .62fr);
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 12px;
+}
+:is(.wd-ios, body.touch-mode) .pause > .panel {
+  min-height: 0;
+  max-height: 100%;
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  transform: none;
+}
+:is(.wd-ios, body.touch-mode) .pause > .panel > * { flex-shrink: 0; }
+:is(.wd-ios, body.touch-mode) .pause .resume { order: -1; }
+:is(.wd-ios, body.touch-mode) .pause .panel > .logo { order: -2; }
+@media (orientation: portrait) {
+  :is(.wd-ios, body.touch-mode) .pause {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    align-content: start;
+    overflow: auto;
+  }
+  :is(.wd-ios, body.touch-mode) .pause > .book-panel { order: 1; }
+}
+
+/* ---- 任务与提示 ---- */
+body.touch-mode .hud-tr {
+  max-width: min(40dvw, 350px);
+  gap: 5px;
+  z-index: 7;
+}
+body.touch-mode .hud-tr .level-tag,
+body.touch-mode .objective-box .obj-title,
+body.touch-mode .objective-toggle[aria-expanded='false'] + .obj-hint,
+body.touch-mode .hud-tr:not(:has(.objective-toggle[aria-expanded='true'])) .counters {
+  display: none;
+}
+body.touch-mode .objective-box {
+  padding: 0;
+  border: 2px solid var(--yellow);
+  box-shadow: 2px 3px 0 var(--black);
+  transform: none;
+}
+body.touch-mode .objective-box.pop { animation: none; }
+body.touch-mode .objective-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 4px 7px;
+  border: 0;
+  background: transparent;
+  color: var(--yellow);
+  text-align: start;
+  font: 700 clamp(12px, 1.5dvw, 15px) var(--marker);
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+body.touch-mode .objective-toggle .touch-glyph { width: 17px; height: 17px; flex: none; }
+body.touch-mode .objective-toggle[aria-expanded='true'] .touch-glyph:last-child { transform: rotate(180deg); }
+body.touch-mode .obj-toggle-title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+body.touch-mode .obj-hint {
+  max-height: min(40dvh, 180px);
+  margin: 0;
+  padding: 4px 10px 9px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  font-size: clamp(12px, 1.5dvw, 15px);
+  pointer-events: auto;
+  touch-action: pan-y;
+}
+body.touch-mode .hud.under-menu :is(.objective-toggle, .obj-hint),
+body.touch-mode.in-cine :is(.objective-toggle, .obj-hint) { pointer-events: none; }
+body.touch-mode .hud-tr .counters { gap: 5px; font-size: 12px; }
+body.touch-mode .hud-tr .counters span { padding: 2px 5px; }
+body.touch-mode .prompt.has-touch-action { display: none; }
+body.touch-mode .prompt {
+  max-width: min(45dvw, 350px);
+  padding: 4px 8px;
+  font-size: 12px;
+  white-space: normal;
+}
+body.touch-mode .toasts {
+  left: 40%;
+  top: calc(var(--game-top) + 45px);
+  width: min(30dvw, 280px);
+}
+body.touch-mode .toast {
+  max-width: 100%;
+  padding: 4px 8px;
+  font-size: clamp(11px, 1.6dvw, 14px);
+  line-height: 1.22;
+}
+body.touch-mode .toast.fade { position: absolute; pointer-events: none; }
+body.touch-mode .guide-edge .guide-dist { font-size: 12px; padding: 2px 5px; }
+body.touch-mode .guide-edge .guide-chevron { font-size: 21px; }
+
+/* ---- right thumb: an arc around SPRAY ----
+ * SPRAY sits under the resting thumb. --cx / --cy = its centre, measured from the right and bottom edges.
+ * Ring 1 (--r1) holds what a fight needs every second: JUMP (left), ROLL (up-left), AIM (up).
+ * Ring 2 (--r2) holds what is used now and then: INTERACT, SHOUT, the tool drawer, FIND PEN.
+ * Each button sets --dx / --dy (centre offset from SPRAY, left and up) as a fraction of its ring.
+ */
+body.touch-mode .touch {
+  --action-size: clamp(44px, min(6.5dvw, 12.6dvh), 56px);
+  --spray-size: calc(var(--action-size) + 14px);
+  --action-gap: clamp(11px, 3.1dvh, 16px);
+  --action-right: calc(var(--game-right) + 6px);
+  --action-bottom: calc(var(--game-bottom) + 6px);
+  --cx: calc(var(--action-right) + var(--spray-size) / 2);
+  --cy: calc(var(--action-bottom) + var(--spray-size) / 2);
+  --r1: calc(var(--spray-size) / 2 + var(--action-size) / 2 + var(--action-gap));
+  --r2: calc(var(--r1) + var(--action-size) + var(--action-gap));
+  --tools-bottom: calc(var(--cy) + var(--r2) + var(--action-size) / 2 + var(--action-gap));
+}
+body.touch-mode .t-actions { display: contents; }
+body.touch-mode .touch .t-btn {
+  --size: var(--action-size);
+  --dx: 0px;
+  --dy: 0px;
+  width: var(--size);
+  height: var(--size);
+  right: calc(var(--cx) + var(--dx) - var(--size) / 2);
+  bottom: calc(var(--cy) + var(--dy) - var(--size) / 2);
+  top: auto;
+  left: auto;
+  padding: 0;
+  border-width: 3px;
+  display: grid;
+  place-items: center;
+}
+body.touch-mode .touch .t-spray { --size: var(--spray-size); --glyph-accent: var(--yellow); }
+body.touch-mode .touch .t-jump { --dx: var(--r1); --glyph-accent: var(--pink); }
+body.touch-mode .touch .t-dodge { --dx: calc(var(--r1) * .707); --dy: calc(var(--r1) * .707); --glyph-accent: var(--pink); }
+body.touch-mode .touch .t-aim { --dy: var(--r1); --glyph-accent: var(--yellow); }
+body.touch-mode .touch .t-use { --dx: calc(var(--r2) * .99); --dy: calc(var(--r2) * .14); --glyph-accent: var(--pink); }
+body.touch-mode .touch .t-shout { --dx: calc(var(--r2) * .829); --dy: calc(var(--r2) * .559); --glyph-accent: var(--yellow); font-size: 0; }
+body.touch-mode .touch .t-more { --dx: calc(var(--r2) * .469); --dy: calc(var(--r2) * .883); background: var(--cream); }
+body.touch-mode .touch .t-lock { --dy: var(--r2); --glyph-accent: #ff3b3b; }
+body.touch-mode .t-more[aria-expanded='true'] { background: var(--yellow); }
+/* FIND PEN exists only in the pen fight (ui/souls.css); a hidden button stays hidden */
+body.touch-mode:not(.souls-fight) .touch .t-lock,
+body.touch-mode .touch .t-btn.hidden { display: none; }
+
+/* the pictures: sticker art (ui/TouchIcons.ts) */
+body.touch-mode .touch .touch-glyph {
+  display: block;
+  width: 72%;
+  height: 72%;
+  color: var(--black);
+  overflow: visible;
+  pointer-events: none;
+}
+body.touch-mode .touch .t-spray .touch-glyph { width: 68%; height: 68%; }
+.touch-glyph .gf { fill: #fff; }
+.touch-glyph .ga { fill: var(--glyph-accent, var(--yellow)); stroke: none; }
+.touch-glyph .gk { fill: currentColor; stroke: none; }
+
+/* INTERACT: there only while something answers, with the verb beside it */
+body.touch-mode .t-use:not(.available) { visibility: hidden; }
+body.touch-mode .t-use.available { background: var(--yellow); outline: 2px solid var(--cream); }
+body.touch-mode .t-use-label {
+  position: absolute;
+  right: calc(100% + 7px);
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: 34dvw;
+  padding: 2px 8px 3px;
+  border-radius: 9px;
+  background: var(--black);
+  color: var(--yellow);
+  font: 700 clamp(11px, 1.5dvw, 14px) var(--marker);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+body.touch-mode .t-use-label:empty { display: none; }
+
+/* a hint names this control: it pulses until touched (ui/TouchText.ts) */
+@keyframes t-hint {
+  0%, 100% { scale: 1; box-shadow: 3px 4px 0 var(--black), 0 0 0 0 rgba(255, 255, 255, .95); }
+  50% { scale: 1.14; box-shadow: 3px 4px 0 var(--black), 0 0 0 9px rgba(255, 255, 255, 0); }
+}
+body.touch-mode .touch .t-btn.hint { animation: t-hint .7s ease-in-out 6; outline: 3px solid #fff; z-index: 2; }
+@media (prefers-reduced-motion: reduce) {
+  body.touch-mode .touch .t-btn.hint { animation: none; }
+}
+
+/* the tool drawer opens above the arc */
+body.touch-mode .t-tools {
+  position: absolute;
+  right: var(--action-right);
+  bottom: var(--tools-bottom);
+  display: flex;
+  gap: var(--action-gap);
+  padding: 7px;
+  border: 2px solid var(--black);
+  background: rgba(26, 20, 32, .88);
+  box-shadow: 2px 3px 0 var(--black);
+  border-radius: 14px;
+}
+body.touch-mode .t-tools[hidden] { display: none; }
+body.touch-mode .t-tools .t-btn { position: relative; inset: auto; }
+body.touch-mode .t-tools .t-bomb { --glyph-accent: var(--yellow); }
+body.touch-mode .touch .t-pause {
+  top: var(--game-top);
+  right: var(--game-right);
+  bottom: auto;
+  width: 44px;
+  height: 44px;
+}
+body.touch-mode .touch .t-gadget img { width: 76%; height: 76%; margin: 0; }
+
+/* ---- 左手贴纸 ---- */
+body.touch-mode .t-organs {
+  left: var(--game-left);
+  top: calc(var(--game-top) + 48px);
+  flex-direction: row;
+  gap: 5px;
+}
+body.touch-mode .touch .t-org {
+  width: 44px;
+  height: 44px;
+  justify-items: center;
+}
+body.touch-mode .t-org img { width: 84%; height: 84%; object-fit: contain; pointer-events: none; }
+body.touch-mode .t-org[data-status='missing'],
+body.touch-mode[data-level='harbor'] .t-org.leg { display: none; }
+body.touch-mode .t-org[aria-pressed='true'] { outline: 2px solid var(--cream); }
+body.touch-mode .t-org[data-status='corrupted']::after,
+body.touch-mode .t-org[data-status='crossed']::after,
+body.touch-mode .t-org[data-status='lent']::after {
+  position: absolute;
+  right: -4px;
+  top: -4px;
+  min-width: 11px;
+  padding: 0 2px;
+  border-radius: 8px;
+  color: var(--cream);
+  background: var(--black);
+  font: 700 10px system-ui, sans-serif;
+  pointer-events: none;
+}
+body.touch-mode .t-org[data-status='corrupted']::after { content: '!'; }
+body.touch-mode .t-org[data-status='crossed']::after { content: '×'; }
+body.touch-mode .t-org[data-status='lent']::after { content: '↗'; }

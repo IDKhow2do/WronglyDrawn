@@ -1,0 +1,97 @@
+/* [POS]: 首次设置的画质、帧率、颜色与难度布局。
+   Taped paper on a dark desk, like the storybook and the difficulty cards it reuses (difficulty.css).
+   [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md */
+.setup-screen { position: absolute; inset: 0; z-index: 41; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: clamp(6px, 1.2vh, 16px);
+  padding: clamp(8px, 1.4vh, 20px) 3vw; overflow-y: auto; background: rgba(20, 16, 20, .8); pointer-events: auto;
+  font-family: var(--marker), "PingFang SC", "Hiragino Sans GB", sans-serif; color: var(--cream); animation: diffIn .25s ease-out; }
+body.look-open .setup-screen { display: none; }
+/* centred by auto margins, not justify-content: when the sheets are taller than the window (1280×633, a laptop
+   browser) the screen scrolls from the heading down; centring would push the heading above the top, out of reach */
+.setup-screen > :first-child { margin-top: auto; }
+.setup-screen > :last-child { margin-bottom: auto; }
+/* the title's own stickers (START, LEVELS, LOOK, language, STORY, the credit) step aside while this screen is up */
+body.setup-open .title-screen .sticker, body.setup-open .title-screen .levels-btn { display: none; }
+
+.su-head { text-align: center; }
+.su-head .picker-title { margin: 0; }
+.su-sub { max-width: min(680px, 92vw); font-size: clamp(14px, 1.2vw, 18px); text-shadow: 2px 2px 0 #141014; }
+.su-lang { position: absolute; right: 2vw; top: 2vh; }
+.su-lang button { font-family: inherit; font-size: 15px; color: #141014; background: var(--cream); border: 3px solid #141014; box-shadow: 3px 3px 0 #141014;
+  padding: 3px 12px 4px; cursor: pointer; pointer-events: auto; }
+
+/* ---- one taped sheet per question ---- */
+.su-group { width: min(1080px, 94vw); background: rgba(251, 243, 226, .96); color: #141014; border: 4px solid #141014; box-shadow: 7px 7px 0 rgba(20, 16, 20, .55);
+  padding: 10px 16px 14px; transform: rotate(var(--r, -.4deg)); }
+.su-group + .su-group { --r: .5deg; }
+.su-group:nth-child(4) { --r: -.6deg; }
+.su-group.su-picture { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px 28px; }
+.su-picture > div { min-width: 0; }
+.su-q { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font-size: clamp(17px, 1.6vw, 23px); font-weight: 900; }
+.su-q small { font-family: var(--hand, inherit); font-size: clamp(12px, 1.1vw, 15px); font-weight: 400; opacity: .75; }
+.su-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.su-chips button { font-family: inherit; font-size: clamp(14px, 1.2vw, 18px); color: #141014; background: #fff8ee; border: 3px solid #141014; box-shadow: 3px 3px 0 #141014;
+  padding: 5px 14px 6px; cursor: pointer; pointer-events: auto; min-height: 42px; transition: transform .15s cubic-bezier(.3,1.8,.5,1); }
+.su-chips button:hover { transform: translateY(-2px); }
+.su-chips button.on { background: var(--yellow); box-shadow: 3px 3px 0 #141014, 0 0 0 4px var(--yellow); }
+.su-chips button:focus-visible, .su-group .diff-card:focus-visible, .su-go:focus-visible, .su-lang button:focus-visible { outline: 4px solid #22c4c0; outline-offset: 3px; }
+.su-note { margin-top: 6px; font-family: var(--hand, inherit); font-size: clamp(12px, 1.1vw, 15px); opacity: .8; }
+
+/* the three pens: the same cards as the old picker, smaller inside the sheet */
+.su-group .picker-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; gap: 14px; margin: 6px 0 4px; padding: 8px 6px 10px; }
+.su-group .diff-card { width: clamp(176px, 16vw, 240px); min-height: 0; padding: 6px 12px 10px; box-shadow: 6px 6px 0 var(--c); }
+.su-group .diff-card .dc-art { height: 38px; }
+.su-group .diff-card .dc-line { font-size: 14px; }
+/* the picked card stays inside its sheet: it grows a little, it does not jump */
+.su-group .diff-card.on { transform: rotate(0deg) scale(1.03); }
+.su-group .diff-card.on::after { width: 30px; height: 30px; left: -12px; top: -12px; font-size: 17px; line-height: 23px; border-width: 3px; }
+
+.su-go { font-size: clamp(18px, 1.8vw, 26px); }
+.su-foot { font-size: clamp(11px, 1vw, 14px); opacity: .7; text-align: center; }
+body.touch-mode .su-foot { display: none; }
+
+@media (max-width: 760px), (max-height: 620px) {
+  .setup-screen { justify-content: flex-start; gap: 8px; }
+  .su-group { padding: 8px 12px 10px; }
+  .su-group .diff-card { width: min(46vw, 230px); }
+  .su-group .diff-card .dc-line { font-size: 13px; }
+}
+/* a phone on its side: the three sheets have to fit between the thumbs, so the trimmings go */
+@media (max-height: 520px) {
+  .setup-screen { gap: 5px; padding: 6px 2vw; }
+  .su-head .picker-title { font-size: clamp(17px, 4vh, 26px); }
+  .su-sub, .su-foot, .su-q small { display: none; }
+  .su-group { padding: 5px 10px 7px; }
+  .su-q { font-size: clamp(14px, 3vh, 18px); }
+  .su-chips { margin-top: 5px; gap: 6px; }
+  /* picture and colours: the question sits on the same line as its answers (two lines saved) */
+  .su-group:nth-child(3), .su-group:nth-child(4) { display: flex; align-items: center; gap: 10px; }
+  .su-group:nth-child(3) .su-q, .su-group:nth-child(4) .su-q { flex: 0 0 auto; }
+  .su-group:nth-child(3) .su-chips, .su-group:nth-child(4) .su-chips { margin-top: 0; min-width: 0; }
+  .su-chips button { min-height: 34px; padding: 3px 10px 4px; font-size: 14px; flex: 0 0 auto; }
+  /* the colours stay on one line and scroll sideways: two wrapped rows pushed GO off the screen */
+  .su-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 3px; }
+  .su-group .picker-row { gap: 8px; margin: 2px 0 0; padding: 5px 4px 6px; }
+  .su-group .diff-card { width: clamp(150px, 26vw, 210px); padding: 3px 8px 6px; gap: 3px; }
+  .su-group .diff-card .dc-art { height: 20px; }
+  .su-group .diff-card .dc-name { font-size: 16px; }
+  .su-group .diff-card .dc-line { font-size: 11.5px; line-height: 1.18; }
+  .su-group .diff-card .dc-tag { font-size: 12px; padding: 1px 8px; }
+  .su-go { font-size: 17px; padding: 4px 18px 6px; }
+}
+/* a tall narrow screen scrolls (the three sheets stack): the page starts at the top, GO ends it */
+@media (max-width: 760px) and (min-height: 560px) {
+  .setup-screen { justify-content: flex-start; }
+  .su-go { margin: 4px 0 10px; }
+}
+/* the language button sits in the flow on a narrow screen (it used to sit on top of the subtitle) */
+@media (max-width: 760px) {
+  .su-lang { position: static; align-self: flex-end; }
+}
+@media (orientation: portrait) {
+  .su-group .diff-card .dc-name { font-size: clamp(16px, 4.4vw, 22px); }
+  .su-group .picker-row { gap: 10px; }
+  .su-group .diff-card { width: 100%; max-width: 420px; min-height: 0; flex-direction: row; align-items: center; gap: 10px; text-align: left; flex-wrap: wrap; }
+  .su-group .diff-card .dc-art { width: 64px; height: 34px; }
+  .su-group .diff-card .dc-line { flex-basis: 100%; text-align: left; }
+}
+body.lang-zh .setup-screen { font-family: var(--hand-zh); font-weight: 400; }

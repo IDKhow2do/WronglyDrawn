@@ -1,0 +1,13 @@
+node_modules
+dist
+.DS_Store
+# local secrets (DEEPSEEK_API_KEY etc. for the AI partner)
+*.local
+.env*.local
+
+# large reference media (not source)
+reference/
+demo/
+
+# the rendered video (about 100 MB); rebuild with trailer/scripts/cut.py
+trailer/*.mp4

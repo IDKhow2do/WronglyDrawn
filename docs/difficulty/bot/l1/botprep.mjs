@@ -1,0 +1,10 @@
+import { connect, sleep } from './lib.mjs';
+const c = await connect();
+const st = () => c.ev('return window.__WD?.state').catch(() => null);
+await c.send('Page.navigate', { url: `http://localhost:${process.env.PORT || 5194}/?test&level=plaza&style=graffiti&difficulty=${process.env.DIFF || 'gentle'}` });
+for (let i = 0; i < 80 && (await st()) !== 'TITLE'; i++) await sleep(500);
+await c.ev("(await import('/src/render/Quality.ts')).Quality.setPref('medium'); localStorage.setItem('wd.boons','auto'); document.querySelector('.start-btn').click(); return 1");
+for (let i = 0; i < 80 && (await st()) !== 'PLAYING'; i++) await sleep(500);
+for (let i = 0; i < 120 && await c.ev("return document.querySelector('.hud').classList.contains('hidden')"); i++) await sleep(500);
+console.log('ready', await st());
+process.exit(0);

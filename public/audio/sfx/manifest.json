@@ -1,0 +1,485 @@
+{
+ "splat": {
+  "files": [
+   "splat-0.mp3",
+   "splat-1.mp3",
+   "splat-2.mp3",
+   "splat-3.mp3",
+   "splat-4.mp3"
+  ],
+  "vol": 0.55,
+  "layer": true
+ },
+ "paintHit": {
+  "files": [
+   "paintHit-0.mp3",
+   "paintHit-1.mp3",
+   "paintHit-2.mp3",
+   "paintHit-3.mp3",
+   "paintHit-4.mp3"
+  ],
+  "vol": 0.35,
+  "layer": true
+ },
+ "hit": {
+  "files": [
+   "hit-0.mp3",
+   "hit-1.mp3",
+   "hit-2.mp3",
+   "hit-3.mp3",
+   "hit-4.mp3"
+  ],
+  "vol": 0.7,
+  "layer": true
+ },
+ "hitWeak": {
+  "files": [
+   "hitWeak-0.mp3",
+   "hitWeak-1.mp3",
+   "hitWeak-2.mp3",
+   "hitWeak-3.mp3",
+   "hitWeak-4.mp3"
+  ],
+  "vol": 0.75,
+  "layer": true
+ },
+ "hitMarker": {
+  "files": [
+   "hitMarker-0.mp3",
+   "hitMarker-1.mp3",
+   "hitMarker-2.mp3"
+  ],
+  "vol": 0.35,
+  "layer": false
+ },
+ "hurt": {
+  "files": [
+   "hurt-0.mp3",
+   "hurt-1.mp3",
+   "hurt-2.mp3",
+   "hurt-3.mp3",
+   "hurt-4.mp3"
+  ],
+  "vol": 0.8,
+  "layer": true
+ },
+ "kick": {
+  "files": [
+   "kick-0.mp3",
+   "kick-1.mp3",
+   "kick-2.mp3",
+   "kick-3.mp3",
+   "kick-4.mp3"
+  ],
+  "vol": 0.9,
+  "layer": true
+ },
+ "crash": {
+  "files": [
+   "crash-0.mp3",
+   "crash-1.mp3",
+   "crash-2.mp3",
+   "crash-3.mp3",
+   "crash-4.mp3"
+  ],
+  "vol": 0.8,
+  "layer": true
+ },
+ "stomp": {
+  "files": [
+   "stomp-0.mp3",
+   "stomp-1.mp3",
+   "stomp-2.mp3",
+   "stomp-3.mp3",
+   "stomp-4.mp3"
+  ],
+  "vol": 0.9,
+  "layer": true
+ },
+ "bigStep": {
+  "files": [
+   "bigStep-0.mp3",
+   "bigStep-1.mp3",
+   "bigStep-2.mp3",
+   "bigStep-3.mp3",
+   "bigStep-4.mp3"
+  ],
+  "vol": 0.7,
+  "layer": true
+ },
+ "slamLand": {
+  "files": [
+   "slamLand-0.mp3",
+   "slamLand-1.mp3",
+   "slamLand-2.mp3",
+   "slamLand-3.mp3",
+   "slamLand-4.mp3"
+  ],
+  "vol": 1.0,
+  "layer": true
+ },
+ "jawSnap": {
+  "files": [
+   "jawSnap-0.mp3",
+   "jawSnap-1.mp3",
+   "jawSnap-2.mp3",
+   "jawSnap-3.mp3",
+   "jawSnap-4.mp3"
+  ],
+  "vol": 0.7,
+  "layer": true
+ },
+ "crumble": {
+  "files": [
+   "crumble-0.mp3",
+   "crumble-1.mp3",
+   "crumble-2.mp3",
+   "crumble-3.mp3",
+   "crumble-4.mp3"
+  ],
+  "vol": 0.8,
+  "layer": false
+ },
+ "erase": {
+  "files": [
+   "erase-0.mp3",
+   "erase-1.mp3",
+   "erase-2.mp3",
+   "erase-3.mp3",
+   "erase-4.mp3"
+  ],
+  "vol": 0.6,
+  "layer": true
+ },
+ "step": {
+  "files": [
+   "step-0.mp3",
+   "step-1.mp3",
+   "step-2.mp3",
+   "step-3.mp3",
+   "step-4.mp3"
+  ],
+  "vol": 0.45,
+  "layer": false
+ },
+ "crateStep": {
+  "files": [
+   "crateStep-0.mp3",
+   "crateStep-1.mp3",
+   "crateStep-2.mp3",
+   "crateStep-3.mp3",
+   "crateStep-4.mp3"
+  ],
+  "vol": 0.5,
+  "layer": false
+ },
+ "shuffle": {
+  "files": [
+   "shuffle-0.mp3",
+   "shuffle-1.mp3",
+   "shuffle-2.mp3",
+   "shuffle-3.mp3",
+   "shuffle-4.mp3"
+  ],
+  "vol": 0.4,
+  "layer": false
+ },
+ "land": {
+  "files": [
+   "land-0.mp3",
+   "land-1.mp3",
+   "land-2.mp3",
+   "land-3.mp3",
+   "land-4.mp3"
+  ],
+  "vol": 0.55,
+  "layer": false
+ },
+ "jump": {
+  "files": [
+   "jump-0.mp3",
+   "jump-1.mp3",
+   "jump-2.mp3",
+   "jump-3.mp3"
+  ],
+  "vol": 0.5,
+  "layer": true
+ },
+ "bigJump": {
+  "files": [
+   "bigJump-0.mp3",
+   "bigJump-1.mp3"
+  ],
+  "vol": 0.6,
+  "layer": true
+ },
+ "dodge": {
+  "files": [
+   "dodge-0.mp3",
+   "dodge-1.mp3",
+   "dodge-2.mp3"
+  ],
+  "vol": 0.6,
+  "layer": true
+ },
+ "throwSticker": {
+  "files": [
+   "throwSticker-0.mp3",
+   "throwSticker-1.mp3"
+  ],
+  "vol": 0.5,
+  "layer": true
+ },
+ "peel": {
+  "files": [
+   "peel-0.mp3",
+   "peel-1.mp3",
+   "peel-2.mp3"
+  ],
+  "vol": 0.6,
+  "layer": false
+ },
+ "stick": {
+  "files": [
+   "stick-0.mp3",
+   "stick-1.mp3",
+   "stick-2.mp3",
+   "stick-3.mp3"
+  ],
+  "vol": 0.7,
+  "layer": true
+ },
+ "recall": {
+  "files": [
+   "recall-0.mp3",
+   "recall-1.mp3",
+   "recall-2.mp3"
+  ],
+  "vol": 0.6,
+  "layer": false
+ },
+ "purifyDone": {
+  "files": [
+   "purifyDone-0.mp3",
+   "purifyDone-1.mp3"
+  ],
+  "vol": 0.6,
+  "layer": true
+ },
+ "heal": {
+  "files": [
+   "heal-0.mp3",
+   "heal-1.mp3"
+  ],
+  "vol": 0.5,
+  "layer": false
+ },
+ "chomp": {
+  "files": [
+   "chomp-0.mp3",
+   "chomp-1.mp3",
+   "chomp-2.mp3"
+  ],
+  "vol": 0.5,
+  "layer": true
+ },
+ "crown": {
+  "files": [
+   "crown-0.mp3",
+   "crown-1.mp3",
+   "crown-2.mp3",
+   "crown-3.mp3"
+  ],
+  "vol": 0.7,
+  "layer": true
+ },
+ "paintDrop": {
+  "files": [
+   "paintDrop-0.mp3",
+   "paintDrop-1.mp3"
+  ],
+  "vol": 0.55,
+  "layer": false
+ },
+ "checkpoint": {
+  "files": [
+   "checkpoint-0.mp3"
+  ],
+  "vol": 0.6,
+  "layer": false
+ },
+ "wake": {
+  "files": [
+   "wake-0.mp3",
+   "wake-1.mp3"
+  ],
+  "vol": 0.6,
+  "layer": false
+ },
+ "gateOpen": {
+  "files": [
+   "gateOpen-0.mp3",
+   "gateOpen-1.mp3"
+  ],
+  "vol": 0.9,
+  "layer": true
+ },
+ "reveal": {
+  "files": [
+   "reveal-0.mp3",
+   "reveal-1.mp3"
+  ],
+  "vol": 0.5,
+  "layer": true
+ },
+ "unreveal": {
+  "files": [
+   "unreveal-0.mp3",
+   "unreveal-1.mp3"
+  ],
+  "vol": 0.5,
+  "layer": true
+ },
+ "stampHit": {
+  "files": [
+   "stampHit-0.mp3",
+   "stampHit-1.mp3",
+   "stampHit-2.mp3",
+   "stampHit-3.mp3",
+   "stampHit-4.mp3"
+  ],
+  "vol": 1.0,
+  "layer": true
+ },
+ "stampTick": {
+  "files": [
+   "stampTick-0.mp3",
+   "stampTick-1.mp3"
+  ],
+  "vol": 0.4,
+  "layer": false
+ },
+ "stampSlip": {
+  "files": [
+   "stampSlip-0.mp3",
+   "stampSlip-1.mp3",
+   "stampSlip-2.mp3",
+   "stampSlip-3.mp3"
+  ],
+  "vol": 0.6,
+  "layer": true
+ },
+ "cashOut": {
+  "files": [
+   "cashOut-0.mp3",
+   "cashOut-1.mp3"
+  ],
+  "vol": 0.9,
+  "layer": true
+ },
+ "frenzy": {
+  "files": [
+   "frenzy-0.mp3",
+   "frenzy-1.mp3"
+  ],
+  "vol": 0.6,
+  "layer": true
+ },
+ "phaseSting": {
+  "files": [
+   "phaseSting-0.mp3",
+   "phaseSting-1.mp3"
+  ],
+  "vol": 0.7,
+  "layer": false
+ },
+ "uiClick": {
+  "files": [
+   "uiClick-0.mp3",
+   "uiClick-1.mp3",
+   "uiClick-2.mp3"
+  ],
+  "vol": 0.55,
+  "layer": false
+ },
+ "select": {
+  "files": [
+   "select-0.mp3",
+   "select-1.mp3",
+   "select-2.mp3",
+   "select-3.mp3"
+  ],
+  "vol": 0.55,
+  "layer": false
+ },
+ "denied": {
+  "files": [
+   "denied-0.mp3",
+   "denied-1.mp3",
+   "denied-2.mp3"
+  ],
+  "vol": 0.6,
+  "layer": false
+ },
+ "stickerBurst": {
+  "files": [
+   "stickerBurst-0.mp3",
+   "stickerBurst-1.mp3",
+   "stickerBurst-2.mp3",
+   "stickerBurst-3.mp3"
+  ],
+  "vol": 0.6,
+  "layer": true
+ },
+ "pop": {
+  "files": [
+   "pop-0.mp3",
+   "pop-1.mp3",
+   "pop-2.mp3",
+   "pop-3.mp3"
+  ],
+  "vol": 0.55,
+  "layer": false
+ },
+ "lockOn": {
+  "files": [
+   "lockOn-0.mp3",
+   "lockOn-1.mp3"
+  ],
+  "vol": 0.5,
+  "layer": false
+ },
+ "smallBell": {
+  "files": [
+   "smallBell-0.mp3",
+   "smallBell-1.mp3",
+   "smallBell-2.mp3"
+  ],
+  "vol": 0.6,
+  "layer": false
+ },
+ "bigBell": {
+  "files": [
+   "bigBell-0.mp3",
+   "bigBell-1.mp3"
+  ],
+  "vol": 1.0,
+  "layer": true
+ },
+ "fanfare": {
+  "files": [
+   "fanfare-0.mp3",
+   "fanfare-1.mp3"
+  ],
+  "vol": 0.8,
+  "layer": false
+ },
+ "unlock": {
+  "files": [
+   "unlock-0.mp3",
+   "unlock-1.mp3"
+  ],
+  "vol": 0.7,
+  "layer": false
+ }
+}
