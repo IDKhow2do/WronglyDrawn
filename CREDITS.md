@@ -1,14 +1,14 @@
 # 致谢与来源 · Credits
 
-《错画之城》由巴特歪设计、导演和发布，绝大部分代码和素材是和 AI 一起做出来的。下面写清楚每样东西从哪儿来。
+《错画之城》由巴特歪设计、导演和发布。全部代码由 AI 编写，大部分美术素材也是和 AI 一起做出来的。下面写清楚每样东西从哪儿来。
 
-Wrongly Drawn is designed, directed and published by 巴特歪. Most of its code and assets were made together with AI. This file states where each part comes from.
+Wrongly Drawn is designed, directed and published by 巴特歪. All of its code was written by AI, and most of its art was made together with AI. This file states where each part comes from.
 
 ## 代码 · Code
 
 | 部分 | 来源 |
 |---|---|
-| 游戏代码（TypeScript） | 作者与 Claude Code、Codex 协作编写 |
+| 游戏代码（TypeScript）及安卓、发布脚本 | 全部由 AI 编写（Claude Code、Codex），作者设计、导演和验收 |
 | 渲染 | [three.js](https://threejs.org/) 0.187，MIT |
 | 物理 | [Rapier](https://rapier.rs/)（`@dimforge/rapier3d-compat` 0.21），Apache-2.0 |
 | 构建 | [Vite](https://vite.dev/) 8、[TypeScript](https://www.typescriptlang.org/) 7 |

@@ -147,7 +147,7 @@ npm run build
 - 游戏自己的美术、模型、故事和名字：保留权利，可以用来构建、游玩、学习和做介绍视频，不可以拆出来另作他用，见 [LICENSE-ASSETS.md](LICENSE-ASSETS.md)。
 - 音乐和音效是 CC0，字体是 OFL。完整来源见 [CREDITS.md](CREDITS.md)。
 
-这个游戏的大部分代码和素材是和 AI 一起做的：代码用 Claude Code 和 Codex，三视图用 Codex 的图像生成，模型用 Tripo。
+这个游戏的全部代码都是 AI 写的，用的是 Claude Code 和 Codex；作者负责设计、导演和验收。美术也大多是和 AI 一起做的：三视图用 Codex 的图像生成，模型用 Tripo。
 
 ## English
 
@@ -156,3 +156,5 @@ Wrongly Drawn is a browser game built with TypeScript, three.js and Rapier. Thre
 **[Play in the browser](https://wrongdraw.maequeen.top/).** If loading is slow, a network accelerator helps; if frames are choppy, set Graphics to Low in the pause menu and turn on hardware acceleration in your browser. Android players can download a signed APK (Android 8.0+, plays offline) from [Releases](https://github.com/IDKhow2do/WronglyDrawn/releases/latest); iOS is on [TestFlight](https://testflight.apple.com/join/hRrbcM4Q). To run it locally: `npm install`, then `npm run dev` (Node.js 22+). `npm run build` writes a static site to `dist/`.
 
 The project code by 巴特歪 uses [PolyForm Noncommercial 1.0.0](LICENSE). Noncommercial use, modifications, and redistribution are welcome under its terms. See [NOTICE](NOTICE) for the license scope. The game's own art, models, story and name are all rights reserved with permission to build, play, study and show the game; see [LICENSE-ASSETS.md](LICENSE-ASSETS.md). Music and sound effects are CC0, the font is OFL; see [CREDITS.md](CREDITS.md). Bug reports and ideas are welcome in the issue tracker.
+
+All of the code was written by AI (Claude Code and Codex), with the author designing, directing and reviewing it. Most of the art was made with AI too: character sheets with Codex's image generation, 3D models with Tripo.
